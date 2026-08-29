@@ -1,26 +1,300 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #17181c;
+  --paper: #edeeea;
+  --white: #ffffff;
+  --accent: #7a2027;
+  --gold: #b08d4f;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--paper);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-inter), Arial, sans-serif;
+}
+
+:where(button, a) {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: 220ms;
+  transition-timing-function: ease-out;
+}
+
+.font-display {
+  font-family: var(--font-bodoni-moda), "Bodoni Moda", "Times New Roman", serif;
+}
+
+.font-mono-price,
+.price-range-readout {
+  font-family: var(--font-ibm-plex-mono), "IBM Plex Mono", "Courier New", monospace;
+}
+
+.look-number {
+  font-family: var(--font-bodoni-moda), "Bodoni Moda", "Times New Roman", serif;
+}
+
+.lookbook-media {
+  background:
+    radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--gold) 45%, transparent), transparent 32%),
+    linear-gradient(135deg, var(--accent), var(--ink) 68%);
+}
+
+.lookbook-media--gold {
+  background:
+    radial-gradient(circle at 18% 76%, color-mix(in srgb, var(--accent) 55%, transparent), transparent 30%),
+    linear-gradient(145deg, var(--gold), var(--ink) 72%);
+}
+
+.lookbook-media::after,
+.look-product-media::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  opacity: 0.18;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgb(255 255 255 / 0.42) 0 0.55px, transparent 0.7px),
+    radial-gradient(circle at 72% 68%, rgb(0 0 0 / 0.42) 0 0.5px, transparent 0.8px);
+  background-size: 5px 5px, 7px 7px;
+  mix-blend-mode: soft-light;
+}
+
+.look-product-media {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 74% 18%, color-mix(in srgb, var(--look-tone) 68%, transparent), transparent 28%),
+    linear-gradient(140deg, var(--look-tone), var(--ink) 70%);
+}
+
+.look-product-media::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(to top, rgb(23 24 28 / 0.78), transparent 58%);
+  opacity: 0;
+  transition: opacity 220ms ease-out;
+}
+
+.look-product-sizes {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 1;
+  color: var(--white);
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transform: translateY(0.35rem);
+  transition: opacity 220ms ease-out, transform 220ms ease-out;
+}
+
+.look-product-card:hover .look-product-media::before,
+.look-product-card:focus-within .look-product-media::before {
+  opacity: 1;
+}
+
+.look-product-card:hover .look-product-sizes,
+.look-product-card:focus-within .look-product-sizes {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.editorial-banner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.editorial-banner::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  content: "";
+  background: var(--ink);
+  opacity: 0.06;
+  transition: opacity 240ms ease-out;
+}
+
+.editorial-banner:hover::before,
+.editorial-banner:focus-visible::before {
+  opacity: 0.3;
+}
+
+.editorial-banner > * {
+  position: relative;
+  z-index: 1;
+}
+
+.home-product-marquee {
+  overflow: hidden;
+}
+
+.home-product-track {
+  display: flex;
+  width: max-content;
+  gap: 1.25rem;
+  animation: home-marquee 42s linear infinite;
+}
+
+.home-product-marquee:hover .home-product-track {
+  animation-play-state: paused;
+}
+
+.home-look-card {
+  width: clamp(13rem, 21vw, 18rem);
+  flex: 0 0 auto;
+}
+
+.look-preview {
+  position: relative;
+  overflow: hidden;
+  background: var(--ink);
+}
+
+.look-gallery-frame {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+
+.look-gallery-frame::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  opacity: 0.2;
+  background-image: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.3) 1px, transparent 0);
+  background-size: 5px 5px;
+}
+
+.look-gallery-frame.is-active {
+  opacity: 1;
+}
+
+.look-gallery-frame--accent {
+  background: radial-gradient(circle at 72% 22%, rgb(176 141 79 / 0.48), transparent 31%), linear-gradient(135deg, var(--accent), var(--ink) 72%);
+}
+
+.look-gallery-frame--gold {
+  background: radial-gradient(circle at 28% 76%, rgb(122 32 39 / 0.55), transparent 34%), linear-gradient(135deg, var(--gold), var(--ink) 78%);
+}
+
+.look-gallery-frame--ink {
+  background: radial-gradient(circle at 75% 30%, rgb(122 32 39 / 0.58), transparent 35%), linear-gradient(145deg, #34363a, var(--ink) 74%);
+}
+
+.look-gallery-frame--paper {
+  background: radial-gradient(circle at 72% 20%, rgb(176 141 79 / 0.7), transparent 34%), linear-gradient(135deg, var(--paper), var(--accent) 150%);
+}
+
+@keyframes home-marquee {
+  to {
+    transform: translateX(calc(-50% - 0.625rem));
+  }
+}
+
+.price-slider {
+  position: relative;
+  height: 1.5rem;
+  border-radius: 9999px;
+}
+
+.price-slider input[type="range"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 1.5rem;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.price-slider input[type="range"]::-webkit-slider-thumb {
+  width: 1rem;
+  height: 1rem;
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  background: var(--ink);
+  box-shadow: 0 0 0 1px var(--paper);
+  cursor: grab;
+  pointer-events: auto;
+  transition: border-color 180ms ease-out, box-shadow 180ms ease-out, transform 180ms ease-out;
+}
+
+.price-slider input[type="range"]::-webkit-slider-runnable-track,
+.price-slider input[type="range"]::-moz-range-track {
+  height: 0.25rem;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+.price-slider input[type="range"]::-webkit-slider-thumb:hover,
+.price-slider input[type="range"]:focus-visible::-webkit-slider-thumb {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 35%, transparent);
+  transform: scale(1.1);
+}
+
+.price-slider input[type="range"]::-moz-range-thumb {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  background: var(--ink);
+  box-shadow: 0 0 0 1px var(--paper);
+  cursor: grab;
+  pointer-events: auto;
+}
+
+@media (max-width: 767px) {
+  .look-product-media::before {
+    opacity: 0.38;
+  }
+
+  .look-product-sizes {
+    opacity: 1;
+    transform: none;
+  }
+
+  .home-product-marquee {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .home-product-marquee::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-product-track {
+    gap: 1rem;
+    padding-right: 1rem;
+    animation: none;
+  }
+
+  .home-look-card {
+    width: min(72vw, 17rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
