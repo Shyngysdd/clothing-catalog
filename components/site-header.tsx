@@ -95,13 +95,13 @@ export function SiteHeader({ categories }: { categories: CategoryNavItem[] }) {
         <button type="button" onClick={() => setIsNavigatorOpen(false)} className="absolute inset-0 bg-[color:var(--ink)]/45" aria-label="Закрыть навигатор каталога" />
         <aside role="dialog" aria-modal="true" aria-label="Навигатор каталога" className={`absolute right-0 top-0 flex h-full w-[78vw] max-w-[420px] flex-col bg-[color:var(--paper)] shadow-2xl transition-transform duration-300 ease-out ${isNavigatorOpen ? "translate-x-0" : "translate-x-full"}`}>
           <div className="flex items-center justify-between border-b border-[color:var(--ink)]/15 px-5 py-5 sm:px-7">
-            <div><p className="font-mono-price text-xs tracking-[0.14em] text-[color:var(--accent)]">НАВИГАЦИЯ</p><h2 className="font-display mt-2 text-4xl leading-none">Каталог</h2></div>
+            <div><p className="font-mono-price text-xs tracking-[0.14em] text-[color:var(--accent)]">НАВИГАЦИЯ</p><h2 className="font-display mt-2 text-3xl leading-none">Каталог</h2></div>
             <button type="button" onClick={() => setIsNavigatorOpen(false)} className="grid size-11 place-items-center text-xl text-[color:var(--ink)]/60 hover:text-[color:var(--accent)]" aria-label="Закрыть">×</button>
           </div>
           <nav className="flex-1 overflow-y-auto px-5 py-5 sm:px-7">
-            <Link href="/catalog" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-display text-3xl leading-none">Все товары</span></Link>
-            <Link href="/catalog?sale=true" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-display text-3xl leading-none">Со скидкой</span></Link>
-            <div className="pt-3">{categories.map((category) => <Link key={category.name} href={`/catalog?category=${encodeURIComponent(category.name)}`} onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4 hover:text-[color:var(--accent)]"><span className="font-display block text-3xl leading-none">{category.name}</span><span className="font-mono-price mt-2 block text-xs text-[color:var(--ink)]/55">{category.count} {category.count === 1 ? "товар" : "товаров"}</span></Link>)}</div>
+            <Link href="/catalog" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-display text-2xl leading-none">Все товары</span></Link>
+            <Link href="/catalog?sale=true" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-display text-2xl leading-none">Со скидкой</span></Link>
+            <div className="pt-3">{categories.map((category) => <Link key={category.name} href={`/catalog?category=${encodeURIComponent(category.name)}`} onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4 hover:text-[color:var(--accent)]"><span className="font-display block text-2xl leading-none">{category.name}</span><span className="font-mono-price mt-2 block text-xs text-[color:var(--ink)]/55">{category.count} {category.count === 1 ? "товар" : "товаров"}</span></Link>)}</div>
           </nav>
         </aside>
       </div>
