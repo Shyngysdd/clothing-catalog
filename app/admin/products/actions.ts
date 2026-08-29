@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { saveProductImage } from "@/lib/product-images";
+import { deleteProductImage, saveProductImage } from "@/lib/product-images";
 
 type ProductInput = {
   name: string;
@@ -104,11 +104,20 @@ export async function updateProduct(id: string, formData: FormData) {
   try {
     const currentProduct = await prisma.product.findUniqueOrThrow({ where: { id }, select: { imageUrl: true, galleryUrls: true } });
     const images = await getUploadedImages(formData);
+    const removeMainImage = formData.get("removeMainImage") === "on";
+    const galleryUrlsToRemove = new Set(formData.getAll("removeGalleryImage").map(String));
+    const nextImageUrl = images.imageUrl ?? (removeMainImage ? null : currentProduct.imageUrl);
+    const nextGalleryUrls = [...currentProduct.galleryUrls.filter((url) => !galleryUrlsToRemove.has(url)), ...images.galleryUrls];
     await prisma.$transaction(async (tx) => {
-      await tx.product.update({ where: { id }, data: { ...productData(input), imageUrl: images.imageUrl ?? currentProduct.imageUrl, galleryUrls: [...currentProduct.galleryUrls, ...images.galleryUrls] } });
+      await tx.product.update({ where: { id }, data: { ...productData(input), imageUrl: nextImageUrl, galleryUrls: nextGalleryUrls } });
       await tx.productSize.deleteMany({ where: { productId: id } });
       if (input.sizes.length) await tx.productSize.createMany({ data: input.sizes.map((size) => ({ ...size, productId: id })) });
     });
+    const removedUrls = [
+      ...((removeMainImage || images.imageUrl) && currentProduct.imageUrl ? [currentProduct.imageUrl] : []),
+      ...currentProduct.galleryUrls.filter((url) => galleryUrlsToRemove.has(url)),
+    ];
+    await Promise.all(removedUrls.map(deleteProductImage));
     revalidatePath("/admin/products");
     revalidatePath(`/admin/products/${id}`);
   } catch (error) {
