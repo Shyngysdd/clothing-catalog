@@ -1,52 +1,6 @@
-import type { CSSProperties } from "react";
 import Link from "next/link";
-import Image from "next/image";
-
-import type { CatalogProduct } from "@/lib/catalog-types";
-import { getDiscountPercent } from "@/lib/catalog-types";
+import { HomeProductMarquee } from "@/components/home-product-marquee";
 import { prisma } from "@/lib/prisma";
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("ru-RU").format(price) + " ₸";
-}
-
-function ProductMarquee({ products: selection }: { products: CatalogProduct[] }) {
-  const loopedProducts = [...selection, ...selection];
-
-  return (
-    <div className="home-product-marquee">
-      <div className="home-product-track">
-        {loopedProducts.map((product, index) => (
-          <Link
-            key={`${product.id}-${index}`}
-            href={`/catalog/${product.id}`}
-            className="home-look-card look-product-card group block"
-            aria-label={`Открыть товар: ${product.name}`}
-          >
-            <p className="look-number mb-3 text-3xl text-[color:var(--ink)] sm:text-4xl">
-              LOOK {String((index % selection.length) + 1).padStart(2, "0")}
-            </p>
-            <div
-              className={`look-product-media aspect-[4/5] transition-[filter,transform] duration-200 ease-out group-hover:scale-[0.985] group-hover:brightness-75 ${product.sizes.length > 0 && product.sizes.every((size) => !size.inStock) ? "grayscale" : ""}`}
-              style={{
-                "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)",
-              } as CSSProperties}
-            >
-              {product.imageUrl ? <Image src={product.imageUrl} alt="" fill sizes="(max-width: 767px) 72vw, 18rem" className="product-card-photo" /> : null}
-              <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
-              {product.sizes.length > 0 && product.sizes.every((size) => !size.inStock) ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
-              {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
-            </div>
-            <div className="mt-4 flex items-start justify-between gap-3">
-              <h3 className="text-sm font-medium leading-5 sm:text-base">{product.name}</h3>
-              <div className="shrink-0 text-right"><p className="font-mono-price text-sm">{formatPrice(product.price)}</p>{product.originalPrice ? <p className="font-mono-price mt-0.5 text-[0.65rem] text-[color:var(--ink)]/45 line-through">{formatPrice(product.originalPrice)}</p> : null}</div>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export const dynamic = "force-dynamic";
 
@@ -78,7 +32,7 @@ export default async function Home() {
             В КАТАЛОГ →
           </Link>
         </div>
-        <ProductMarquee products={recommendedProducts} />
+        <HomeProductMarquee products={recommendedProducts} />
       </section>
 
       <section className="grid gap-0 py-16 sm:py-24 lg:grid-cols-2">
@@ -109,7 +63,7 @@ export default async function Home() {
             ВСЕ НОВИНКИ →
           </Link>
         </div>
-        <ProductMarquee products={latestProducts} />
+        <HomeProductMarquee products={latestProducts} />
       </section>
     </main>
   );
