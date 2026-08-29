@@ -84,8 +84,13 @@ async function getUploadedImages(formData: FormData) {
 
 export async function createProduct(formData: FormData) {
   const input = parseProductInput(formData, "/admin/products/new");
+  let images: Awaited<ReturnType<typeof getUploadedImages>>;
   try {
-    const images = await getUploadedImages(formData);
+    images = await getUploadedImages(formData);
+  } catch (error) {
+    redirectWithError("/admin/products/new", error instanceof Error ? error.message : "Не удалось загрузить изображение.");
+  }
+  try {
     const product = await prisma.product.create({
       data: { ...productData(input), ...images, sizes: { create: input.sizes } },
     });
@@ -101,9 +106,14 @@ export async function createProduct(formData: FormData) {
 
 export async function updateProduct(id: string, formData: FormData) {
   const input = parseProductInput(formData, `/admin/products/${id}`);
+  let images: Awaited<ReturnType<typeof getUploadedImages>>;
+  try {
+    images = await getUploadedImages(formData);
+  } catch (error) {
+    redirectWithError(`/admin/products/${id}`, error instanceof Error ? error.message : "Не удалось загрузить изображение.");
+  }
   try {
     const currentProduct = await prisma.product.findUniqueOrThrow({ where: { id }, select: { imageUrl: true, galleryUrls: true } });
-    const images = await getUploadedImages(formData);
     const removeMainImage = formData.get("removeMainImage") === "on";
     const galleryUrlsToRemove = new Set(formData.getAll("removeGalleryImage").map(String));
     const nextImageUrl = images.imageUrl ?? (removeMainImage ? null : currentProduct.imageUrl);

@@ -19,6 +19,10 @@ export async function saveProductImage(file: File) {
   }
 
   const fileName = `${randomUUID()}.${extension}`;
+  if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error("Vercel Blob не подключён к проекту. Добавьте BLOB_READ_WRITE_TOKEN в Environment Variables.");
+  }
+
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const blob = await put(`products/${fileName}`, file, {
       access: "public",
