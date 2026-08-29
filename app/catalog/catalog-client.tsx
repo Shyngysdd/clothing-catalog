@@ -15,6 +15,7 @@ function parsePrice(value: string) {
 }
 
 type SortOption = "default" | "price-asc" | "price-desc" | "newest" | "alphabetical" | "sale";
+type GridDensity = "1" | "2";
 
 export function CatalogClient({ products }: { products: CatalogProduct[] }) {
   const searchParams = useSearchParams();
@@ -32,6 +33,19 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
   const [maxPriceInput, setMaxPriceInput] = useState(String(productPriceRange.max));
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sort, setSort] = useState<SortOption>("default");
+  const [gridDensity, setGridDensity] = useState<GridDensity>("2");
+
+  useEffect(() => {
+    const savedDensity = window.localStorage.getItem("catalog-grid-density");
+    if (savedDensity === "1" || savedDensity === "2") {
+      const frameId = window.requestAnimationFrame(() => setGridDensity(savedDensity));
+      return () => window.cancelAnimationFrame(frameId);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("catalog-grid-density", gridDensity);
+  }, [gridDensity]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -91,8 +105,9 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
   const priceFillStart = ((minPrice - productPriceRange.min) / (productPriceRange.max - productPriceRange.min)) * 100;
   const priceFillEnd = ((maxPrice - productPriceRange.min) / (productPriceRange.max - productPriceRange.min)) * 100;
   const priceSliderStyle = {
-    background: `linear-gradient(to right, var(--paper) ${priceFillStart}%, var(--accent) ${priceFillStart}%, var(--accent) ${priceFillEnd}%, var(--paper) ${priceFillEnd}%)`,
-  };
+    "--price-fill-start": `${priceFillStart}%`,
+    "--price-fill-end": `${priceFillEnd}%`,
+  } as CSSProperties;
 
   function resetFilters() {
     setCategory("Все");
@@ -189,6 +204,7 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
             <legend className="text-sm font-medium">Цена</legend>
             <div className="mt-4">
               <div className="price-slider" style={priceSliderStyle}>
+                <div className="price-slider-track" aria-hidden="true" />
                 <input
                   aria-label="Минимальная цена"
                   type="range"
@@ -238,8 +254,29 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
         </aside>
 
         <div className="min-w-0 flex-1">
+          <div className="mb-5 flex items-center justify-end gap-1 md:hidden" aria-label="Плотность сетки">
+            <span className="mr-2 font-mono-price text-[0.65rem] tracking-[0.08em] text-[color:var(--ink)]/55">СЕТКА</span>
+            <button
+              type="button"
+              onClick={() => setGridDensity("1")}
+              aria-label="Показывать товары в одну колонку"
+              aria-pressed={gridDensity === "1"}
+              className={`grid size-9 place-items-center border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] ${gridDensity === "1" ? "border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--white)]" : "border-[color:var(--ink)]/25 text-[color:var(--ink)]/60"}`}
+            >
+              <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4 fill-current"><rect x="2" y="2" width="12" height="12" rx="1" /></svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => setGridDensity("2")}
+              aria-label="Показывать товары в две колонки"
+              aria-pressed={gridDensity === "2"}
+              className={`grid size-9 place-items-center border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] ${gridDensity === "2" ? "border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--white)]" : "border-[color:var(--ink)]/25 text-[color:var(--ink)]/60"}`}
+            >
+              <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4 fill-current"><rect x="2" y="2" width="5" height="5" rx="0.5" /><rect x="9" y="2" width="5" height="5" rx="0.5" /><rect x="2" y="9" width="5" height="5" rx="0.5" /><rect x="9" y="9" width="5" height="5" rx="0.5" /></svg>
+            </button>
+          </div>
           {sortedProducts.length > 0 ? (
-            <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div data-density={gridDensity === "2" ? "compact" : "comfortable"} className={`catalog-product-grid grid ${gridDensity === "2" ? "grid-cols-2" : "grid-cols-1"} gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`}>
               {sortedProducts.map((product, index) => {
                 const isSoldOut = product.sizes.length > 0 && product.sizes.every((size) => !size.inStock);
                 return (
@@ -258,9 +295,9 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
                       {isSoldOut ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
                       {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
                     </div>
-                    <div className="mt-4">
-                      <p className="text-lg font-medium tracking-[-0.02em]">{product.name}</p>
-                      <div className="mt-2 flex flex-wrap items-center gap-2"><p className="font-mono-price text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
+                    <div className="catalog-product-info mt-4">
+                      <p className="catalog-product-name text-lg font-medium tracking-[-0.02em]">{product.name}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2"><p className="catalog-product-price font-mono-price text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
                     </div>
                   </Link>
                 </article>

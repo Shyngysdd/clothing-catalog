@@ -144,6 +144,32 @@ body {
   transform: translateY(0);
 }
 
+@media (max-width: 767px) {
+  .catalog-product-grid[data-density="compact"] {
+    column-gap: 0.75rem;
+    row-gap: 2.25rem;
+  }
+
+  .catalog-product-grid[data-density="compact"] .catalog-product-info {
+    margin-top: 0.625rem;
+    padding-inline: 0.125rem;
+  }
+
+  .catalog-product-grid[data-density="compact"] .catalog-product-name {
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+
+  .catalog-product-grid[data-density="compact"] .catalog-product-price {
+    font-size: 0.8125rem;
+  }
+
+  .catalog-product-grid[data-density="compact"] .look-product-card > a > .font-display {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+  }
+}
+
 .editorial-banner {
   position: relative;
   isolation: isolate;
@@ -241,26 +267,45 @@ body {
 
 .price-slider {
   position: relative;
-  height: 1.5rem;
+  height: 1.25rem;
+  overflow: visible;
+}
+
+.price-slider-track {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 0.3125rem;
   border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--ink) 12%, var(--paper)) 0 var(--price-fill-start),
+    var(--accent) var(--price-fill-start) var(--price-fill-end),
+    color-mix(in srgb, var(--ink) 12%, var(--paper)) var(--price-fill-end) 100%
+  );
+  transform: translateY(-50%);
 }
 
 .price-slider input[type="range"] {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 1.5rem;
+  height: 1.25rem;
   margin: 0;
+  -webkit-appearance: none;
   appearance: none;
   background: transparent;
   pointer-events: none;
+  z-index: 1;
 }
 
 .price-slider input[type="range"]::-webkit-slider-thumb {
   width: 1rem;
   height: 1rem;
+  -webkit-appearance: none;
   appearance: none;
-  border: 1px solid transparent;
+  border: 1px solid var(--white);
   border-radius: 9999px;
   background: var(--ink);
   box-shadow: 0 0 0 1px var(--paper);
@@ -271,7 +316,7 @@ body {
 
 .price-slider input[type="range"]::-webkit-slider-runnable-track,
 .price-slider input[type="range"]::-moz-range-track {
-  height: 0.25rem;
+  height: 0.1875rem;
   border: 0;
   border-radius: 9999px;
   background: transparent;
@@ -280,14 +325,16 @@ body {
 .price-slider input[type="range"]::-webkit-slider-thumb:hover,
 .price-slider input[type="range"]:focus-visible::-webkit-slider-thumb {
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 35%, transparent);
-  transform: scale(1.1);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 35%, transparent);
+  transform: scale(1.08);
 }
 
 .price-slider input[type="range"]::-moz-range-thumb {
-  width: 0.875rem;
-  height: 0.875rem;
-  border: 1px solid transparent;
+  width: 1rem;
+  height: 1rem;
+  -moz-appearance: none;
+  appearance: none;
+  border: 1px solid var(--white);
   border-radius: 9999px;
   background: var(--ink);
   box-shadow: 0 0 0 1px var(--paper);
