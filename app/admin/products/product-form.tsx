@@ -22,7 +22,7 @@ export function ProductForm({ product, action }: { product?: EditableProduct; ac
   }
 
   return (
-    <form action={action} encType="multipart/form-data" className="mt-8 space-y-8">
+    <form action={action} className="mt-8 space-y-8">
       <section className="grid gap-5 sm:grid-cols-2">
         <label className="sm:col-span-2">Название<input name="name" required defaultValue={product?.name} className={inputClass} /></label>
         <label>Артикул<input name="sku" required defaultValue={product?.sku} className={inputClass} /></label>
