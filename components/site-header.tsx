@@ -4,14 +4,16 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BRAND_CONFIG } from "@/lib/brand-config";
 import { useCart } from "@/context/cart-context";
+import { useFavorites } from "@/context/favorites-context";
 import { CartDrawer } from "./cart-drawer";
 
 type CategoryNavItem = { name: string; count: number };
 
-export function SiteHeader({ categories }: { categories: CategoryNavItem[] }) {
+export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: CategoryNavItem[]; isCustomerLoggedIn: boolean }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNavigatorOpen, setIsNavigatorOpen] = useState(false);
   const { itemCount } = useCart();
+  const { favoriteIds } = useFavorites();
 
   useEffect(() => {
     if (!isNavigatorOpen) return;
@@ -71,6 +73,26 @@ export function SiteHeader({ categories }: { categories: CategoryNavItem[] }) {
                 <path d="M9 9.5c.5 2 2 3.5 4 4" strokeLinecap="round" />
               </svg>
             </a>
+            <Link
+              href={isCustomerLoggedIn ? "/account" : "/account/login"}
+              className="grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11"
+              aria-label={isCustomerLoggedIn ? "Личный кабинет" : "Войти в личный кабинет"}
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5">
+                <circle cx="12" cy="8" r="3.5" />
+                <path d="M4.5 20c.7-3.5 3.3-5.5 7.5-5.5s6.8 2 7.5 5.5" strokeLinecap="round" />
+              </svg>
+            </Link>
+            <Link
+              href="/favorites"
+              className="relative grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11"
+              aria-label={`Избранное, товаров: ${favoriteIds.length}`}
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5">
+                <path d="M20.8 8.7c0 5-8.8 10.1-8.8 10.1S3.2 13.7 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {favoriteIds.length > 0 ? <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-xs leading-5 text-white">{favoriteIds.length}</span> : null}
+            </Link>
             <button
               type="button"
               onClick={() => setIsCartOpen(true)}
@@ -105,7 +127,7 @@ export function SiteHeader({ categories }: { categories: CategoryNavItem[] }) {
           </nav>
         </aside>
       </div>
-      {isCartOpen ? <CartDrawer onClose={() => setIsCartOpen(false)} /> : null}
+      {isCartOpen ? <CartDrawer onClose={() => setIsCartOpen(false)} isCustomerLoggedIn={isCustomerLoggedIn} /> : null}
     </>
   );
 }

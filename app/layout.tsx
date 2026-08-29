@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Archivo_Black, IBM_Plex_Mono, Inter, Montserrat } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { CartProvider } from "@/context/cart-context";
+import { FavoritesProvider } from "@/context/favorites-context";
+import { CUSTOMER_SESSION_COOKIE, getCustomerIdFromSession } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
 import "./globals.css";
 
 const archivoBlack = Archivo_Black({
@@ -39,25 +42,32 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const cookieStore = await cookies();
+  const customerId = await getCustomerIdFromSession(cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value);
   const categoryGroups = await prisma.product.groupBy({
     by: ["category"],
     _count: { _all: true },
     orderBy: { category: "asc" },
   });
   const categories = categoryGroups.map((group) => ({ name: group.category, count: group._count._all }));
+  const initialFavoriteIds = customerId
+    ? (await prisma.favorite.findMany({ where: { customerId }, select: { productId: true } })).map((favorite) => favorite.productId)
+    : [];
 
   return (
     <html lang="ru" className={`${archivoBlack.variable} ${ibmPlexMono.variable} ${inter.variable} ${montserrat.variable} h-full`}>
       <body className="flex min-h-full flex-col antialiased">
-        <CartProvider>
-          <SiteHeader categories={categories} />
-          <main className="flex-1">{children}</main>
-          <footer className="border-t-2 border-[color:var(--ink)]/25">
-            <div className="mx-auto max-w-6xl px-4 py-5 text-sm text-[color:var(--ink)]/60 sm:px-6">
-              Демо-каталог одежды и обуви
-            </div>
-          </footer>
-        </CartProvider>
+        <FavoritesProvider isCustomerLoggedIn={Boolean(customerId)} initialFavoriteIds={initialFavoriteIds}>
+          <CartProvider>
+            <SiteHeader categories={categories} isCustomerLoggedIn={Boolean(customerId)} />
+            <main className="flex-1">{children}</main>
+            <footer className="border-t-2 border-[color:var(--ink)]/25">
+              <div className="mx-auto max-w-6xl px-4 py-5 text-sm text-[color:var(--ink)]/60 sm:px-6">
+                Демо-каталог одежды и обуви
+              </div>
+            </footer>
+          </CartProvider>
+        </FavoritesProvider>
       </body>
     </html>
   );

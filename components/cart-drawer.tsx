@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { createOrderFromCart } from "@/app/account/order-actions";
 import { useCart } from "@/context/cart-context";
 import { BRAND_CONFIG } from "@/lib/brand-config";
 import { OverlayPanel } from "./overlay-panel";
@@ -10,20 +12,22 @@ const formatPrice = new Intl.NumberFormat("ru-KZ");
 type DeliveryMethod = "pickup" | "delivery";
 type FormErrors = Partial<Record<"name" | "phone" | "address", string>>;
 
-export function CartDrawer({ onClose }: { onClose: () => void }) {
-  const { items, totalPrice, removeItem } = useCart();
+export function CartDrawer({ onClose, isCustomerLoggedIn }: { onClose: () => void; isCustomerLoggedIn: boolean }) {
+  const { items, totalPrice, removeItem, clearCart } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
   const [address, setAddress] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [orderFormed, setOrderFormed] = useState(false);
+  const [orderError, setOrderError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function clearError(field: keyof FormErrors) {
     setErrors((currentErrors) => ({ ...currentErrors, [field]: undefined }));
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nextErrors: FormErrors = {};
@@ -36,6 +40,23 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
+    }
+
+    setIsSubmitting(true);
+    setOrderError("");
+
+    if (isCustomerLoggedIn) {
+      const result = await createOrderFromCart({
+        items: items.map((item) => ({ productId: item.id, size: item.size, quantity: item.quantity })),
+        fulfillment: deliveryMethod,
+        address: deliveryMethod === "delivery" ? address.trim() : undefined,
+      });
+
+      if (!result.saved && result.reason !== "unauthenticated") {
+        setOrderError(result.reason === "unavailable" ? "Один из товаров больше недоступен. Обновите корзину." : "Не удалось сохранить заказ. Попробуйте ещё раз.");
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     const itemLines = items.map(
@@ -58,7 +79,9 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
     ].join("\n");
 
     window.open(`https://wa.me/${BRAND_CONFIG.whatsappNumber}?text=${encodeURIComponent(orderText)}`, "_blank", "noopener,noreferrer");
+    clearCart();
     setOrderFormed(true);
+    setIsSubmitting(false);
   }
 
   return (
@@ -213,11 +236,19 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
               ) : null}
             </div>
 
+            {!isCustomerLoggedIn ? (
+              <p className="mt-5 text-sm leading-6 text-[color:var(--ink)]/60">
+                <Link href="/account/login" className="text-[color:var(--accent)] underline underline-offset-4">Войдите</Link>, чтобы видеть историю заказов.
+              </p>
+            ) : null}
+            {orderError ? <p className="mt-4 text-sm text-[color:var(--accent)]">{orderError}</p> : null}
+
             <button
               type="submit"
-              className="mt-7 flex min-h-12 w-full items-center justify-center rounded-lg bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]"
+              disabled={isSubmitting}
+              className="mt-7 flex min-h-12 w-full items-center justify-center rounded-lg bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)] disabled:cursor-wait disabled:opacity-60"
             >
-              Оформить заказ
+              {isSubmitting ? "Сохраняем заказ…" : "Отправить заказ в WhatsApp"}
             </button>
           </form>
         </div>

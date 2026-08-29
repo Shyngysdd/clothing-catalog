@@ -75,6 +75,21 @@ body {
   transform: rotate(-8deg);
 }
 
+.order-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  padding-inline: 0.625rem;
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+}
+
+.st-new { background: var(--ink); color: var(--white); }
+.st-transit { background: var(--accent); color: var(--white); }
+.st-done { background: var(--gold); color: var(--ink); }
+.st-cancelled { background: color-mix(in srgb, var(--ink) 10%, var(--paper)); color: color-mix(in srgb, var(--ink) 60%, transparent); }
+
 .lookbook-media {
   background:
     radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--gold) 45%, transparent), transparent 32%),
