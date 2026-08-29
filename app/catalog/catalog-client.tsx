@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
-import type { Product } from "@/data/products";
+import type { CatalogProduct } from "@/lib/catalog-types";
+import { getDiscountPercent } from "@/lib/catalog-types";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
@@ -12,17 +14,24 @@ function parsePrice(value: string) {
   return digits ? Number(digits) : null;
 }
 
-export function CatalogClient({ products }: { products: Product[] }) {
+type SortOption = "default" | "price-asc" | "price-desc" | "newest" | "alphabetical" | "sale";
+
+export function CatalogClient({ products }: { products: CatalogProduct[] }) {
+  const searchParams = useSearchParams();
+  const requestedCategory = searchParams.get("category");
+  const requestedSale = searchParams.get("sale") === "true";
   const productPriceRange = useMemo(() => {
     const prices = products.map((product) => product.price);
     return { min: Math.min(...prices), max: Math.max(...prices) };
   }, [products]);
-  const [category, setCategory] = useState("Все");
+  const [category, setCategory] = useState(requestedCategory ?? "Все");
+  const [saleOnly, setSaleOnly] = useState(requestedSale);
   const [minPrice, setMinPrice] = useState(productPriceRange.min);
   const [maxPrice, setMaxPrice] = useState(productPriceRange.max);
   const [minPriceInput, setMinPriceInput] = useState(String(productPriceRange.min));
   const [maxPriceInput, setMaxPriceInput] = useState(String(productPriceRange.max));
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [sort, setSort] = useState<SortOption>("default");
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -58,11 +67,25 @@ export function CatalogClient({ products }: { products: Product[] }) {
   const filteredProducts = products.filter(
     (product) =>
       (category === "Все" || product.category === category) &&
+      (!saleOnly || (product.originalPrice !== null && product.originalPrice > product.price)) &&
       product.price >= minPrice &&
       product.price <= maxPrice,
   );
+  const sortedProducts = [...filteredProducts].sort((first, second) => {
+    if (sort === "price-asc") return first.price - second.price;
+    if (sort === "price-desc") return second.price - first.price;
+    if (sort === "newest") return new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime();
+    if (sort === "alphabetical") return first.name.localeCompare(second.name, "ru");
+    if (sort === "sale") {
+      const firstOnSale = Number(first.originalPrice !== null && first.originalPrice > first.price);
+      const secondOnSale = Number(second.originalPrice !== null && second.originalPrice > second.price);
+      return secondOnSale - firstOnSale;
+    }
+    return 0;
+  });
   const filtersActive =
     category !== "Все" ||
+    saleOnly ||
     minPrice !== productPriceRange.min ||
     maxPrice !== productPriceRange.max;
   const priceFillStart = ((minPrice - productPriceRange.min) / (productPriceRange.max - productPriceRange.min)) * 100;
@@ -73,6 +96,7 @@ export function CatalogClient({ products }: { products: Product[] }) {
 
   function resetFilters() {
     setCategory("Все");
+    setSaleOnly(false);
     setMinPrice(productPriceRange.min);
     setMaxPrice(productPriceRange.max);
     setMinPriceInput(String(productPriceRange.min));
@@ -129,6 +153,18 @@ export function CatalogClient({ products }: { products: Product[] }) {
               </button>
             ) : null}
           </div>
+
+          <label className="mt-6 block">
+            <span className="text-sm font-medium">Сортировка</span>
+            <select value={sort} onChange={(event) => setSort(event.target.value as SortOption)} className="mt-2 min-h-11 w-full border border-[color:var(--ink)]/25 bg-[color:var(--paper)] px-3 text-sm outline-none focus:border-[color:var(--accent)]">
+              <option value="default">По умолчанию</option>
+              <option value="price-asc">Сначала дешёвые</option>
+              <option value="price-desc">Сначала дорогие</option>
+              <option value="newest">Сначала новинки</option>
+              <option value="alphabetical">По алфавиту (А-Я)</option>
+              <option value="sale">Сначала со скидкой</option>
+            </select>
+          </label>
 
           <fieldset className="mt-6">
             <legend className="text-sm font-medium">Категория</legend>
@@ -202,10 +238,12 @@ export function CatalogClient({ products }: { products: Product[] }) {
         </aside>
 
         <div className="min-w-0 flex-1">
-          {filteredProducts.length > 0 ? (
+          {sortedProducts.length > 0 ? (
             <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredProducts.map((product, index) => (
-                <article key={product.id} className="look-product-card group">
+              {sortedProducts.map((product, index) => {
+                const isSoldOut = product.sizes.length > 0 && product.sizes.every((size) => !size.inStock);
+                return (
+                <article key={product.id} className={`look-product-card group ${isSoldOut ? "opacity-60" : ""}`}>
                   <Link
                     href={`/catalog/${product.id}`}
                     className="block w-full text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]"
@@ -213,18 +251,21 @@ export function CatalogClient({ products }: { products: Product[] }) {
                   >
                     <p className="font-display mb-3 text-3xl leading-none tracking-[-0.04em] text-[color:var(--accent)]">LOOK {String(index + 1).padStart(2, "0")}</p>
                     <div
-                      className="look-product-media aspect-[4/5] transition-[filter,transform] duration-200 ease-out group-hover:scale-[0.985] group-hover:brightness-75"
+                      className={`look-product-media aspect-[4/5] transition-[filter,transform] duration-200 ease-out group-hover:scale-[0.985] group-hover:brightness-75 ${isSoldOut ? "grayscale" : ""}`}
                       style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)" } as CSSProperties}
                     >
-                      <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.join(" · ")}</p>
+                      <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
+                      {isSoldOut ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
+                      {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
                     </div>
                     <div className="mt-4">
                       <p className="text-lg font-medium tracking-[-0.02em]">{product.name}</p>
-                      <p className="font-mono-price mt-2 text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2"><p className="font-mono-price text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
                     </div>
                   </Link>
                 </article>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="border border-dashed border-[color:var(--ink)]/30 px-6 py-12 text-center">

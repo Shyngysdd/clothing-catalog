@@ -2,9 +2,9 @@
 
 import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Product } from "@/data/products";
+import type { CatalogProduct } from "@/lib/catalog-types";
 
-export type CartItem = Product & {
+export type CartItem = CatalogProduct & {
   size: string;
   quantity: number;
 };
@@ -13,8 +13,8 @@ type CartContextValue = {
   items: CartItem[];
   itemCount: number;
   totalPrice: number;
-  addItem: (product: Product, size: string) => void;
-  removeItem: (productId: number, size: string) => void;
+  addItem: (product: CatalogProduct, size: string) => void;
+  removeItem: (productId: string, size: string) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -22,7 +22,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  function addItem(product: Product, size: string) {
+  function addItem(product: CatalogProduct, size: string) {
     setItems((currentItems) => {
       const matchingItem = currentItems.find(
         (item) => item.id === product.id && item.size === size,
@@ -40,7 +40,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }
 
-  function removeItem(productId: number, size: string) {
+  function removeItem(productId: string, size: string) {
     setItems((currentItems) =>
       currentItems.filter((item) => item.id !== productId || item.size !== size),
     );

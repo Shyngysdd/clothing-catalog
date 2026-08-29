@@ -1,14 +1,12 @@
 import { notFound } from "next/navigation";
-import { products } from "@/data/products";
+import { prisma } from "@/lib/prisma";
 import { ProductDetailClient } from "./product-detail-client";
 
-export function generateStaticParams() {
-  return products.map((product) => ({ id: String(product.id) }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = products.find((item) => item.id === Number(id));
+  const product = await prisma.product.findUnique({ where: { id }, include: { sizes: true } });
   if (!product) notFound();
 
   return <ProductDetailClient product={product} />;

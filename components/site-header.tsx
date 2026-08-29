@@ -1,33 +1,76 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 import { useCart } from "@/context/cart-context";
 import { CartDrawer } from "./cart-drawer";
 
-export function SiteHeader() {
+type CategoryNavItem = { name: string; count: number };
+
+export function SiteHeader({ categories }: { categories: CategoryNavItem[] }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isNavigatorOpen, setIsNavigatorOpen] = useState(false);
   const { itemCount } = useCart();
+
+  useEffect(() => {
+    if (!isNavigatorOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setIsNavigatorOpen(false); };
+    document.addEventListener("keydown", closeOnEscape);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+      document.body.style.overflow = "";
+    };
+  }, [isNavigatorOpen]);
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-[color:var(--ink)]/25 bg-[color:var(--paper)]/95 backdrop-blur-sm">
+      <div className="bg-[color:var(--ink)] px-4 py-1.5 text-center font-mono-price text-[0.65rem] tracking-[0.08em] text-[color:var(--paper)] sm:px-6">
+        Бесплатная доставка от {new Intl.NumberFormat("ru-KZ").format(BRAND_CONFIG.freeShippingThreshold)} ₸
+      </div>
+      <header className="sticky top-0 z-40 border-b-2 border-[color:var(--ink)]/35 bg-[color:var(--paper)]/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-[90rem] items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
           <div className="flex items-center gap-4 sm:gap-6">
-            <Link href="/" className="font-display text-base font-medium tracking-tight sm:text-xl">
-              название магазина
+            <Link href="/" className="font-brand text-base sm:text-xl">
+              {BRAND_CONFIG.name}
             </Link>
             <span className="hidden border-l border-[color:var(--ink)]/25 pl-4 font-mono-price text-[0.65rem] tracking-[0.14em] text-[color:var(--ink)]/55 sm:inline">
               КАТАЛОГ / 2026
             </span>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
-            <Link href="/catalog" className="text-xs font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:text-sm">
+            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="text-xs font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:text-sm">
               Каталог
-            </Link>
+            </button>
             <Link href="/looks" className="text-xs font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:text-sm">
               Образы
             </Link>
+            <a
+              href={BRAND_CONFIG.instagramUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="ml-1 grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11"
+              aria-label="Instagram магазина"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="size-5">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.5" cy="6.8" r="1" fill="currentColor" stroke="none" />
+              </svg>
+            </a>
+            <a
+              href={`https://wa.me/${BRAND_CONFIG.whatsappNumber}?text=${encodeURIComponent("Здравствуйте! У меня вопрос по сайту")}`}
+              target="_blank"
+              rel="noreferrer"
+              className="grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11"
+              aria-label="Поддержка в WhatsApp"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5">
+                <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.2A8 8 0 1 1 20 11.5Z" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M9 9.5c.5 2 2 3.5 4 4" strokeLinecap="round" />
+              </svg>
+            </a>
             <button
               type="button"
               onClick={() => setIsCartOpen(true)}
@@ -48,6 +91,20 @@ export function SiteHeader() {
           </div>
         </div>
       </header>
+      <div className={`fixed inset-0 z-50 transition-opacity duration-300 ${isNavigatorOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={!isNavigatorOpen}>
+        <button type="button" onClick={() => setIsNavigatorOpen(false)} className="absolute inset-0 bg-[color:var(--ink)]/45" aria-label="Закрыть навигатор каталога" />
+        <aside role="dialog" aria-modal="true" aria-label="Навигатор каталога" className={`absolute right-0 top-0 flex h-full w-[78vw] max-w-[420px] flex-col bg-[color:var(--paper)] shadow-2xl transition-transform duration-300 ease-out ${isNavigatorOpen ? "translate-x-0" : "translate-x-full"}`}>
+          <div className="flex items-center justify-between border-b border-[color:var(--ink)]/15 px-5 py-5 sm:px-7">
+            <div><p className="font-mono-price text-xs tracking-[0.14em] text-[color:var(--accent)]">НАВИГАЦИЯ</p><h2 className="font-display mt-2 text-4xl leading-none">Каталог</h2></div>
+            <button type="button" onClick={() => setIsNavigatorOpen(false)} className="grid size-11 place-items-center text-xl text-[color:var(--ink)]/60 hover:text-[color:var(--accent)]" aria-label="Закрыть">×</button>
+          </div>
+          <nav className="flex-1 overflow-y-auto px-5 py-5 sm:px-7">
+            <Link href="/catalog" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-display text-3xl leading-none">Все товары</span></Link>
+            <Link href="/catalog?sale=true" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-display text-3xl leading-none">Со скидкой</span></Link>
+            <div className="pt-3">{categories.map((category) => <Link key={category.name} href={`/catalog?category=${encodeURIComponent(category.name)}`} onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4 hover:text-[color:var(--accent)]"><span className="font-display block text-3xl leading-none">{category.name}</span><span className="font-mono-price mt-2 block text-xs text-[color:var(--ink)]/55">{category.count} {category.count === 1 ? "товар" : "товаров"}</span></Link>)}</div>
+          </nav>
+        </aside>
+      </div>
       {isCartOpen ? <CartDrawer onClose={() => setIsCartOpen(false)} /> : null}
     </>
   );

@@ -25,7 +25,14 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-bodoni-moda), "Bodoni Moda", "Times New Roman", serif;
+  font-family: var(--font-archivo-black), "Archivo Black", Arial, sans-serif;
+  font-weight: 400;
+}
+
+.font-brand {
+  font-family: var(--font-montserrat), "Montserrat", Arial, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.06em;
 }
 
 .font-mono-price,
@@ -34,7 +41,38 @@ body {
 }
 
 .look-number {
-  font-family: var(--font-bodoni-moda), "Bodoni Moda", "Times New Roman", serif;
+  font-family: var(--font-archivo-black), "Archivo Black", Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.06em;
+}
+
+.editorial-banner,
+.look-product-card,
+.look-preview {
+  border-radius: 0;
+}
+
+.editorial-banner {
+  border-width: 2px;
+}
+
+.discount-stamp {
+  position: absolute;
+  z-index: 2;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  place-items: center;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--accent);
+  font-family: var(--font-archivo-black), "Archivo Black", Arial, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1;
+  transform: rotate(-8deg);
 }
 
 .lookbook-media {

@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useCart } from "@/context/cart-context";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 import { OverlayPanel } from "./overlay-panel";
-
-export const WHATSAPP_PHONE = "77081306033";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
@@ -58,7 +57,7 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
       ...(deliveryMethod === "delivery" ? [`Адрес: ${address.trim()}`] : []),
     ].join("\n");
 
-    window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(orderText)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/${BRAND_CONFIG.whatsappNumber}?text=${encodeURIComponent(orderText)}`, "_blank", "noopener,noreferrer");
     setOrderFormed(true);
   }
 

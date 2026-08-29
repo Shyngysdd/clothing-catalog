@@ -1,36 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useCart } from "@/context/cart-context";
-import type { Look } from "@/data/looks";
-import type { Product } from "@/data/products";
+import type { CatalogLook } from "@/lib/catalog-types";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
-export function LookDetailClient({ look, products }: { look: Look; products: Product[] }) {
+export function LookDetailClient({ look }: { look: CatalogLook }) {
   const [activeFrame, setActiveFrame] = useState(0);
   const { addItem } = useCart();
-  const productsById = useMemo(() => new Map(products.map((product) => [product.id, product])), [products]);
-  const lookProducts = look.productIds.flatMap((id) => {
-    const product = productsById.get(id);
-    return product ? [product] : [];
-  });
+  const lookProducts = look.items;
 
   function addLookToCart() {
-    lookProducts.forEach((product) => addItem(product, product.sizes[0]));
+    lookProducts.forEach((product) => {
+      const firstAvailableSize = product.sizes.find((size) => size.inStock);
+      if (firstAvailableSize) addItem(product, firstAvailableSize.size);
+    });
   }
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16">
       <Link href="/looks" className="font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← ВСЕ ОБРАЗЫ</Link>
       <div className="mt-6 look-preview aspect-[3/4] max-h-[70svh]">
-        {look.photoPlaceholders.map((placeholder, index) => (
+        {look.photoTones.map((placeholder, index) => (
           <div key={`${placeholder}-${index}`} className={`look-gallery-frame look-gallery-frame--${placeholder} ${index === activeFrame ? "is-active" : ""}`} />
         ))}
       </div>
       <div className="mt-4 flex justify-center gap-2" aria-label="Кадры образа">
-        {look.photoPlaceholders.map((_, index) => (
+        {look.photoTones.map((_, index) => (
           <button key={index} type="button" onClick={() => setActiveFrame(index)} aria-label={`Показать кадр ${index + 1}`} aria-current={activeFrame === index} className={`size-2 rounded-full transition-colors ${activeFrame === index ? "bg-[color:var(--accent)]" : "bg-[color:var(--ink)]/25 hover:bg-[color:var(--ink)]/55"}`} />
         ))}
       </div>
@@ -52,7 +50,7 @@ export function LookDetailClient({ look, products }: { look: Look; products: Pro
         ))}
       </div>
       <div className="mt-8 flex flex-col gap-5 border-t border-[color:var(--ink)]/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="font-mono-price text-2xl">{formatPrice.format(look.totalPrice)} ₸</p>
+        <p className="font-mono-price text-2xl">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
         <button type="button" onClick={addLookToCart} className="min-h-12 bg-[color:var(--ink)] px-6 text-sm font-medium text-white hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Добавить весь образ в корзину</button>
       </div>
     </section>

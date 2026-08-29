@@ -1,0 +1,11 @@
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { deleteLook } from "./actions";
+import { DeleteLookButton } from "./delete-look-button";
+
+const formatPrice = new Intl.NumberFormat("ru-KZ");
+
+export default async function AdminLooksPage() {
+  const looks = await prisma.look.findMany({ include: { items: { include: { product: true } } }, orderBy: { createdAt: "desc" } });
+  return <main className="mx-auto max-w-[90rem] px-4 py-10 sm:px-6 sm:py-16 lg:px-10"><div className="flex items-end justify-between gap-5 border-b border-[color:var(--ink)]/15 pb-7"><div><p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">УПРАВЛЕНИЕ / СОЧЕТАНИЯ</p><h1 className="font-display mt-3 text-5xl leading-none tracking-[-0.04em] sm:text-7xl">Образы</h1></div><Link href="/admin/looks/new" className="flex min-h-11 items-center bg-[color:var(--ink)] px-4 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)]">Новый образ</Link></div><div className="mt-8 overflow-x-auto border border-[color:var(--ink)]/15 bg-[color:var(--white)]"><table className="w-full min-w-[700px] text-left text-sm"><thead className="border-b border-[color:var(--ink)]/15 font-mono-price text-xs tracking-[0.1em] text-[color:var(--ink)]/60"><tr><th className="px-4 py-4 font-normal">ОБРАЗ</th><th className="px-4 py-4 font-normal">СОСТАВ</th><th className="px-4 py-4 font-normal">ИТОГО</th><th className="px-4 py-4 font-normal" /></tr></thead><tbody className="divide-y divide-[color:var(--ink)]/10">{looks.map((look) => { const total = look.items.reduce((sum, item) => sum + item.product.price, 0); return <tr key={look.id}><td className="px-4 py-4 font-medium">{look.title}</td><td className="max-w-md px-4 py-4 text-[color:var(--ink)]/70">{look.items.map((item) => item.product.name).join(", ") || "Товары не выбраны"}</td><td className="font-mono-price px-4 py-4">{formatPrice.format(total)} ₸</td><td className="px-4 py-4"><div className="flex gap-4"><Link href={`/admin/looks/${look.id}`} className="underline decoration-[color:var(--gold)] underline-offset-4 hover:text-[color:var(--accent)]">Редактировать</Link><DeleteLookButton action={deleteLook.bind(null, look.id)} /></div></td></tr>; })}</tbody></table></div></main>;
+}

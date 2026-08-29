@@ -1,17 +1,18 @@
 import { notFound } from "next/navigation";
-import { looks } from "@/data/looks";
-import { products } from "@/data/products";
+import { prisma } from "@/lib/prisma";
+import { toCatalogLook } from "@/lib/catalog-types";
 import { LookDetailClient } from "./look-detail-client";
 
-export function generateStaticParams() {
-  return looks.map((look) => ({ id: String(look.id) }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function LookDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const look = looks.find((item) => item.id === Number(id));
+  const look = await prisma.look.findUnique({
+    where: { id },
+    include: { items: { include: { product: { include: { sizes: true } } } } },
+  });
 
   if (!look) notFound();
 
-  return <LookDetailClient look={look} products={products} />;
+  return <LookDetailClient look={toCatalogLook(look)} />;
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { logoutAdmin } from "./actions";
 
 export default function AdminPage() {
@@ -7,7 +8,7 @@ export default function AdminPage() {
         <div><p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">УПРАВЛЕНИЕ</p><h1 className="font-display mt-3 text-5xl leading-none tracking-[-0.04em] sm:text-7xl">Админка</h1></div>
         <form action={logoutAdmin}><button type="submit" className="min-h-11 border border-[color:var(--ink)]/25 px-4 text-sm hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]">Выйти</button></form>
       </header>
-      <p className="mt-8 max-w-lg leading-7 text-[color:var(--ink)]/70">Доступ подтверждён. Управление товарами будет добавлено на следующем этапе.</p>
+      <div className="mt-8 flex flex-wrap gap-3"><Link href="/admin/products" className="inline-flex min-h-12 items-center bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)]">Управлять товарами</Link><Link href="/admin/looks" className="inline-flex min-h-12 items-center border border-[color:var(--ink)]/25 px-5 text-sm font-medium hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]">Управлять образами</Link></div>
     </main>
   );
 }

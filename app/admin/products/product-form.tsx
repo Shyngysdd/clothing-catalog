@@ -1,0 +1,45 @@
+"use client";
+
+import { useState } from "react";
+
+type EditableProduct = {
+  name: string; sku: string; category: string; price: number; originalPrice: number | null;
+  description: string | null; composition: string | null; fit: string | null; care: string[];
+  imageColor: string; galleryTones: string[]; sizes: { size: string; inStock: boolean }[];
+};
+
+const toneOptions = ["accent", "gold", "ink", "paper"];
+const inputClass = "mt-1 min-h-11 w-full border border-[color:var(--ink)]/25 bg-transparent px-3 text-sm outline-none focus:border-[color:var(--ink)]";
+
+export function ProductForm({ product, action }: { product?: EditableProduct; action: (formData: FormData) => void | Promise<void> }) {
+  const [care, setCare] = useState(product?.care.length ? product.care : [""]);
+  const [sizes, setSizes] = useState(product?.sizes.length ? product.sizes : [{ size: "", inStock: true }]);
+  const [imageColor, setImageColor] = useState(product?.imageColor ?? "#17181C");
+  const [tones, setTones] = useState(product?.galleryTones ?? ["accent", "ink"]);
+
+  function toggleTone(tone: string) {
+    setTones((current) => current.includes(tone) ? current.filter((item) => item !== tone) : [...current, tone]);
+  }
+
+  return (
+    <form action={action} className="mt-8 space-y-8">
+      <section className="grid gap-5 sm:grid-cols-2">
+        <label className="sm:col-span-2">Название<input name="name" required defaultValue={product?.name} className={inputClass} /></label>
+        <label>Артикул<input name="sku" required defaultValue={product?.sku} className={inputClass} /></label>
+        <label>Категория<input name="category" required defaultValue={product?.category} className={inputClass} /></label>
+        <label>Цена, ₸<input name="price" required min="1" step="1" type="number" defaultValue={product?.price} className={inputClass} /></label>
+        <label>Старая цена, ₸<input name="originalPrice" min="1" step="1" type="number" defaultValue={product?.originalPrice ?? ""} className={inputClass} /></label>
+      </section>
+
+      <section className="grid gap-5"><label>Описание<textarea name="description" defaultValue={product?.description ?? ""} className={`${inputClass} min-h-28 py-3`} /></label><label>Состав<textarea name="composition" defaultValue={product?.composition ?? ""} className={`${inputClass} min-h-20 py-3`} /></label><label>Посадка<input name="fit" defaultValue={product?.fit ?? ""} className={inputClass} /></label></section>
+
+      <section><h2 className="font-display text-3xl leading-none">Уход</h2><div className="mt-4 space-y-3">{care.map((item, index) => <div key={index} className="flex gap-2"><input name="care" defaultValue={item} className={inputClass.replace("mt-1 ", "")} /><button type="button" onClick={() => setCare((current) => current.filter((_, itemIndex) => itemIndex !== index))} className="min-h-11 px-3 text-sm text-[color:var(--accent)]">Убрать</button></div>)}</div><button type="button" onClick={() => setCare((current) => [...current, ""])} className="mt-3 text-sm underline underline-offset-4">Добавить рекомендацию</button></section>
+
+      <section><h2 className="font-display text-3xl leading-none">Визуал</h2><div className="mt-4 grid gap-5 sm:grid-cols-2"><label>Цвет превью<div className="mt-1 flex gap-3"><input type="color" value={imageColor} onChange={(event) => setImageColor(event.target.value)} className="size-11 border border-[color:var(--ink)]/25 p-1" /><input name="imageColor" value={imageColor} onChange={(event) => setImageColor(event.target.value)} className="min-h-11 flex-1 border border-[color:var(--ink)]/25 px-3 text-sm uppercase outline-none focus:border-[color:var(--ink)]" /></div></label><fieldset><legend>Кадры галереи</legend><div className="mt-3 flex flex-wrap gap-2">{toneOptions.map((tone) => <label key={tone} className="cursor-pointer"><input type="checkbox" name="galleryTones" value={tone} checked={tones.includes(tone)} onChange={() => toggleTone(tone)} className="peer sr-only" /><span className="inline-flex min-h-10 items-center border border-[color:var(--ink)]/25 px-3 text-sm peer-checked:border-[color:var(--ink)] peer-checked:bg-[color:var(--ink)] peer-checked:text-[color:var(--white)]">{tone}</span></label>)}</div></fieldset></div></section>
+
+      <section><h2 className="font-display text-3xl leading-none">Размеры</h2><div className="mt-4 space-y-3">{sizes.map((item, index) => <div key={index} className="flex items-center gap-3"><input name="size" value={item.size} onChange={(event) => setSizes((current) => current.map((size, sizeIndex) => sizeIndex === index ? { ...size, size: event.target.value } : size))} placeholder="Например, M" className="min-h-11 w-32 border border-[color:var(--ink)]/25 px-3 text-sm outline-none focus:border-[color:var(--ink)]" /><label className="flex min-h-11 items-center gap-2 text-sm"><input name={`inStock-${index}`} type="checkbox" checked={item.inStock} onChange={(event) => setSizes((current) => current.map((size, sizeIndex) => sizeIndex === index ? { ...size, inStock: event.target.checked } : size))} className="size-4 accent-[color:var(--accent)]" />В наличии</label><button type="button" onClick={() => setSizes((current) => current.filter((_, sizeIndex) => sizeIndex !== index))} className="text-sm text-[color:var(--accent)]">Убрать</button></div>)}</div><button type="button" onClick={() => setSizes((current) => [...current, { size: "", inStock: true }])} className="mt-3 text-sm underline underline-offset-4">Добавить размер</button></section>
+
+      <button type="submit" className="flex min-h-12 w-full items-center justify-center bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)]">Сохранить товар</button>
+    </form>
+  );
+}

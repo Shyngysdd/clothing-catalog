@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, IBM_Plex_Mono, Inter } from "next/font/google";
+import { Archivo_Black, IBM_Plex_Mono, Inter, Montserrat } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { CartProvider } from "@/context/cart-context";
+import { prisma } from "@/lib/prisma";
 import "./globals.css";
 
-const bodoniModa = Bodoni_Moda({
+const archivoBlack = Archivo_Black({
   subsets: ["latin"],
-  variable: "--font-bodoni-moda",
+  variable: "--font-archivo-black",
+  weight: "400",
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -20,22 +22,37 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const montserrat = Montserrat({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-montserrat",
+  weight: ["600", "700", "800"],
+});
+
 export const metadata: Metadata = {
-  title: "Название магазина — каталог одежды и обуви",
+  title: "Billion.co — каталог одежды и обуви",
   description: "Демо-каталог одежды и обуви: выберите товары и оформите заказ через WhatsApp.",
   icons: {
     icon: "/icon",
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export const dynamic = "force-dynamic";
+
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const categoryGroups = await prisma.product.groupBy({
+    by: ["category"],
+    _count: { _all: true },
+    orderBy: { category: "asc" },
+  });
+  const categories = categoryGroups.map((group) => ({ name: group.category, count: group._count._all }));
+
   return (
-    <html lang="ru" className={`${bodoniModa.variable} ${ibmPlexMono.variable} ${inter.variable} h-full`}>
+    <html lang="ru" className={`${archivoBlack.variable} ${ibmPlexMono.variable} ${inter.variable} ${montserrat.variable} h-full`}>
       <body className="flex min-h-full flex-col antialiased">
         <CartProvider>
-          <SiteHeader />
+          <SiteHeader categories={categories} />
           <main className="flex-1">{children}</main>
-          <footer className="border-t border-[color:var(--ink)]/15">
+          <footer className="border-t-2 border-[color:var(--ink)]/25">
             <div className="mx-auto max-w-6xl px-4 py-5 text-sm text-[color:var(--ink)]/60 sm:px-6">
               Демо-каталог одежды и обуви
             </div>

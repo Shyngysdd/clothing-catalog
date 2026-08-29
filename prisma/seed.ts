@@ -33,6 +33,10 @@ async function main() {
     });
     productIdsByLegacyId.set(product.id, savedProduct.id);
 
+    await prisma.productSize.deleteMany({
+      where: { productId: savedProduct.id, size: { notIn: product.sizes } },
+    });
+
     for (const size of product.sizes) {
       await prisma.productSize.upsert({
         where: { productId_size: { productId: savedProduct.id, size } },

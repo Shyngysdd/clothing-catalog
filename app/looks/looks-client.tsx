@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/context/cart-context";
-import type { Look } from "@/data/looks";
-import type { Product } from "@/data/products";
+import type { CatalogLook } from "@/lib/catalog-types";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
@@ -41,14 +40,13 @@ function LookPreview({ placeholders }: { placeholders: string[] }) {
   );
 }
 
-export function LooksClient({ looks, products }: { looks: Look[]; products: Product[] }) {
+export function LooksClient({ looks }: { looks: CatalogLook[] }) {
   const { addItem } = useCart();
-  const productsById = useMemo(() => new Map(products.map((product) => [product.id, product])), [products]);
 
-  function addLookToCart(look: Look) {
-    look.productIds.forEach((productId) => {
-      const product = productsById.get(productId);
-      if (product) addItem(product, product.sizes[0]);
+  function addLookToCart(look: CatalogLook) {
+    look.items.forEach((product) => {
+      const firstAvailableSize = product.sizes.find((size) => size.inStock);
+      if (firstAvailableSize) addItem(product, firstAvailableSize.size);
     });
   }
 
@@ -62,20 +60,17 @@ export function LooksClient({ looks, products }: { looks: Look[]; products: Prod
 
       <div className="mt-10 grid gap-5 sm:mt-12 sm:gap-6 lg:grid-cols-3">
         {looks.map((look, index) => {
-          const lookProducts = look.productIds.flatMap((id) => {
-            const product = productsById.get(id);
-            return product ? [product] : [];
-          });
+          const lookProducts = look.items;
 
           return (
             <article key={look.id} className="border border-[color:var(--ink)]/15 bg-[color:var(--white)] p-3 sm:p-4">
               <Link href={`/looks/${look.id}`} className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]">
-                <LookPreview placeholders={look.photoPlaceholders} />
+                <LookPreview placeholders={look.photoTones} />
                 <div className="pt-4 sm:pt-5">
                   <p className="look-number text-3xl leading-none text-[color:var(--accent)] sm:text-4xl">ОБРАЗ {String(index + 1).padStart(2, "0")}</p>
                   <h2 className="font-display mt-3 text-3xl leading-[0.95] tracking-[-0.04em] sm:text-4xl">{look.title}</h2>
                   <p className="mt-3 text-sm leading-6 text-[color:var(--ink)]/65">{lookProducts.map((product) => product.name).join(" · ")}</p>
-                  <p className="font-mono-price mt-4 text-base sm:text-lg">{formatPrice.format(look.totalPrice)} ₸</p>
+                  <p className="font-mono-price mt-4 text-base sm:text-lg">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
                 </div>
               </Link>
               <button type="button" onClick={() => addLookToCart(look)} className="mt-4 min-h-11 w-full bg-[color:var(--ink)] px-4 text-sm font-medium text-white hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">
