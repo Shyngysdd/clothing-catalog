@@ -19,7 +19,9 @@ model Product {
   care          String[]
   fit           String?
   imageColor    String
+  imageUrl      String?
   galleryTones  String[]
+  galleryUrls   String[]      @default([])
   sizes         ProductSize[]
   lookItems     LookItem[]
   createdAt     DateTime      @default(now())

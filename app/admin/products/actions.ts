@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { saveProductImage } from "@/lib/product-images";
 
 type ProductInput = {
   name: string;
@@ -73,11 +74,20 @@ function productData(input: ProductInput) {
   };
 }
 
+async function getUploadedImages(formData: FormData) {
+  const mainImage = formData.get("mainImage");
+  const galleryImages = formData.getAll("galleryImages");
+  const imageUrl = mainImage instanceof File ? await saveProductImage(mainImage) : null;
+  const galleryUrls = (await Promise.all(galleryImages.map((file) => file instanceof File ? saveProductImage(file) : null))).filter((url): url is string => Boolean(url));
+  return { imageUrl, galleryUrls };
+}
+
 export async function createProduct(formData: FormData) {
   const input = parseProductInput(formData, "/admin/products/new");
   try {
+    const images = await getUploadedImages(formData);
     const product = await prisma.product.create({
-      data: { ...productData(input), sizes: { create: input.sizes } },
+      data: { ...productData(input), ...images, sizes: { create: input.sizes } },
     });
     revalidatePath("/admin/products");
     redirect(`/admin/products/${product.id}`);
@@ -92,8 +102,10 @@ export async function createProduct(formData: FormData) {
 export async function updateProduct(id: string, formData: FormData) {
   const input = parseProductInput(formData, `/admin/products/${id}`);
   try {
+    const currentProduct = await prisma.product.findUniqueOrThrow({ where: { id }, select: { imageUrl: true, galleryUrls: true } });
+    const images = await getUploadedImages(formData);
     await prisma.$transaction(async (tx) => {
-      await tx.product.update({ where: { id }, data: productData(input) });
+      await tx.product.update({ where: { id }, data: { ...productData(input), imageUrl: images.imageUrl ?? currentProduct.imageUrl, galleryUrls: [...currentProduct.galleryUrls, ...images.galleryUrls] } });
       await tx.productSize.deleteMany({ where: { productId: id } });
       if (input.sizes.length) await tx.productSize.createMany({ data: input.sizes.map((size) => ({ ...size, productId: id })) });
     });

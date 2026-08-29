@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo_Black, IBM_Plex_Mono, Inter, Montserrat } from "next/font/google";
+import { Archivo_Black, IBM_Plex_Mono, Montserrat } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { CartProvider } from "@/context/cart-context";
 import { FavoritesProvider } from "@/context/favorites-context";
@@ -20,15 +20,10 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-const inter = Inter({
-  subsets: ["latin", "cyrillic"],
-  variable: "--font-inter",
-});
-
 const montserrat = Montserrat({
   subsets: ["latin", "cyrillic"],
   variable: "--font-montserrat",
-  weight: ["600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -55,7 +50,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     : [];
 
   return (
-    <html lang="ru" className={`${archivoBlack.variable} ${ibmPlexMono.variable} ${inter.variable} ${montserrat.variable} h-full`}>
+    <html lang="ru" className={`${archivoBlack.variable} ${ibmPlexMono.variable} ${montserrat.variable} h-full`}>
       <body className="flex min-h-full flex-col antialiased">
         <FavoritesProvider isCustomerLoggedIn={Boolean(customerId)} initialFavoriteIds={initialFavoriteIds}>
           <CartProvider>

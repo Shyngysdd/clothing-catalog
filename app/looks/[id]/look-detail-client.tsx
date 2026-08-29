@@ -34,7 +34,7 @@ export function LookDetailClient({ look }: { look: CatalogLook }) {
       </div>
       <div className="mt-10 border-b border-[color:var(--ink)]/15 pb-7">
         <p className="look-number text-4xl leading-none text-[color:var(--accent)]">ОБРАЗ {String(look.id).padStart(2, "0")}</p>
-        <h1 className="font-display mt-4 text-5xl leading-[0.9] tracking-[-0.04em] sm:text-7xl">{look.title}</h1>
+        <h1 className="font-section mt-4 text-4xl leading-tight sm:text-6xl">{look.title}</h1>
         <p className="mt-5 max-w-2xl leading-7 text-[color:var(--ink)]/70">{look.description}</p>
       </div>
       <div className="divide-y divide-[color:var(--ink)]/15">

@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
@@ -31,6 +32,7 @@ function ProductMarquee({ products: selection }: { products: CatalogProduct[] })
                 "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)",
               } as CSSProperties}
             >
+              {product.imageUrl ? <Image src={product.imageUrl} alt="" fill sizes="(max-width: 767px) 72vw, 18rem" className="product-card-photo" /> : null}
               <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
               {product.sizes.length > 0 && product.sizes.every((size) => !size.inStock) ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
               {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
@@ -79,7 +81,7 @@ export default async function Home() {
         <ProductMarquee products={recommendedProducts} />
       </section>
 
-      <section className="grid gap-4 py-16 sm:gap-6 sm:py-24 lg:grid-cols-2">
+      <section className="grid gap-0 py-16 sm:py-24 lg:grid-cols-2">
         <Link
           href="/catalog?category=женское"
           className="editorial-banner lookbook-media flex min-h-[35svh] cursor-pointer items-end border border-[color:var(--ink)]/15 px-6 py-7 text-[color:var(--white)] sm:px-9 sm:py-10"

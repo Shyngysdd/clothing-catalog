@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
@@ -291,6 +292,7 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
                       className={`look-product-media aspect-[4/5] transition-[filter,transform] duration-200 ease-out group-hover:scale-[0.985] group-hover:brightness-75 ${isSoldOut ? "grayscale" : ""}`}
                       style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)" } as CSSProperties}
                     >
+                      {product.imageUrl ? <Image src={product.imageUrl} alt="" fill sizes="(max-width: 767px) 50vw, (max-width: 1024px) 50vw, 25vw" className="product-card-photo" /> : null}
                       <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
                       {isSoldOut ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
                       {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}

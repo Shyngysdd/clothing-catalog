@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useCart } from "@/context/cart-context";
 import type { CatalogProduct } from "@/lib/catalog-types";
@@ -10,6 +11,7 @@ const formatPrice = new Intl.NumberFormat("ru-KZ");
 
 export function ProductDetailClient({ product }: { product: CatalogProduct }) {
   const [activeFrame, setActiveFrame] = useState(0);
+  const galleryImages = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
   const firstAvailableSize = product.sizes.find((size) => size.inStock)?.size ?? "";
   const [selectedSize, setSelectedSize] = useState(firstAvailableSize);
   const [isSizeTableOpen, setIsSizeTableOpen] = useState(false);
@@ -21,11 +23,13 @@ export function ProductDetailClient({ product }: { product: CatalogProduct }) {
       <div className="mt-6 grid gap-9 lg:grid-cols-2 lg:gap-14">
         <section>
           <div className="look-preview aspect-[4/5]">
-            {product.galleryTones.map((tone, index) => <div key={`${tone}-${index}`} className={`look-gallery-frame look-gallery-frame--${tone} ${activeFrame === index ? "is-active" : ""}`} />)}
+            {galleryImages.length > 0
+              ? galleryImages.map((imageUrl, index) => <Image key={imageUrl} src={imageUrl} alt={`${product.name}, кадр ${index + 1}`} fill sizes="(max-width: 1024px) 100vw, 50vw" className={`look-gallery-frame product-detail-photo ${activeFrame === index ? "is-active" : ""}`} />)
+              : product.galleryTones.map((tone, index) => <div key={`${tone}-${index}`} className={`look-gallery-frame look-gallery-frame--${tone} ${activeFrame === index ? "is-active" : ""}`} />)}
             {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
           </div>
           <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
-            {product.galleryTones.map((tone, index) => <button key={`${tone}-${index}`} type="button" onClick={() => setActiveFrame(index)} aria-label={`Показать кадр ${index + 1}`} aria-pressed={activeFrame === index} className={`look-gallery-frame look-gallery-frame--${tone} relative aspect-[4/5] w-16 shrink-0 border-2 transition-colors sm:w-20 ${activeFrame === index ? "border-[color:var(--accent)]" : "border-transparent hover:border-[color:var(--gold)]"}`} />)}
+            {(galleryImages.length > 0 ? galleryImages : product.galleryTones).map((frame, index) => <button key={`${frame}-${index}`} type="button" onClick={() => setActiveFrame(index)} aria-label={`Показать кадр ${index + 1}`} aria-pressed={activeFrame === index} className={`relative aspect-[4/5] w-16 shrink-0 overflow-hidden border-2 transition-colors sm:w-20 ${galleryImages.length > 0 ? "" : `look-gallery-frame look-gallery-frame--${frame}`} ${activeFrame === index ? "border-[color:var(--accent)]" : "border-transparent hover:border-[color:var(--gold)]"}`}>{galleryImages.length > 0 ? <Image src={frame} alt="" fill sizes="80px" className="object-cover" /> : null}</button>)}
           </div>
         </section>
         <section className="lg:pt-3">

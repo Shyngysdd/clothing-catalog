@@ -12,7 +12,9 @@ export type CatalogProduct = {
   care: string[];
   fit: string | null;
   imageColor: string;
+  imageUrl: string | null;
   galleryTones: string[];
+  galleryUrls: string[];
   sizes: CatalogSize[];
   createdAt: Date | string;
 };

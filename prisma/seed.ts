@@ -24,7 +24,9 @@ async function main() {
       care: product.care,
       fit: product.fit,
       imageColor: product.imageColor,
+      imageUrl: null,
       galleryTones: product.galleryTones,
+      galleryUrls: [],
     };
     const savedProduct = await prisma.product.upsert({
       where: { sku: product.sku },

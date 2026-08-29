@@ -15,7 +15,7 @@ function LookPreview({ placeholders }: { placeholders: string[] }) {
     if (!isHovered || placeholders.length < 2) return;
     const timer = window.setInterval(() => {
       setActiveFrame((current) => (current + 1) % placeholders.length);
-    }, 900);
+    }, 520);
     return () => window.clearInterval(timer);
   }, [isHovered, placeholders.length]);
 
@@ -54,7 +54,7 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
     <section className="mx-auto max-w-[90rem] px-4 py-10 sm:px-6 sm:py-16 lg:px-10">
       <div className="max-w-2xl">
         <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ГАРДЕРОБ / СОЧЕТАНИЯ</p>
-        <h1 className="font-display mt-3 text-5xl leading-none tracking-[-0.04em] sm:text-7xl">Образы</h1>
+        <h1 className="font-section mt-3 text-5xl leading-none sm:text-7xl">Образы</h1>
         <p className="mt-5 leading-7 text-[color:var(--ink)]/70">Готовые сочетания из каталога — выбирайте целиком или открывайте отдельные вещи.</p>
       </div>
 
@@ -63,14 +63,14 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
           const lookProducts = look.items;
 
           return (
-            <article key={look.id} className="border border-[color:var(--ink)]/15 bg-[color:var(--white)] p-3 sm:p-4">
-              <Link href={`/looks/${look.id}`} className="group block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]">
+            <article key={look.id} className="flex h-full flex-col border border-[color:var(--ink)]/15 bg-[color:var(--white)] p-3 sm:p-4">
+              <Link href={`/looks/${look.id}`} className="group flex flex-1 flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]">
                 <LookPreview placeholders={look.photoTones} />
-                <div className="pt-4 sm:pt-5">
-                  <p className="look-number text-3xl leading-none text-[color:var(--accent)] sm:text-4xl">ОБРАЗ {String(index + 1).padStart(2, "0")}</p>
-                  <h2 className="font-display mt-3 text-3xl leading-[0.95] tracking-[-0.04em] sm:text-4xl">{look.title}</h2>
+                <div className="flex flex-1 flex-col pt-4 sm:pt-5">
+                  <p className="look-number text-xl leading-none text-[color:var(--accent)] sm:text-2xl">ОБРАЗ {String(index + 1).padStart(2, "0")}</p>
+                  <h2 className="font-section mt-3 text-2xl leading-tight sm:text-3xl">{look.title}</h2>
                   <p className="mt-3 text-sm leading-6 text-[color:var(--ink)]/65">{lookProducts.map((product) => product.name).join(" · ")}</p>
-                  <p className="font-mono-price mt-4 text-base sm:text-lg">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
+                  <p className="font-mono-price mt-auto pt-4 text-base sm:text-lg">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
                 </div>
               </Link>
               <button type="button" onClick={() => addLookToCart(look)} className="mt-4 min-h-11 w-full bg-[color:var(--ink)] px-4 text-sm font-medium text-white hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">
