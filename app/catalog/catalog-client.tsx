@@ -1,9 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import type { Product } from "@/data/products";
-import { ProductModal } from "@/components/product-modal";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
@@ -23,7 +23,6 @@ export function CatalogClient({ products }: { products: Product[] }) {
   const [minPriceInput, setMinPriceInput] = useState(String(productPriceRange.min));
   const [maxPriceInput, setMaxPriceInput] = useState(String(productPriceRange.max));
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -207,10 +206,9 @@ export function CatalogClient({ products }: { products: Product[] }) {
             <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredProducts.map((product, index) => (
                 <article key={product.id} className="look-product-card group">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedProduct(product)}
-                    className="w-full text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]"
+                  <Link
+                    href={`/catalog/${product.id}`}
+                    className="block w-full text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]"
                     aria-label={`Открыть ${product.name}`}
                   >
                     <p className="font-display mb-3 text-3xl leading-none tracking-[-0.04em] text-[color:var(--accent)]">LOOK {String(index + 1).padStart(2, "0")}</p>
@@ -224,7 +222,7 @@ export function CatalogClient({ products }: { products: Product[] }) {
                       <p className="text-lg font-medium tracking-[-0.02em]">{product.name}</p>
                       <p className="font-mono-price mt-2 text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>
                     </div>
-                  </button>
+                  </Link>
                 </article>
               ))}
             </div>
@@ -242,7 +240,6 @@ export function CatalogClient({ products }: { products: Product[] }) {
           )}
         </div>
       </div>
-      {selectedProduct ? <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} /> : null}
     </section>
   );
 }

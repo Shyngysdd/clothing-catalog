@@ -20,7 +20,7 @@ function ProductMarquee({ products: selection }: { products: Product[] }) {
         {loopedProducts.map((product, index) => (
           <Link
             key={`${product.id}-${index}`}
-            href={`/catalog`}
+            href={`/catalog/${product.id}`}
             className="home-look-card look-product-card group block"
             aria-label={`Открыть товар: ${product.name}`}
           >

@@ -64,14 +64,14 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
 
   return (
     <OverlayPanel labelledBy="cart-drawer-title" onClose={onClose} position="right">
-      <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-5 sm:px-6">
-        <h2 id="cart-drawer-title" className="text-xl font-semibold tracking-tight">
+      <div className="flex items-center justify-between border-b border-[color:var(--ink)]/15 px-5 py-5 sm:px-6">
+        <h2 id="cart-drawer-title" className="font-display text-4xl leading-none tracking-[-0.04em]">
           {orderFormed ? "Заказ" : "Корзина"}
         </h2>
         <button
           type="button"
           onClick={onClose}
-          className="grid size-11 place-items-center rounded-lg text-xl text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+          className="grid size-11 place-items-center rounded-lg text-xl text-[color:var(--ink)]/60 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]"
           aria-label="Закрыть корзину"
         >
           ×
@@ -81,14 +81,14 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
       {orderFormed ? (
         <div className="grid flex-1 place-items-center px-6 text-center">
           <div>
-            <p className="text-2xl font-semibold tracking-tight">Заказ сформирован</p>
-            <p className="mt-3 text-sm leading-6 text-zinc-500">
+            <p className="font-display text-4xl leading-none tracking-[-0.04em]">Заказ сформирован</p>
+            <p className="mt-3 text-sm leading-6 text-[color:var(--ink)]/60">
               Сообщение с данными заказа открыто в WhatsApp.
             </p>
             <button
               type="button"
               onClick={onClose}
-              className="mt-7 min-h-11 rounded-lg border border-zinc-300 px-4 text-sm font-medium hover:border-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+              className="mt-7 min-h-11 rounded-lg border border-[color:var(--ink)]/25 px-4 text-sm font-medium hover:border-[color:var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]"
             >
               Вернуться к каталогу
             </button>
@@ -96,20 +96,20 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
         </div>
       ) : items.length > 0 ? (
         <div className="flex min-h-0 flex-1 flex-col">
-          <ul className="shrink-0 divide-y divide-zinc-200 px-5 sm:px-6">
+          <ul className="shrink-0 divide-y divide-[color:var(--ink)]/15 px-5 sm:px-6">
             {items.map((item) => (
               <li key={`${item.id}-${item.size}`} className="py-5">
                 <div className="flex gap-3">
                   <div className="size-16 shrink-0 rounded-md" style={{ backgroundColor: item.imageColor }} />
                   <div className="min-w-0 flex-1">
                     <p className="font-medium">{item.name}</p>
-                    <p className="mt-1 text-sm text-zinc-500">Размер: {item.size} · {item.quantity} шт.</p>
-                    <p className="mt-2 text-sm">{formatPrice.format(item.price * item.quantity)} ₸</p>
+                    <p className="mt-1 text-sm text-[color:var(--ink)]/60">Размер: {item.size} · {item.quantity} шт.</p>
+                    <p className="font-mono-price mt-2 text-sm">{formatPrice.format(item.price * item.quantity)} ₸</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => removeItem(item.id, item.size)}
-                    className="self-start text-sm text-zinc-500 underline underline-offset-4 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+                    className="self-start text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]"
                   >
                     Удалить
                   </button>
@@ -118,10 +118,10 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
             ))}
           </ul>
 
-          <form noValidate onSubmit={handleSubmit} className="min-h-0 flex-1 overflow-y-auto border-t border-zinc-200 px-5 py-5 sm:px-6">
-            <div className="flex items-center justify-between text-lg font-semibold">
-              <span>Итого</span>
-              <span>{formatPrice.format(totalPrice)} ₸</span>
+          <form noValidate onSubmit={handleSubmit} className="min-h-0 flex-1 overflow-y-auto border-t border-[color:var(--ink)]/15 px-5 py-5 sm:px-6">
+            <div className="flex items-center justify-between">
+              <span className="font-display text-3xl leading-none">Итого</span>
+              <span className="font-mono-price text-lg">{formatPrice.format(totalPrice)} ₸</span>
             </div>
 
             <div className="mt-6 space-y-4">
@@ -137,9 +137,9 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
                   }}
                   aria-invalid={Boolean(errors.name)}
                   aria-describedby={errors.name ? "customer-name-error" : undefined}
-                  className="mt-2 min-h-11 w-full rounded-lg border border-zinc-300 px-3 text-sm outline-none transition-colors focus:border-zinc-900"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-[color:var(--ink)]/25 px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
                 />
-                {errors.name ? <p id="customer-name-error" className="mt-1 text-sm text-red-700">{errors.name}</p> : null}
+                {errors.name ? <p id="customer-name-error" className="mt-1 text-sm text-[color:var(--accent)]">{errors.name}</p> : null}
               </div>
 
               <div>
@@ -156,9 +156,9 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
                   }}
                   aria-invalid={Boolean(errors.phone)}
                   aria-describedby={errors.phone ? "customer-phone-error" : undefined}
-                  className="mt-2 min-h-11 w-full rounded-lg border border-zinc-300 px-3 text-sm outline-none transition-colors focus:border-zinc-900"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-[color:var(--ink)]/25 px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
                 />
-                {errors.phone ? <p id="customer-phone-error" className="mt-1 text-sm text-red-700">{errors.phone}</p> : null}
+                {errors.phone ? <p id="customer-phone-error" className="mt-1 text-sm text-[color:var(--accent)]">{errors.phone}</p> : null}
               </div>
 
               <fieldset>
@@ -173,7 +173,7 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
                       onChange={() => setDeliveryMethod("pickup")}
                       className="peer sr-only"
                     />
-                    <span className="flex min-h-11 items-center justify-center rounded-lg border border-zinc-300 px-3 text-center text-sm font-medium peer-checked:border-zinc-900 peer-checked:bg-zinc-900 peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-zinc-900">
+                    <span className="flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--ink)]/25 px-3 text-center text-sm font-medium peer-checked:border-[color:var(--ink)] peer-checked:bg-[color:var(--ink)] peer-checked:text-[color:var(--white)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[color:var(--ink)]">
                       Самовывоз
                     </span>
                   </label>
@@ -186,7 +186,7 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
                       onChange={() => setDeliveryMethod("delivery")}
                       className="peer sr-only"
                     />
-                    <span className="flex min-h-11 items-center justify-center rounded-lg border border-zinc-300 px-3 text-center text-sm font-medium peer-checked:border-zinc-900 peer-checked:bg-zinc-900 peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-zinc-900">
+                    <span className="flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--ink)]/25 px-3 text-center text-sm font-medium peer-checked:border-[color:var(--ink)] peer-checked:bg-[color:var(--ink)] peer-checked:text-[color:var(--white)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[color:var(--ink)]">
                       Доставка
                     </span>
                   </label>
@@ -207,16 +207,16 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
                     }}
                     aria-invalid={Boolean(errors.address)}
                     aria-describedby={errors.address ? "delivery-address-error" : undefined}
-                    className="mt-2 min-h-11 w-full rounded-lg border border-zinc-300 px-3 text-sm outline-none transition-colors focus:border-zinc-900"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-[color:var(--ink)]/25 px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
                   />
-                  {errors.address ? <p id="delivery-address-error" className="mt-1 text-sm text-red-700">{errors.address}</p> : null}
+                  {errors.address ? <p id="delivery-address-error" className="mt-1 text-sm text-[color:var(--accent)]">{errors.address}</p> : null}
                 </div>
               ) : null}
             </div>
 
             <button
               type="submit"
-              className="mt-7 flex min-h-12 w-full items-center justify-center rounded-lg bg-zinc-900 px-5 text-sm font-medium text-white hover:bg-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+              className="mt-7 flex min-h-12 w-full items-center justify-center rounded-lg bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]"
             >
               Оформить заказ
             </button>
@@ -224,7 +224,7 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
         </div>
       ) : (
         <div className="grid flex-1 place-items-center px-6 text-center">
-          <p className="text-zinc-500">Корзина пока пуста</p>
+          <p className="text-[color:var(--ink)]/60">Корзина пока пуста</p>
         </div>
       )}
     </OverlayPanel>

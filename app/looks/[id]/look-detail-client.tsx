@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ProductModal } from "@/components/product-modal";
 import { useCart } from "@/context/cart-context";
 import type { Look } from "@/data/looks";
 import type { Product } from "@/data/products";
@@ -11,7 +10,6 @@ const formatPrice = new Intl.NumberFormat("ru-KZ");
 
 export function LookDetailClient({ look, products }: { look: Look; products: Product[] }) {
   const [activeFrame, setActiveFrame] = useState(0);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { addItem } = useCart();
   const productsById = useMemo(() => new Map(products.map((product) => [product.id, product])), [products]);
   const lookProducts = look.productIds.flatMap((id) => {
@@ -49,7 +47,7 @@ export function LookDetailClient({ look, products }: { look: Look; products: Pro
               <p className="truncate font-medium">{product.name}</p>
               <p className="font-mono-price mt-1 text-sm text-[color:var(--ink)]/70">{formatPrice.format(product.price)} ₸</p>
             </div>
-            <button type="button" onClick={() => setSelectedProduct(product)} className="shrink-0 text-sm underline decoration-[color:var(--gold)] underline-offset-4 hover:text-[color:var(--accent)]">Смотреть товар</button>
+            <Link href={`/catalog/${product.id}`} className="shrink-0 text-sm underline decoration-[color:var(--gold)] underline-offset-4 hover:text-[color:var(--accent)]">Смотреть товар</Link>
           </div>
         ))}
       </div>
@@ -57,7 +55,6 @@ export function LookDetailClient({ look, products }: { look: Look; products: Pro
         <p className="font-mono-price text-2xl">{formatPrice.format(look.totalPrice)} ₸</p>
         <button type="button" onClick={addLookToCart} className="min-h-12 bg-[color:var(--ink)] px-6 text-sm font-medium text-white hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Добавить весь образ в корзину</button>
       </div>
-      {selectedProduct ? <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} /> : null}
     </section>
   );
 }
