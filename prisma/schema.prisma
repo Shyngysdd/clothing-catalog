@@ -65,6 +65,16 @@ model Banner {
   updatedAt DateTime @updatedAt
 }
 
+model HomeSection {
+  id            String   @id @default(cuid())
+  title         String
+  type          String
+  categoryValue String?
+  productIds    String[]
+  position      Int      @default(0)
+  isActive      Boolean  @default(true)
+}
+
 model Customer {
   id           String     @id @default(cuid())
   email        String     @unique

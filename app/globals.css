@@ -241,7 +241,9 @@ textarea {
 }
 
 .editorial-banner-image {
-  z-index: 0 !important;
+  position: absolute !important;
+  inset: 0;
+  z-index: 0;
 }
 
 .home-product-marquee {
@@ -253,6 +255,10 @@ textarea {
   width: max-content;
   gap: 1.25rem;
   animation: home-marquee 42s linear infinite;
+}
+
+.home-product-track--static {
+  animation: none;
 }
 
 .home-product-marquee:hover .home-product-track {

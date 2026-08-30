@@ -86,6 +86,16 @@ async function main() {
         imageUrl: null,
       },
     }),
+    prisma.homeSection.upsert({
+      where: { id: "home-section-newest" },
+      update: { title: "Новинки", type: "newest", position: 0, isActive: true },
+      create: { id: "home-section-newest", title: "Новинки", type: "newest", productIds: [], position: 0, isActive: true },
+    }),
+    prisma.homeSection.upsert({
+      where: { id: "home-section-sale" },
+      update: { title: "Со скидкой", type: "sale", position: 1, isActive: true },
+      create: { id: "home-section-sale", title: "Со скидкой", type: "sale", productIds: [], position: 1, isActive: true },
+    }),
   ]);
 
   for (const look of looks) {
