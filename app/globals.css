@@ -10,6 +10,7 @@
 
 html {
   background: var(--paper);
+  overflow-x: clip;
 }
 
 body {
@@ -239,6 +240,10 @@ textarea {
   z-index: 1;
 }
 
+.editorial-banner-image {
+  z-index: 0 !important;
+}
+
 .home-product-marquee {
   overflow: hidden;
 }
@@ -413,6 +418,40 @@ textarea {
 
   .home-look-card {
     width: min(72vw, 17rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .font-brand {
+    letter-spacing: -0.03em !important;
+  }
+
+  .font-section,
+  .font-display,
+  .look-number {
+    letter-spacing: -0.0225em !important;
+  }
+
+  .font-brand,
+  .font-section,
+  .font-display,
+  .look-number {
+    line-height: 0.9;
+  }
+
+  .font-display.text-5xl,
+  .font-section.text-5xl {
+    font-size: clamp(2.3rem, 10vw, 2.8rem) !important;
+  }
+
+  .font-display.text-6xl,
+  .font-section.text-6xl {
+    font-size: clamp(2.45rem, 10vw, 3.2rem) !important;
+  }
+
+  .font-display.text-7xl,
+  .font-section.text-7xl {
+    font-size: clamp(2.6rem, 11vw, 3.5rem) !important;
   }
 }
 

@@ -54,7 +54,7 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
     <section className="mx-auto max-w-[90rem] px-4 py-10 sm:px-6 sm:py-16 lg:px-10">
       <div className="max-w-2xl">
         <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ГАРДЕРОБ / СОЧЕТАНИЯ</p>
-        <h1 className="font-section mt-3 text-5xl leading-none sm:text-7xl">Образы</h1>
+        <h1 className="font-section mt-3 text-[clamp(2.6rem,8vw,4.5rem)] leading-[0.9]">Образы</h1>
         <p className="mt-5 leading-7 text-[color:var(--ink)]/70">Готовые сочетания из каталога — выбирайте целиком или открывайте отдельные вещи.</p>
       </div>
 

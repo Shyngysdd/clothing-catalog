@@ -16,7 +16,7 @@ export default async function AccountPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-16">
       <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ЛИЧНЫЙ КАБИНЕТ</p>
-      <h1 className="font-display mt-3 text-5xl leading-none tracking-[-0.04em] sm:text-7xl">Здравствуйте, {customer.name}</h1>
+      <h1 className="font-display mt-3 text-[clamp(2.5rem,8vw,4.5rem)] leading-[0.9] tracking-[-0.04em]">Здравствуйте, {customer.name}</h1>
       <section className="mt-10 border-y border-[color:var(--ink)]/15 py-6 text-sm">
         <p><span className="text-[color:var(--ink)]/60">Email:</span> {customer.email}</p>
         {customer.phone ? <p className="mt-3"><span className="text-[color:var(--ink)]/60">Телефон:</span> {customer.phone}</p> : null}

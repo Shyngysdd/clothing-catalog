@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { createOrderFromCart } from "@/app/account/order-actions";
@@ -122,7 +123,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn }: { onClose: () => voi
             {items.map((item) => (
               <li key={`${item.id}-${item.size}`} className="py-5">
                 <div className="flex gap-3">
-                  <div className="size-16 shrink-0 rounded-md" style={{ backgroundColor: item.imageColor }} />
+                  {item.imageUrl ? <div className="relative size-16 shrink-0 overflow-hidden rounded-md"><Image src={item.imageUrl} alt="" fill sizes="64px" className="object-cover" /></div> : <div className="size-16 shrink-0 rounded-md" style={{ backgroundColor: item.imageColor }} />}
                   <div className="min-w-0 flex-1">
                     <p className="font-medium">{item.name}</p>
                     <p className="mt-1 text-sm text-[color:var(--ink)]/60">Размер: {item.size} · {item.quantity} шт.</p>

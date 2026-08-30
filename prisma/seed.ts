@@ -52,6 +52,42 @@ async function main() {
     }
   }
 
+  await Promise.all([
+    prisma.banner.upsert({
+      where: { slot: "hero" },
+      update: {},
+      create: {
+        slot: "hero",
+        title: "Billion.co",
+        subtitle: "Новая глава городского гардероба — строгая, тактильная, личная.",
+        linkUrl: "/catalog?category=новинки",
+        imageUrl: null,
+      },
+    }),
+    prisma.banner.upsert({
+      where: { slot: "category-1" },
+      update: {},
+      create: {
+        slot: "category-1",
+        title: "Ветровки",
+        subtitle: "ВЫБОРКА / 01",
+        linkUrl: "/catalog?category=Ветровки",
+        imageUrl: null,
+      },
+    }),
+    prisma.banner.upsert({
+      where: { slot: "category-2" },
+      update: {},
+      create: {
+        slot: "category-2",
+        title: "Обувь",
+        subtitle: "ВЫБОРКА / 02",
+        linkUrl: "/catalog?category=Обувь",
+        imageUrl: null,
+      },
+    }),
+  ]);
+
   for (const look of looks) {
     const existingLook = await prisma.look.findFirst({ where: { title: look.title } });
     if (existingLook) continue;

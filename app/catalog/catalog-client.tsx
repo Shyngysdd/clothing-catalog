@@ -138,7 +138,7 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
       <div className="mb-10 flex items-end justify-between gap-4 border-b border-[color:var(--ink)]/15 pb-8 sm:mb-14">
         <div>
           <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ВЫБОРКА / 2026</p>
-          <h1 className="font-display mt-3 text-5xl leading-none tracking-[-0.04em] sm:text-7xl">Каталог</h1>
+          <h1 className="font-display mt-3 text-[clamp(2.6rem,8vw,4.5rem)] leading-[0.9] tracking-[-0.04em]">Каталог</h1>
           <p className="mt-4 text-sm text-[color:var(--ink)]/60">
             Найдено: {filteredProducts.length}
           </p>

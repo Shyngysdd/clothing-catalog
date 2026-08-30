@@ -11,6 +11,7 @@ const navigation = [
   { href: "/admin", label: "Обзор", exact: true },
   { href: "/admin/products", label: "Товары" },
   { href: "/admin/looks", label: "Образы" },
+  { href: "/admin/banners", label: "Баннеры" },
   { href: "/admin/orders", label: "Заказы" },
 ];
 

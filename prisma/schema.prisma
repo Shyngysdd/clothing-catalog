@@ -55,6 +55,16 @@ model LookItem {
   productId String
 }
 
+model Banner {
+  id        String   @id @default(cuid())
+  slot      String   @unique
+  title     String
+  subtitle  String?
+  linkUrl   String
+  imageUrl  String?
+  updatedAt DateTime @updatedAt
+}
+
 model Customer {
   id           String     @id @default(cuid())
   email        String     @unique

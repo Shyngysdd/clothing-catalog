@@ -13,5 +13,5 @@ export default async function AccountFavoritesPage() {
   const products = await prisma.product.findMany({ where: { id: { in: favorites.map((favorite) => favorite.productId) } }, include: { sizes: true } });
   const productsById = new Map(products.map((product) => [product.id, product]));
   const favoriteProducts = favorites.flatMap((favorite) => { const product = productsById.get(favorite.productId); return product ? [product] : []; });
-  return <main className="mx-auto max-w-[90rem] px-4 py-10 sm:px-6 sm:py-16 lg:px-10"><Link href="/account" className="font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← ЛИЧНЫЙ КАБИНЕТ</Link><h1 className="font-display mt-5 text-5xl leading-none tracking-[-0.04em] sm:text-7xl">Избранное</h1><FavoritesList products={favoriteProducts} /></main>;
+  return <main className="mx-auto max-w-[90rem] px-4 py-10 sm:px-6 sm:py-16 lg:px-10"><Link href="/account" className="font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← ЛИЧНЫЙ КАБИНЕТ</Link><h1 className="font-display mt-5 text-[clamp(2.6rem,8vw,4.5rem)] leading-[0.9] tracking-[-0.04em]">Избранное</h1><FavoritesList products={favoriteProducts} /></main>;
 }

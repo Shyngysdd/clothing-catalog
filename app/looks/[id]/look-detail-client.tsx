@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/context/cart-context";
@@ -34,13 +35,13 @@ export function LookDetailClient({ look }: { look: CatalogLook }) {
       </div>
       <div className="mt-10 border-b border-[color:var(--ink)]/15 pb-7">
         <p className="look-number text-4xl leading-none text-[color:var(--accent)]">ОБРАЗ {String(look.id).padStart(2, "0")}</p>
-        <h1 className="font-section mt-4 text-4xl leading-tight sm:text-6xl">{look.title}</h1>
+        <h1 className="font-section mt-4 text-[clamp(2.35rem,7vw,3.75rem)] leading-[0.95]">{look.title}</h1>
         <p className="mt-5 max-w-2xl leading-7 text-[color:var(--ink)]/70">{look.description}</p>
       </div>
       <div className="divide-y divide-[color:var(--ink)]/15">
         {lookProducts.map((product) => (
           <div key={product.id} className="flex items-center gap-4 py-4 sm:gap-6">
-            <div className="size-16 shrink-0 border border-[color:var(--ink)]/10" style={{ backgroundColor: product.imageColor }} />
+            {product.imageUrl ? <div className="relative size-16 shrink-0 overflow-hidden border border-[color:var(--ink)]/10"><Image src={product.imageUrl} alt="" fill sizes="64px" className="object-cover" /></div> : <div className="size-16 shrink-0 border border-[color:var(--ink)]/10" style={{ backgroundColor: product.imageColor }} />}
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">{product.name}</p>
               <p className="font-mono-price mt-1 text-sm text-[color:var(--ink)]/70">{formatPrice.format(product.price)} ₸</p>

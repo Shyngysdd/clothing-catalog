@@ -11,7 +11,7 @@ const extensionByMimeType: Record<string, string> = {
   "image/gif": "gif",
 };
 
-export async function saveProductImage(file: File) {
+export async function saveImage(file: File, directory = "products") {
   if (!file.size) return null;
   const extension = extensionByMimeType[file.type];
   if (!extension || file.size > MAX_IMAGE_SIZE) {
@@ -24,7 +24,7 @@ export async function saveProductImage(file: File) {
   }
 
   if (process.env.BLOB_READ_WRITE_TOKEN) {
-    const blob = await put(`products/${fileName}`, file, {
+    const blob = await put(`${directory}/${fileName}`, file, {
       access: "public",
       addRandomSuffix: false,
       contentType: file.type,
@@ -38,7 +38,7 @@ export async function saveProductImage(file: File) {
   return `/uploads/${fileName}`;
 }
 
-export async function deleteProductImage(imageUrl: string) {
+export async function deleteImage(imageUrl: string) {
   if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
     if (process.env.BLOB_READ_WRITE_TOKEN) await del(imageUrl);
     return;
@@ -53,3 +53,6 @@ export async function deleteProductImage(imageUrl: string) {
     throw error;
   }
 }
+
+export const saveProductImage = saveImage;
+export const deleteProductImage = deleteImage;
