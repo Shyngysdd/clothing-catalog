@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { CSSProperties } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
@@ -11,16 +11,9 @@ const formatPrice = new Intl.NumberFormat("ru-RU");
 
 function HomeProductPreview({ product, tone }: { product: CatalogProduct; tone: string }) {
   const frames = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
-  const [isHovered, setIsHovered] = useState(false);
   const [activeFrame, setActiveFrame] = useState(0);
 
-  useEffect(() => {
-    if (!isHovered || frames.length < 2) return;
-    const timer = window.setInterval(() => setActiveFrame((current) => (current + 1) % frames.length), 520);
-    return () => window.clearInterval(timer);
-  }, [frames.length, isHovered]);
-
-  return <div className={`look-product-media aspect-[4/5] transition-[filter,transform] duration-200 ease-out group-hover:scale-[0.985] group-hover:brightness-75 ${product.sizes.length > 0 && product.sizes.every((size) => !size.inStock) ? "grayscale" : ""}`} style={{ "--look-tone": tone } as CSSProperties} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => { setIsHovered(false); setActiveFrame(0); }}>
+  return <div className={`look-product-media aspect-[4/5] transition-[filter,transform] duration-200 ease-out group-hover:scale-[0.985] group-hover:brightness-75 ${product.sizes.length > 0 && product.sizes.every((size) => !size.inStock) ? "grayscale" : ""}`} style={{ "--look-tone": tone } as CSSProperties} onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)} onMouseLeave={() => setActiveFrame(0)}>
     {frames.map((imageUrl, index) => <Image key={imageUrl} src={imageUrl} alt="" fill sizes="(max-width: 767px) 72vw, 18rem" className={`look-gallery-frame product-card-photo ${activeFrame === index ? "is-active" : ""}`} />)}
     <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
     {product.sizes.length > 0 && product.sizes.every((size) => !size.inStock) ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}

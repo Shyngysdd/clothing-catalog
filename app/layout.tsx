@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo_Black, IBM_Plex_Mono, Montserrat } from "next/font/google";
-import { SiteHeader } from "@/components/site-header";
+import { SiteChrome } from "@/components/site-chrome";
 import { CartProvider } from "@/context/cart-context";
 import { FavoritesProvider } from "@/context/favorites-context";
 import { CUSTOMER_SESSION_COOKIE, getCustomerIdFromSession } from "@/lib/customer-auth";
@@ -54,13 +54,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col antialiased">
         <FavoritesProvider isCustomerLoggedIn={Boolean(customerId)} initialFavoriteIds={initialFavoriteIds}>
           <CartProvider>
-            <SiteHeader categories={categories} isCustomerLoggedIn={Boolean(customerId)} />
-            <main className="flex-1">{children}</main>
-            <footer className="border-t-2 border-[color:var(--ink)]/25">
-              <div className="mx-auto max-w-6xl px-4 py-5 text-sm text-[color:var(--ink)]/60 sm:px-6">
-                Демо-каталог одежды и обуви
-              </div>
-            </footer>
+            <SiteChrome categories={categories} isCustomerLoggedIn={Boolean(customerId)}>{children}</SiteChrome>
           </CartProvider>
         </FavoritesProvider>
       </body>

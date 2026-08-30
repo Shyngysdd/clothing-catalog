@@ -153,7 +153,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
             <Link href="/catalog?sale=true" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-section text-lg leading-none">Со скидкой</span></Link>
             <div className="pt-3">{categories.map((category) => <Link key={category.name} href={`/catalog?category=${encodeURIComponent(category.name)}`} onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4 hover:text-[color:var(--accent)]"><span className="font-section block text-lg leading-none">{category.name}</span><span className="font-mono-price mt-2 block text-xs text-[color:var(--ink)]/55">{category.count} {category.count === 1 ? "товар" : "товаров"}</span></Link>)}</div>
           </nav>
-          <nav aria-label="Аккаунт и контакты" className="border-t border-[color:var(--ink)]/15 px-5 py-3 sm:hidden sm:px-7">
+          <nav aria-label="Аккаунт и контакты" className="border-t border-[color:var(--ink)]/15 px-5 py-3 sm:px-7">
             <Link
               href={accountHref}
               onClick={() => setIsNavigatorOpen(false)}

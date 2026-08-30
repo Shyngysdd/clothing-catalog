@@ -50,11 +50,11 @@ export function OverlayPanel({ children, labelledBy, onClose, position = "center
 
   const panelClass =
     position === "right"
-      ? "ml-auto flex h-full w-full max-w-md flex-col bg-white shadow-2xl"
-      : "my-6 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl sm:p-8";
+      ? "ml-auto flex h-full w-full max-w-md flex-col bg-[color:var(--paper)] shadow-2xl"
+      : "my-6 w-full max-w-lg rounded-xl bg-[color:var(--paper)] p-6 shadow-2xl sm:p-8";
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 p-4" onMouseDown={onClose}>
+    <div className={`fixed inset-0 z-50 bg-[color:var(--ink)]/45 ${position === "right" ? "p-0 sm:p-4" : "p-4"}`} onMouseDown={onClose}>
       <div
         ref={panelRef}
         role="dialog"

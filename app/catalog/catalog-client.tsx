@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
+import { useFavorites } from "@/context/favorites-context";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
@@ -19,6 +20,7 @@ type SortOption = "default" | "price-asc" | "price-desc" | "newest" | "alphabeti
 type GridDensity = "1" | "2";
 
 export function CatalogClient({ products }: { products: CatalogProduct[] }) {
+  const { isFavorite, toggleFavorite } = useFavorites();
   const searchParams = useSearchParams();
   const requestedCategory = searchParams.get("category");
   const requestedSale = searchParams.get("sale") === "true";
@@ -281,7 +283,7 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
               {sortedProducts.map((product, index) => {
                 const isSoldOut = product.sizes.length > 0 && product.sizes.every((size) => !size.inStock);
                 return (
-                <article key={product.id} className={`look-product-card group ${isSoldOut ? "opacity-60" : ""}`}>
+                <article key={product.id} className={`look-product-card group relative ${isSoldOut ? "opacity-60" : ""}`}>
                   <Link
                     href={`/catalog/${product.id}`}
                     className="block w-full text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]"
@@ -302,6 +304,15 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
                       <div className="mt-2 flex flex-wrap items-center gap-2"><p className="catalog-product-price font-mono-price text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
                     </div>
                   </Link>
+                  <button
+                    type="button"
+                    onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleFavorite(product.id); }}
+                    className="absolute right-3 top-12 z-10 grid size-9 place-items-center rounded-full bg-[color:var(--paper)]/90 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]"
+                    aria-label={isFavorite(product.id) ? "Убрать из избранного" : "Добавить в избранное"}
+                    aria-pressed={isFavorite(product.id)}
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill={isFavorite(product.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" className={`size-5 ${isFavorite(product.id) ? "text-[color:var(--accent)]" : ""}`}><path d="M20.8 8.7c0 5-8.8 10.1-8.8 10.1S3.2 13.7 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </button>
                 </article>
                 );
               })}

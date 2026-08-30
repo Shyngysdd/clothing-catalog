@@ -1,6 +1,7 @@
 "use server";
 
 import { Prisma } from "@prisma/client";
+import JSZip from "jszip";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -148,4 +149,168 @@ export async function deleteProduct(id: string) {
   revalidatePath("/admin/looks");
   revalidatePath("/looks");
   redirect("/admin/products");
+}
+
+export type CsvImportReport = {
+  created: number;
+  updated: number;
+  skipped: { line: number; reason: string }[];
+  photosNotFound: string[];
+};
+
+type CsvRow = Record<string, string>;
+
+const csvColumns = ["sku", "name", "category", "price", "originalPrice", "description", "composition", "fit", "sizes", "care"];
+
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (character === '"') {
+      if (inQuotes && text[index + 1] === '"') { cell += '"'; index += 1; } else inQuotes = !inQuotes;
+    } else if (character === "," && !inQuotes) {
+      row.push(cell.trim()); cell = "";
+    } else if ((character === "\n" || character === "\r") && !inQuotes) {
+      if (character === "\r" && text[index + 1] === "\n") index += 1;
+      row.push(cell.trim());
+      if (row.some(Boolean)) rows.push(row);
+      row = []; cell = "";
+    } else cell += character;
+  }
+  row.push(cell.trim());
+  if (row.some(Boolean)) rows.push(row);
+  return rows;
+}
+
+function toCsvRows(text: string): { rows: CsvRow[]; error?: string } {
+  const [header = [], ...data] = parseCsv(text.replace(/^\uFEFF/, ""));
+  const normalizedHeader = header.map((item) => item.trim());
+  const missing = csvColumns.filter((column) => !normalizedHeader.includes(column));
+  if (missing.length) return { rows: [], error: `Нет обязательных колонок: ${missing.join(", ")}.` };
+  return { rows: data.map((cells) => Object.fromEntries(normalizedHeader.map((column, index) => [column, cells[index] ?? ""]))) };
+}
+
+function validateCsvRow(row: CsvRow) {
+  const sku = row.sku.trim();
+  const name = row.name.trim();
+  const category = row.category.trim();
+  const price = Number(row.price);
+  const originalPrice = row.originalPrice.trim() ? Number(row.originalPrice) : null;
+  if (!sku || !name || !category) return { error: "Не заполнены артикул, название или категория." } as const;
+  if (!Number.isInteger(price) || price <= 0) return { error: "Цена должна быть положительным целым числом." } as const;
+  if (originalPrice !== null && (!Number.isInteger(originalPrice) || originalPrice <= price)) return { error: "Старая цена должна быть целым числом больше текущей." } as const;
+  const sizes = [...new Set(row.sizes.split(",").map((size) => size.trim()).filter(Boolean))];
+  const care = row.care.split(";").map((item) => item.trim()).filter(Boolean);
+  return {
+    value: {
+      sku, name, category, price, originalPrice,
+      description: row.description.trim() || null,
+      composition: row.composition.trim() || null,
+      fit: row.fit.trim() || null,
+      care, sizes,
+    },
+  } as const;
+}
+
+const imageTypes: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function zipImageEntries(zip: JSZip, sku: string) {
+  const escapedSku = escapeRegExp(sku);
+  const entries = Object.values(zip.files).filter((entry) => !entry.dir);
+  const mainPattern = new RegExp(`(?:^|/)${escapedSku}\\.(jpg|jpeg|png|webp)$`, "i");
+  const galleryPattern = new RegExp(`(?:^|/)${escapedSku}-(\\d+)\\.(jpg|jpeg|png|webp)$`, "i");
+  const main = entries.find((entry) => mainPattern.test(entry.name));
+  const gallery = entries.map((entry) => {
+    const match = entry.name.match(galleryPattern);
+    return match ? { entry, order: Number(match[1]) } : null;
+  }).filter((item): item is { entry: JSZip.JSZipObject; order: number } => item !== null).sort((a, b) => a.order - b.order).map((item) => item.entry);
+  return { main, gallery };
+}
+
+async function uploadZipImage(entry: JSZip.JSZipObject) {
+  const extension = entry.name.split(".").pop()?.toLowerCase() ?? "";
+  const type = imageTypes[extension];
+  if (!type) throw new Error("Поддерживаются только JPG, PNG и WebP.");
+  const bytes = await entry.async("uint8array");
+  const imageBytes = new Uint8Array(bytes.length);
+  imageBytes.set(bytes);
+  return saveProductImage(new File([imageBytes], entry.name.split("/").pop() || "image", { type }));
+}
+
+export async function importProductsCsv(_: CsvImportReport | null, formData: FormData): Promise<CsvImportReport> {
+  const file = formData.get("csv");
+  const zipFile = formData.get("imagesZip");
+  const report: CsvImportReport = { created: 0, updated: 0, skipped: [], photosNotFound: [] };
+  if (!(file instanceof File) || file.size === 0) {
+    return { ...report, skipped: [{ line: 0, reason: "Выберите непустой CSV-файл." }] };
+  }
+
+  let imageZip: JSZip | null = null;
+  if (zipFile instanceof File && zipFile.size > 0) {
+    if (zipFile.size > 200 * 1024 * 1024) {
+      return { ...report, skipped: [{ line: 0, reason: "ZIP-архив не должен превышать 200 МБ." }] };
+    }
+    try {
+      imageZip = await JSZip.loadAsync(await zipFile.arrayBuffer());
+    } catch {
+      return { ...report, skipped: [{ line: 0, reason: "Не удалось открыть ZIP-архив. Проверьте файл и попробуйте снова." }] };
+    }
+  }
+
+  const parsed = toCsvRows(await file.text());
+  if (parsed.error) return { ...report, skipped: [{ line: 1, reason: parsed.error }] };
+
+  for (const [index, row] of parsed.rows.entries()) {
+    const line = index + 2;
+    const checked = validateCsvRow(row);
+    if ("error" in checked) { report.skipped.push({ line, reason: checked.error ?? "Некорректные данные." }); continue; }
+    const input = checked.value;
+    try {
+      const existing = await prisma.product.findUnique({ where: { sku: input.sku }, select: { id: true } });
+      const data = {
+        sku: input.sku, name: input.name, category: input.category, price: input.price,
+        originalPrice: input.originalPrice, description: input.description, composition: input.composition,
+        fit: input.fit, care: input.care,
+      };
+      const imageEntries = imageZip ? zipImageEntries(imageZip, input.sku) : null;
+      if (imageZip && !imageEntries?.main) report.photosNotFound.push(input.sku);
+      const uploadedMain = imageEntries?.main ? await uploadZipImage(imageEntries.main) : null;
+      const uploadedGallery = imageEntries ? (await Promise.all(imageEntries.gallery.map(uploadZipImage))).filter((url): url is string => Boolean(url)) : [];
+
+      if (existing) {
+        await prisma.$transaction(async (tx) => {
+          await tx.product.update({ where: { id: existing.id }, data: { ...data, ...(uploadedMain ? { imageUrl: uploadedMain } : {}), ...(uploadedGallery.length ? { galleryUrls: uploadedGallery } : {}) } });
+          await tx.productSize.deleteMany({ where: { productId: existing.id } });
+          if (input.sizes.length) await tx.productSize.createMany({ data: input.sizes.map((size) => ({ productId: existing.id, size, inStock: true })) });
+        });
+        report.updated += 1;
+      } else {
+        await prisma.product.create({
+          data: {
+            ...data,
+            imageColor: "#B08D4F",
+            galleryTones: ["accent"],
+            ...(uploadedMain ? { imageUrl: uploadedMain } : {}),
+            ...(uploadedGallery.length ? { galleryUrls: uploadedGallery } : {}),
+            sizes: { create: input.sizes.map((size) => ({ size, inStock: true })) },
+          },
+        });
+        report.created += 1;
+      }
+    } catch (error) {
+      report.skipped.push({ line, reason: error instanceof Error ? error.message : "Не удалось сохранить товар." });
+    }
+  }
+
+  revalidatePath("/admin/products");
+  revalidatePath("/catalog");
+  return report;
 }
