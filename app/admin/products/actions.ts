@@ -160,19 +160,25 @@ export type CsvImportReport = {
 
 type CsvRow = Record<string, string>;
 
-const csvColumns = ["sku", "name", "category", "price", "originalPrice", "description", "composition", "fit", "sizes", "care"];
+const requiredCsvColumns = ["sku", "name", "category", "price", "originalPrice", "description", "composition", "fit", "sizes", "care"];
+
+function detectDelimiter(text: string) {
+  const header = text.replace(/^\uFEFF/, "").split(/\r?\n/, 1)[0] ?? "";
+  return header.includes(";") ? ";" : ",";
+}
 
 function parseCsv(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let cell = "";
   let inQuotes = false;
+  const delimiter = detectDelimiter(text);
 
   for (let index = 0; index < text.length; index += 1) {
     const character = text[index];
     if (character === '"') {
       if (inQuotes && text[index + 1] === '"') { cell += '"'; index += 1; } else inQuotes = !inQuotes;
-    } else if (character === "," && !inQuotes) {
+    } else if (character === delimiter && !inQuotes) {
       row.push(cell.trim()); cell = "";
     } else if ((character === "\n" || character === "\r") && !inQuotes) {
       if (character === "\r" && text[index + 1] === "\n") index += 1;
@@ -189,7 +195,7 @@ function parseCsv(text: string): string[][] {
 function toCsvRows(text: string): { rows: CsvRow[]; error?: string } {
   const [header = [], ...data] = parseCsv(text.replace(/^\uFEFF/, ""));
   const normalizedHeader = header.map((item) => item.trim());
-  const missing = csvColumns.filter((column) => !normalizedHeader.includes(column));
+  const missing = requiredCsvColumns.filter((column) => !normalizedHeader.includes(column));
   if (missing.length) return { rows: [], error: `Нет обязательных колонок: ${missing.join(", ")}.` };
   return { rows: data.map((cells) => Object.fromEntries(normalizedHeader.map((column, index) => [column, cells[index] ?? ""]))) };
 }
@@ -205,13 +211,15 @@ function validateCsvRow(row: CsvRow) {
   if (originalPrice !== null && (!Number.isInteger(originalPrice) || originalPrice <= price)) return { error: "Старая цена должна быть целым числом больше текущей." } as const;
   const sizes = [...new Set(row.sizes.split(",").map((size) => size.trim()).filter(Boolean))];
   const care = row.care.split(";").map((item) => item.trim()).filter(Boolean);
+  const imageColor = row.imageColor?.trim() || "#B08D4F";
+  if (!/^#[0-9a-fA-F]{6}$/.test(imageColor)) return { error: "Цвет заглушки должен быть в формате #RRGGBB." } as const;
   return {
     value: {
       sku, name, category, price, originalPrice,
       description: row.description.trim() || null,
       composition: row.composition.trim() || null,
       fit: row.fit.trim() || null,
-      care, sizes,
+      care, sizes, imageColor,
     },
   } as const;
 }
@@ -278,7 +286,7 @@ export async function importProductsCsv(_: CsvImportReport | null, formData: For
       const data = {
         sku: input.sku, name: input.name, category: input.category, price: input.price,
         originalPrice: input.originalPrice, description: input.description, composition: input.composition,
-        fit: input.fit, care: input.care,
+        fit: input.fit, care: input.care, imageColor: input.imageColor,
       };
       const imageEntries = imageZip ? zipImageEntries(imageZip, input.sku) : null;
       if (imageZip && !imageEntries?.main) report.photosNotFound.push(input.sku);
@@ -296,7 +304,6 @@ export async function importProductsCsv(_: CsvImportReport | null, formData: For
         await prisma.product.create({
           data: {
             ...data,
-            imageColor: "#B08D4F",
             galleryTones: ["accent"],
             ...(uploadedMain ? { imageUrl: uploadedMain } : {}),
             ...(uploadedGallery.length ? { galleryUrls: uploadedGallery } : {}),
