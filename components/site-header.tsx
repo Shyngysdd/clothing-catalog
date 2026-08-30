@@ -9,11 +9,50 @@ import { CartDrawer } from "./cart-drawer";
 
 type CategoryNavItem = { name: string; count: number };
 
+function InstagramIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="size-5 shrink-0">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.8" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5 shrink-0">
+      <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.2A8 8 0 1 1 20 11.5Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9 9.5c.5 2 2 3.5 4 4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function AccountIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5 shrink-0">
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M4.5 20c.7-3.5 3.3-5.5 7.5-5.5s6.8 2 7.5 5.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function FavoritesIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5 shrink-0">
+      <path d="M20.8 8.7c0 5-8.8 10.1-8.8 10.1S3.2 13.7 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: CategoryNavItem[]; isCustomerLoggedIn: boolean }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNavigatorOpen, setIsNavigatorOpen] = useState(false);
   const { itemCount } = useCart();
   const { favoriteIds } = useFavorites();
+  const accountHref = isCustomerLoggedIn ? "/account" : "/account/login";
+  const accountLabel = isCustomerLoggedIn ? "Профиль" : "Войти";
+  const whatsappHref = `https://wa.me/${BRAND_CONFIG.whatsappNumber}?text=${encodeURIComponent("Здравствуйте! У меня вопрос по сайту")}`;
 
   useEffect(() => {
     if (!isNavigatorOpen) return;
@@ -45,52 +84,41 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
             <button type="button" onClick={() => setIsNavigatorOpen(true)} className="text-xs font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:text-sm">
               Каталог
             </button>
-            <Link href="/looks" className="text-xs font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:text-sm">
+            <Link href="/looks" className="hidden text-xs font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:inline sm:text-sm">
               Образы
             </Link>
             <a
               href={BRAND_CONFIG.instagramUrl}
               target="_blank"
               rel="noreferrer"
-              className="ml-1 grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11"
+              className="ml-1 hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:grid sm:size-11"
               aria-label="Instagram магазина"
             >
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="size-5">
-                <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle cx="17.5" cy="6.8" r="1" fill="currentColor" stroke="none" />
-              </svg>
+              <InstagramIcon />
             </a>
             <a
-              href={`https://wa.me/${BRAND_CONFIG.whatsappNumber}?text=${encodeURIComponent("Здравствуйте! У меня вопрос по сайту")}`}
+              href={whatsappHref}
               target="_blank"
               rel="noreferrer"
-              className="grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11"
+              className="hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:grid sm:size-11"
               aria-label="Поддержка в WhatsApp"
             >
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5">
-                <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.2A8 8 0 1 1 20 11.5Z" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M9 9.5c.5 2 2 3.5 4 4" strokeLinecap="round" />
-              </svg>
+              <WhatsAppIcon />
             </a>
             <Link
-              href={isCustomerLoggedIn ? "/account" : "/account/login"}
-              className="grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11"
+              href={accountHref}
+              className="hidden h-10 items-center gap-1.5 px-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:flex sm:h-11"
               aria-label={isCustomerLoggedIn ? "Личный кабинет" : "Войти в личный кабинет"}
             >
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5">
-                <circle cx="12" cy="8" r="3.5" />
-                <path d="M4.5 20c.7-3.5 3.3-5.5 7.5-5.5s6.8 2 7.5 5.5" strokeLinecap="round" />
-              </svg>
+              <AccountIcon />
+              <span className="text-xs font-medium sm:text-sm">{accountLabel}</span>
             </Link>
             <Link
               href="/favorites"
-              className="relative grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11"
+              className="relative hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:grid sm:size-11"
               aria-label={`Избранное, товаров: ${favoriteIds.length}`}
             >
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5">
-                <path d="M20.8 8.7c0 5-8.8 10.1-8.8 10.1S3.2 13.7 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <FavoritesIcon />
               {favoriteIds.length > 0 ? <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-xs leading-5 text-white">{favoriteIds.length}</span> : null}
             </Link>
             <button
@@ -124,6 +152,45 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
             <Link href="/catalog" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-section text-lg leading-none">Все товары</span></Link>
             <Link href="/catalog?sale=true" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-section text-lg leading-none">Со скидкой</span></Link>
             <div className="pt-3">{categories.map((category) => <Link key={category.name} href={`/catalog?category=${encodeURIComponent(category.name)}`} onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4 hover:text-[color:var(--accent)]"><span className="font-section block text-lg leading-none">{category.name}</span><span className="font-mono-price mt-2 block text-xs text-[color:var(--ink)]/55">{category.count} {category.count === 1 ? "товар" : "товаров"}</span></Link>)}</div>
+          </nav>
+          <nav aria-label="Аккаунт и контакты" className="border-t border-[color:var(--ink)]/15 px-5 py-3 sm:hidden sm:px-7">
+            <Link
+              href={accountHref}
+              onClick={() => setIsNavigatorOpen(false)}
+              className="flex items-center gap-3 py-3 text-[color:var(--ink)] hover:text-[color:var(--accent)]"
+            >
+              <AccountIcon />
+              <span className="text-sm font-medium">{accountLabel}</span>
+            </Link>
+            <Link
+              href="/favorites"
+              onClick={() => setIsNavigatorOpen(false)}
+              className="flex items-center gap-3 py-3 text-[color:var(--ink)] hover:text-[color:var(--accent)]"
+            >
+              <FavoritesIcon />
+              <span className="text-sm font-medium">Избранное{favoriteIds.length > 0 ? ` (${favoriteIds.length})` : ""}</span>
+              {favoriteIds.length > 0 ? <span className="ml-auto grid min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-xs leading-5 text-white">{favoriteIds.length}</span> : null}
+            </Link>
+            <a
+              href={BRAND_CONFIG.instagramUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setIsNavigatorOpen(false)}
+              className="flex items-center gap-3 py-3 text-[color:var(--ink)] hover:text-[color:var(--accent)]"
+            >
+              <InstagramIcon />
+              <span className="text-sm font-medium">Instagram</span>
+            </a>
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setIsNavigatorOpen(false)}
+              className="flex items-center gap-3 py-3 text-[color:var(--ink)] hover:text-[color:var(--accent)]"
+            >
+              <WhatsAppIcon />
+              <span className="text-sm font-medium">Написать в поддержку</span>
+            </a>
           </nav>
         </aside>
       </div>
