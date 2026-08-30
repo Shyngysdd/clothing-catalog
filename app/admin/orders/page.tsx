@@ -21,11 +21,20 @@ const filters = [
   { value: "cancelled", label: "Отменён" },
 ];
 
-export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
-  const { status: requestedStatus } = await searchParams;
+export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<{ status?: string; q?: string }> }) {
+  const { status: requestedStatus, q: rawQuery } = await searchParams;
   const status = statusMeta[requestedStatus ?? ""] ? requestedStatus : undefined;
+  const query = rawQuery?.trim() ?? "";
   const orders = await prisma.order.findMany({
-    where: status ? { status } : undefined,
+    where: {
+      ...(status ? { status } : {}),
+      ...(query ? { OR: [
+        { customer: { is: { name: { contains: query, mode: "insensitive" } } } },
+        { customer: { is: { phone: { contains: query } } } },
+        { id: { equals: query } },
+        { id: { endsWith: query } },
+      ] } : {}),
+    },
     include: { customer: { select: { name: true, phone: true } }, items: { select: { id: true } } },
     orderBy: { createdAt: "desc" },
   });
@@ -40,10 +49,20 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
       <nav aria-label="Фильтр заказов" className="mt-6 flex flex-wrap gap-2">
         {filters.map((filter) => {
           const isActive = (status ?? "") === filter.value;
-          const href = filter.value ? `/admin/orders?status=${filter.value}` : "/admin/orders";
+          const params = new URLSearchParams();
+          if (filter.value) params.set("status", filter.value);
+          if (query) params.set("q", query);
+          const href = params.size ? `/admin/orders?${params.toString()}` : "/admin/orders";
           return <Link key={filter.value || "all"} href={href} className={`min-h-9 border px-3 py-2 text-xs transition ${isActive ? "border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)]" : "border-[color:var(--ink)]/25 hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{filter.label}</Link>;
         })}
       </nav>
+
+      <form method="get" className="mt-5 flex max-w-xl gap-2">
+        {status ? <input type="hidden" name="status" value={status} /> : null}
+        <input name="q" defaultValue={query} placeholder="Имя, телефон или номер заказа" className="min-h-11 min-w-0 flex-1 border border-[color:var(--ink)]/25 bg-[color:var(--white)] px-3 text-sm outline-none placeholder:text-[color:var(--ink)]/45 focus:border-[color:var(--accent)]" />
+        <button type="submit" className="min-h-11 bg-[color:var(--ink)] px-4 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)]">Найти</button>
+        {query ? <Link href={status ? `/admin/orders?status=${status}` : "/admin/orders"} className="flex min-h-11 items-center px-2 text-sm text-[color:var(--accent)] underline underline-offset-4">Сбросить</Link> : null}
+      </form>
 
       {orders.length === 0 ? <div className="mt-8 border-y border-[color:var(--ink)]/15 py-12 text-center text-[color:var(--ink)]/65">Заказов с таким статусом пока нет.</div> : (
         <div className="mt-8 overflow-x-auto border-y border-[color:var(--ink)]/20">

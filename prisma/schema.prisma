@@ -78,6 +78,10 @@ model HomeSection {
 model Customer {
   id           String     @id @default(cuid())
   email        String     @unique
+  emailVerified Boolean    @default(false)
+  verificationToken String? @unique
+  verificationTokenExpiry DateTime?
+  verificationEmailSentAt DateTime?
   passwordHash String
   name         String
   phone        String?
@@ -118,4 +122,11 @@ model Favorite {
   createdAt  DateTime @default(now())
 
   @@unique([customerId, productId])
+}
+
+model Subscriber {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  unsubscribeToken String   @unique @default(cuid())
+  createdAt        DateTime @default(now())
 }

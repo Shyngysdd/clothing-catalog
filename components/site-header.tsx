@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BRAND_CONFIG } from "@/lib/brand-config";
 import { useCart } from "@/context/cart-context";
@@ -45,9 +46,16 @@ function FavoritesIcon() {
   );
 }
 
+function SearchIcon() {
+  return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><circle cx="10.8" cy="10.8" r="6.3" /><path d="m16 16 4.2 4.2" strokeLinecap="round" /></svg>;
+}
+
 export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: CategoryNavItem[]; isCustomerLoggedIn: boolean }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNavigatorOpen, setIsNavigatorOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const router = useRouter();
   const { itemCount } = useCart();
   const { favoriteIds } = useFavorites();
   const accountHref = isCustomerLoggedIn ? "/account" : "/account/login";
@@ -64,6 +72,20 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
       document.body.style.overflow = "";
     };
   }, [isNavigatorOpen]);
+
+  useEffect(() => {
+    const query = search.trim();
+    if (!isSearchOpen || !query) return;
+    const timeoutId = window.setTimeout(() => router.replace(`/catalog?search=${encodeURIComponent(query)}`), 300);
+    return () => window.clearTimeout(timeoutId);
+  }, [isSearchOpen, router, search]);
+
+  function submitSearch() {
+    const query = search.trim();
+    if (!query) return;
+    router.push(`/catalog?search=${encodeURIComponent(query)}`);
+    setIsSearchOpen(false);
+  }
 
   return (
     <>
@@ -84,6 +106,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
             <Link href="/looks" className="hidden text-xs font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:inline sm:text-sm">
               Образы
             </Link>
+            <button type="button" onClick={() => setIsSearchOpen(true)} className="grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11" aria-label="Поиск товаров"><SearchIcon /></button>
             <a
               href={BRAND_CONFIG.instagramUrl}
               target="_blank"
@@ -138,6 +161,12 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
           </div>
         </div>
       </header>
+      <div className={`fixed inset-0 z-[60] transition-opacity duration-200 ${isSearchOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={!isSearchOpen}>
+        <button type="button" onClick={() => setIsSearchOpen(false)} className="absolute inset-0 bg-[color:var(--ink)]/55" aria-label="Закрыть поиск" />
+        <form onSubmit={(event) => { event.preventDefault(); submitSearch(); }} className={`absolute left-0 right-0 top-0 border-b-2 border-[color:var(--ink)]/35 bg-[color:var(--paper)] px-4 py-5 transition-transform duration-200 sm:px-6 lg:px-10 ${isSearchOpen ? "translate-y-0" : "-translate-y-full"}`}>
+          <div className="mx-auto flex max-w-[90rem] items-center gap-3"><SearchIcon /><input autoFocus value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Найти товар..." className="min-h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-[color:var(--ink)]/45" aria-label="Поиск товаров" /><button type="submit" className="min-h-11 px-3 text-sm font-medium hover:text-[color:var(--accent)]">Найти</button><button type="button" onClick={() => setIsSearchOpen(false)} className="grid size-11 place-items-center text-2xl text-[color:var(--ink)]/65 hover:text-[color:var(--accent)]" aria-label="Закрыть поиск">×</button></div>
+        </form>
+      </div>
       <div className={`fixed inset-0 z-50 transition-opacity duration-300 ${isNavigatorOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={!isNavigatorOpen}>
         <button type="button" onClick={() => setIsNavigatorOpen(false)} className="absolute inset-0 bg-[color:var(--ink)]/45" aria-label="Закрыть навигатор каталога" />
         <aside role="dialog" aria-modal="true" aria-label="Навигатор каталога" className={`absolute right-0 top-0 flex h-full w-[78vw] max-w-[420px] flex-col bg-[color:var(--paper)] shadow-2xl transition-transform duration-300 ease-out ${isNavigatorOpen ? "translate-x-0" : "translate-x-full"}`}>

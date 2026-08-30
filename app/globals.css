@@ -419,7 +419,7 @@ textarea {
   .home-product-track {
     gap: 1rem;
     padding-right: 1rem;
-    animation: none;
+    animation: home-marquee 28s linear infinite;
   }
 
   .home-look-card {

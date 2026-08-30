@@ -19,7 +19,7 @@ function parsePrice(value: string) {
 type SortOption = "default" | "price-asc" | "price-desc" | "newest" | "alphabetical" | "sale";
 type GridDensity = "1" | "2";
 
-export function CatalogClient({ products }: { products: CatalogProduct[] }) {
+export function CatalogClient({ products, initialSearch }: { products: CatalogProduct[]; initialSearch: string }) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const searchParams = useSearchParams();
   const requestedCategory = searchParams.get("category");
@@ -37,6 +37,8 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sort, setSort] = useState<SortOption>("default");
   const [gridDensity, setGridDensity] = useState<GridDensity>("2");
+  const [search, setSearch] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
 
   useEffect(() => {
     const savedDensity = window.localStorage.getItem("catalog-grid-density");
@@ -49,6 +51,11 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
   useEffect(() => {
     window.localStorage.setItem("catalog-grid-density", gridDensity);
   }, [gridDensity]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => window.clearTimeout(timeoutId);
+  }, [search]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -86,7 +93,8 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
       (category === "Все" || product.category === category) &&
       (!saleOnly || (product.originalPrice !== null && product.originalPrice > product.price)) &&
       product.price >= minPrice &&
-      product.price <= maxPrice,
+      product.price <= maxPrice &&
+      (!debouncedSearch || product.name.toLocaleLowerCase("ru").includes(debouncedSearch.toLocaleLowerCase("ru")) || product.sku.toLocaleLowerCase("ru").includes(debouncedSearch.toLocaleLowerCase("ru"))),
   );
   const sortedProducts = [...filteredProducts].sort((first, second) => {
     if (sort === "price-asc") return first.price - second.price;
@@ -103,6 +111,7 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
   const filtersActive =
     category !== "Все" ||
     saleOnly ||
+    Boolean(debouncedSearch) ||
     minPrice !== productPriceRange.min ||
     maxPrice !== productPriceRange.max;
   const priceFillStart = ((minPrice - productPriceRange.min) / (productPriceRange.max - productPriceRange.min)) * 100;
@@ -119,6 +128,8 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
     setMaxPrice(productPriceRange.max);
     setMinPriceInput(String(productPriceRange.min));
     setMaxPriceInput(String(productPriceRange.max));
+    setSearch("");
+    setDebouncedSearch("");
   }
 
   function handleMinSliderChange(nextMinPrice: number) {
@@ -171,6 +182,11 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
               </button>
             ) : null}
           </div>
+
+          <label className="mt-6 block">
+            <span className="text-sm font-medium">Поиск</span>
+            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Найти товар..." className="mt-2 min-h-11 w-full border border-[color:var(--ink)]/25 bg-[color:var(--paper)] px-3 text-sm outline-none placeholder:text-[color:var(--ink)]/45 focus:border-[color:var(--accent)]" />
+          </label>
 
           <label className="mt-6 block">
             <span className="text-sm font-medium">Сортировка</span>
@@ -257,6 +273,7 @@ export function CatalogClient({ products }: { products: CatalogProduct[] }) {
         </aside>
 
         <div className="min-w-0 flex-1">
+          {debouncedSearch ? <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[color:var(--ink)]/15 pb-4 text-sm"><p>Результаты по запросу «{debouncedSearch}»: {filteredProducts.length} {filteredProducts.length === 1 ? "товар" : "товаров"}</p><button type="button" onClick={() => { setSearch(""); setDebouncedSearch(""); }} className="text-sm text-[color:var(--accent)] underline underline-offset-4">Сбросить поиск</button></div> : null}
           <div className="mb-5 flex items-center justify-end gap-1 md:hidden" aria-label="Плотность сетки">
             <span className="mr-2 font-mono-price text-[0.65rem] tracking-[0.08em] text-[color:var(--ink)]/55">СЕТКА</span>
             <button

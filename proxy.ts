@@ -18,7 +18,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith("/account")) {
-    if (pathname === "/account/login" || pathname === "/account/register") return NextResponse.next();
+    if (pathname === "/account/login" || pathname === "/account/register" || pathname === "/account/verify") return NextResponse.next();
 
     const token = request.cookies.get(CUSTOMER_SESSION_COOKIE)?.value;
     if (await isValidCustomerSession(token)) return NextResponse.next();

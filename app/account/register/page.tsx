@@ -17,6 +17,7 @@ export default async function CustomerRegisterPage({ searchParams }: { searchPar
         <input id="phone" name="phone" type="tel" autoComplete="tel" className="mt-2 min-h-12 w-full border border-[color:var(--ink)]/25 px-3 text-sm outline-none focus:border-[color:var(--ink)]" />
         <label htmlFor="password" className="mt-5 block text-sm font-medium">Пароль</label>
         <input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required className="mt-2 min-h-12 w-full border border-[color:var(--ink)]/25 px-3 text-sm outline-none focus:border-[color:var(--ink)]" />
+        <label className="mt-5 flex items-start gap-3 text-sm leading-5"><input name="newsletter" type="checkbox" className="mt-0.5 size-4 accent-[color:var(--accent)]" />Получать новости и скидки на email</label>
         {errorText ? <p className="mt-3 text-sm text-[color:var(--accent)]">{errorText}</p> : null}
         <button type="submit" className="mt-6 flex min-h-12 w-full items-center justify-center bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)]">Создать аккаунт</button>
         <p className="mt-5 text-sm text-[color:var(--ink)]/65">Уже есть аккаунт? <Link href="/account/login" className="text-[color:var(--accent)] underline underline-offset-4">Войти</Link></p>

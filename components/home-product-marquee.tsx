@@ -24,5 +24,18 @@ function HomeProductPreview({ product, tone }: { product: CatalogProduct; tone: 
 export function HomeProductMarquee({ products: selection }: { products: CatalogProduct[] }) {
   const shouldLoop = selection.length >= 6;
   const loopedProducts = shouldLoop ? [...selection, ...selection] : selection;
-  return <div className="home-product-marquee"><div className={`home-product-track ${shouldLoop ? "" : "home-product-track--static"}`}>{loopedProducts.map((product, index) => <Link key={`${product.id}-${index}`} href={`/catalog/${product.id}`} className="home-look-card look-product-card group block" aria-label={`Открыть товар: ${product.name}`}><p className="look-number mb-3 text-3xl text-[color:var(--ink)] sm:text-4xl">LOOK {String((index % selection.length) + 1).padStart(2, "0")}</p><HomeProductPreview product={product} tone={index % 2 === 0 ? "var(--accent)" : "var(--gold)"} /><div className="mt-4 flex items-start justify-between gap-3"><h3 className="text-sm font-medium leading-5 sm:text-base">{product.name}</h3><div className="shrink-0 text-right"><p className="font-mono-price text-sm">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price mt-0.5 text-[0.65rem] text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div></div></Link>)}</div></div>;
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const [touchTimeout, setTouchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+
+  function pauseForTouch() {
+    if (touchTimeout) window.clearTimeout(touchTimeout);
+    setIsUserScrolling(true);
+  }
+
+  function resumeAfterTouch() {
+    if (touchTimeout) window.clearTimeout(touchTimeout);
+    setTouchTimeout(setTimeout(() => setIsUserScrolling(false), 1500));
+  }
+
+  return <div className="home-product-marquee" onTouchStart={pauseForTouch} onTouchEnd={resumeAfterTouch} onTouchCancel={resumeAfterTouch}><div className={`home-product-track ${shouldLoop ? "" : "home-product-track--static"}`} style={{ animationPlayState: isUserScrolling ? "paused" : "running" }}>{loopedProducts.map((product, index) => <Link key={`${product.id}-${index}`} href={`/catalog/${product.id}`} className="home-look-card look-product-card group block" aria-label={`Открыть товар: ${product.name}`}><p className="look-number mb-3 text-3xl text-[color:var(--ink)] sm:text-4xl">LOOK {String((index % selection.length) + 1).padStart(2, "0")}</p><HomeProductPreview product={product} tone={index % 2 === 0 ? "var(--accent)" : "var(--gold)"} /><div className="mt-4 flex items-start justify-between gap-3"><h3 className="text-sm font-medium leading-5 sm:text-base">{product.name}</h3><div className="shrink-0 text-right"><p className="font-mono-price text-sm">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price mt-0.5 text-[0.65rem] text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div></div></Link>)}</div></div>;
 }

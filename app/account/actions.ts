@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { customerSessionMaxAge, CUSTOMER_SESSION_COOKIE, createCustomerSessionToken } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
+import { createVerificationData, sendVerificationEmail } from "@/lib/email-verification";
 
 async function setCustomerSession(customerId: string) {
   const cookieStore = await cookies();
@@ -22,6 +23,7 @@ export async function registerCustomer(formData: FormData) {
   const email = formData.get("email");
   const phone = formData.get("phone");
   const password = formData.get("password");
+  const wantsNewsletter = formData.get("newsletter") === "on";
 
   if (typeof name !== "string" || typeof email !== "string" || typeof password !== "string") {
     redirect("/account/register?error=invalid");
@@ -43,9 +45,18 @@ export async function registerCustomer(formData: FormData) {
       email: normalizedEmail,
       phone: normalizedPhone || null,
       passwordHash: await bcrypt.hash(password, 12),
+      ...createVerificationData(),
     },
   });
 
+  try {
+    if (customer.verificationToken) await sendVerificationEmail(customer.email, customer.verificationToken);
+  } catch {
+    // Email delivery must not prevent the customer from using the catalogue.
+  }
+  if (wantsNewsletter) {
+    await prisma.subscriber.upsert({ where: { email: normalizedEmail }, update: {}, create: { email: normalizedEmail } });
+  }
   await setCustomerSession(customer.id);
   redirect("/account");
 }
@@ -66,4 +77,25 @@ export async function logoutCustomer() {
   const cookieStore = await cookies();
   cookieStore.delete(CUSTOMER_SESSION_COOKIE);
   redirect("/");
+}
+
+export async function resendVerificationEmail() {
+  const cookieStore = await cookies();
+  const customerId = await (await import("@/lib/customer-auth")).getCustomerIdFromSession(cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value);
+  if (!customerId) redirect("/account/login");
+
+  const customer = await prisma.customer.findUnique({ where: { id: customerId }, select: { email: true, emailVerified: true, verificationEmailSentAt: true } });
+  if (!customer || customer.emailVerified) redirect("/account");
+  if (customer.verificationEmailSentAt && Date.now() - customer.verificationEmailSentAt.getTime() < 2 * 60 * 1000) {
+    redirect("/account?verification=wait");
+  }
+
+  const verification = createVerificationData();
+  await prisma.customer.update({ where: { id: customerId }, data: verification });
+  try {
+    await sendVerificationEmail(customer.email, verification.verificationToken);
+    redirect("/account?verification=sent");
+  } catch {
+    redirect("/account?verification=error");
+  }
 }
