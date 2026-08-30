@@ -67,9 +67,6 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
 
   return (
     <>
-      <div className="bg-[color:var(--ink)] px-4 py-1.5 text-center font-mono-price text-[0.65rem] tracking-[0.08em] text-[color:var(--paper)] sm:px-6">
-        Бесплатная доставка от {new Intl.NumberFormat("ru-KZ").format(BRAND_CONFIG.freeShippingThreshold)} ₸
-      </div>
       <header className="sticky top-0 z-40 border-b-2 border-[color:var(--ink)]/35 bg-[color:var(--paper)]/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-[90rem] items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
           <div className="flex items-center gap-4 sm:gap-6">
