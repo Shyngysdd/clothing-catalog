@@ -23,6 +23,7 @@ export async function registerCustomer(formData: FormData) {
   const email = formData.get("email");
   const phone = formData.get("phone");
   const password = formData.get("password");
+  const agreesToTerms = formData.get("agreeToTerms") === "on";
   const wantsNewsletter = formData.get("newsletter") === "on";
 
   if (typeof name !== "string" || typeof email !== "string" || typeof password !== "string") {
@@ -35,6 +36,7 @@ export async function registerCustomer(formData: FormData) {
   if (!normalizedName || !normalizedEmail || password.length < 8) {
     redirect("/account/register?error=invalid");
   }
+  if (!agreesToTerms) redirect("/account/register?error=terms");
 
   const existingCustomer = await prisma.customer.findUnique({ where: { email: normalizedEmail }, select: { id: true } });
   if (existingCustomer) redirect("/account/register?error=exists");
