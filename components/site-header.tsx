@@ -90,23 +90,23 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
   return (
     <>
       <header className="sticky top-0 z-40 border-b-2 border-[color:var(--ink)]/35 bg-[color:var(--paper)]/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[90rem] items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
-          <div className="flex items-center gap-4 sm:gap-6">
-            <Link href="/" className="font-brand text-base sm:text-xl">
+        <div className="mx-auto flex max-w-[90rem] items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-4 lg:px-10">
+          <div className="flex shrink-0 items-center gap-4 sm:gap-6">
+            <Link href="/" className="font-brand text-[0.95rem] sm:text-xl">
               {BRAND_CONFIG.name}
             </Link>
             <span className="hidden border-l border-[color:var(--ink)]/25 pl-4 font-mono-price text-[0.65rem] tracking-[0.14em] text-[color:var(--ink)]/55 sm:inline">
               КАТАЛОГ / 2026
             </span>
           </div>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="text-xs font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:text-sm">
+          <div className="flex min-w-0 items-center gap-0.5 sm:gap-2">
+            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="min-h-10 px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:min-h-11 sm:px-0 sm:text-sm">
               Каталог
             </button>
-            <Link href="/looks" className="hidden text-xs font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:inline sm:text-sm">
+            <Link href="/looks" className="inline-flex min-h-10 items-center px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:min-h-11 sm:px-0 sm:text-sm">
               Образы
             </Link>
-            <button type="button" onClick={() => setIsSearchOpen(true)} className="grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11" aria-label="Поиск товаров"><SearchIcon /></button>
+            <button type="button" onClick={() => setIsSearchOpen(true)} className="hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] min-[390px]:grid sm:size-11" aria-label="Поиск товаров"><SearchIcon /></button>
             <a
               href={BRAND_CONFIG.instagramUrl}
               target="_blank"
@@ -127,11 +127,11 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
             </a>
             <Link
               href={accountHref}
-              className="hidden h-10 items-center gap-1.5 px-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:flex sm:h-11"
+              className="flex h-10 items-center gap-1 px-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:h-11 sm:gap-1.5"
               aria-label={isCustomerLoggedIn ? "Личный кабинет" : "Войти в личный кабинет"}
             >
               <AccountIcon />
-              <span className="text-xs font-medium sm:text-sm">{accountLabel}</span>
+              <span className="text-[0.7rem] font-medium sm:text-sm">{accountLabel}</span>
             </Link>
             <Link
               href="/favorites"
@@ -179,15 +179,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
             <Link href="/catalog?sale=true" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-section text-lg leading-none">Со скидкой</span></Link>
             <div className="pt-3">{categories.map((category) => <Link key={category.name} href={`/catalog?category=${encodeURIComponent(category.name)}`} onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4 hover:text-[color:var(--accent)]"><span className="font-section block text-lg leading-none">{category.name}</span><span className="font-mono-price mt-2 block text-xs text-[color:var(--ink)]/55">{category.count} {category.count === 1 ? "товар" : "товаров"}</span></Link>)}</div>
           </nav>
-          <nav aria-label="Аккаунт и контакты" className="border-t border-[color:var(--ink)]/15 px-5 py-3 sm:px-7">
-            <Link
-              href={accountHref}
-              onClick={() => setIsNavigatorOpen(false)}
-              className="flex items-center gap-3 py-3 text-[color:var(--ink)] hover:text-[color:var(--accent)]"
-            >
-              <AccountIcon />
-              <span className="text-sm font-medium">{accountLabel}</span>
-            </Link>
+          <nav aria-label="Контакты и избранное" className="border-t border-[color:var(--ink)]/15 px-5 py-3 sm:px-7">
             <Link
               href="/favorites"
               onClick={() => setIsNavigatorOpen(false)}
