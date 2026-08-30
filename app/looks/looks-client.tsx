@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/context/cart-context";
 import type { CatalogLook } from "@/lib/catalog-types";
 
@@ -42,6 +42,9 @@ function LookPreview({ placeholders }: { placeholders: string[] }) {
 
 export function LooksClient({ looks }: { looks: CatalogLook[] }) {
   const { addItem } = useCart();
+  const [selectedSize, setSelectedSize] = useState("Все");
+  const sizes = useMemo(() => ["Все", ...Array.from(new Set(looks.flatMap((look) => look.items.flatMap((product) => product.sizes.filter((size) => size.inStock).map((size) => size.size)))).values())], [looks]);
+  const filteredLooks = selectedSize === "Все" ? looks : looks.filter((look) => look.items.some((product) => product.sizes.some((size) => size.inStock && size.size === selectedSize)));
 
   function addLookToCart(look: CatalogLook) {
     look.items.forEach((product) => {
@@ -58,28 +61,34 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
         <p className="mt-5 leading-7 text-[color:var(--ink)]/70">Готовые сочетания из каталога — выбирайте целиком или открывайте отдельные вещи.</p>
       </div>
 
-      <div className="mt-10 grid gap-5 sm:mt-12 sm:gap-6 lg:grid-cols-3">
-        {looks.map((look, index) => {
+      <div className="mt-7 border-y border-[color:var(--ink)]/15 py-4 sm:mt-9">
+        <p className="font-mono-price text-[10px] tracking-[0.12em] text-[color:var(--ink)]/60">РАЗМЕР В СОСТАВЕ ОБРАЗА</p>
+        <div className="mt-3 flex flex-wrap gap-2">{sizes.map((size) => <button key={size} type="button" onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} className={`min-h-9 border px-3 text-xs font-medium transition ${selectedSize === size ? "border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)]" : "border-[color:var(--ink)]/25 hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{size}</button>)}</div>
+      </div>
+
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-6 lg:grid-cols-3">
+        {filteredLooks.map((look, index) => {
           const lookProducts = look.items;
 
           return (
-            <article key={look.id} className="flex h-full flex-col border border-[color:var(--ink)]/15 bg-[color:var(--white)] p-3 sm:p-4">
+            <article key={look.id} className="flex h-full flex-col border border-[color:var(--ink)]/15 bg-[color:var(--white)] p-2 sm:p-4">
               <Link href={`/looks/${look.id}`} className="group flex flex-1 flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]">
                 <LookPreview placeholders={look.photoTones} />
-                <div className="flex flex-1 flex-col pt-4 sm:pt-5">
-                  <p className="look-number text-xl leading-none text-[color:var(--accent)] sm:text-2xl">ОБРАЗ {String(index + 1).padStart(2, "0")}</p>
-                  <h2 className="font-section mt-3 text-2xl leading-tight sm:text-3xl">{look.title}</h2>
-                  <p className="mt-3 text-sm leading-6 text-[color:var(--ink)]/65">{lookProducts.map((product) => product.name).join(" · ")}</p>
-                  <p className="font-mono-price mt-auto pt-4 text-base sm:text-lg">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
+                <div className="flex flex-1 flex-col pt-3 sm:pt-5">
+                  <p className="look-number text-base leading-none text-[color:var(--accent)] sm:text-2xl">ОБРАЗ {String(index + 1).padStart(2, "0")}</p>
+                  <h2 className="font-section mt-2 text-lg leading-tight sm:mt-3 sm:text-3xl">{look.title}</h2>
+                  <p className="mt-2 line-clamp-2 text-xs leading-5 text-[color:var(--ink)]/65 sm:mt-3 sm:text-sm sm:leading-6">{lookProducts.map((product) => product.name).join(" · ")}</p>
+                  <p className="font-mono-price mt-auto pt-3 text-xs sm:pt-4 sm:text-lg">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
                 </div>
               </Link>
-              <button type="button" onClick={() => addLookToCart(look)} className="mt-4 min-h-11 w-full bg-[color:var(--ink)] px-4 text-sm font-medium text-white hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">
-                Добавить весь образ в корзину
+              <button type="button" onClick={() => addLookToCart(look)} className="mt-3 min-h-10 w-full bg-[color:var(--ink)] px-2 text-xs font-medium text-white hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:mt-4 sm:min-h-11 sm:px-4 sm:text-sm">
+                <span className="sm:hidden">В корзину</span><span className="hidden sm:inline">Добавить весь образ в корзину</span>
               </button>
             </article>
           );
         })}
       </div>
+      {filteredLooks.length === 0 ? <div className="mt-8 border border-dashed border-[color:var(--ink)]/30 px-6 py-10 text-center text-sm text-[color:var(--ink)]/65">Нет образов с товарами в размере {selectedSize}.</div> : null}
     </section>
   );
 }
