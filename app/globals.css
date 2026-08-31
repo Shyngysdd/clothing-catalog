@@ -431,7 +431,7 @@ textarea {
   }
 
   .home-look-card {
-    width: min(72vw, 17rem);
+    width: clamp(7.75rem, 35vw, 17rem);
   }
 }
 
