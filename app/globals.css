@@ -292,17 +292,6 @@ textarea {
   transition: opacity 180ms ease-out;
 }
 
-.look-gallery-frame::after {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  content: "";
-  pointer-events: none;
-  opacity: 0.2;
-  background-image: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.3) 1px, transparent 0);
-  background-size: 5px 5px;
-}
-
 .look-gallery-frame.is-active {
   opacity: 1;
 }
