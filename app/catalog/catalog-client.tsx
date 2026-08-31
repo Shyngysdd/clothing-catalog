@@ -334,7 +334,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
                   </Link>
                   <button
                     type="button"
-                    onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleFavorite(product.id); }}
+                    onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleFavorite(product.id, product.sizes.find((size) => size.inStock)?.size); }}
                     className="absolute right-3 top-12 z-10 grid size-9 place-items-center rounded-full bg-[color:var(--paper)]/90 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]"
                     aria-label={isFavorite(product.id) ? "Убрать из избранного" : "Добавить в избранное"}
                     aria-pressed={isFavorite(product.id)}

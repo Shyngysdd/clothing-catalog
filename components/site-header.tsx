@@ -51,12 +51,11 @@ function SearchIcon() {
 }
 
 export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: CategoryNavItem[]; isCustomerLoggedIn: boolean }) {
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNavigatorOpen, setIsNavigatorOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
   const router = useRouter();
-  const { itemCount } = useCart();
+  const { itemCount, isDrawerOpen, openDrawer, closeDrawer } = useCart();
   const { favoriteIds } = useFavorites();
   const accountHref = isCustomerLoggedIn ? "/account" : "/account/login";
   const accountLabel = isCustomerLoggedIn ? "Профиль" : "Войти";
@@ -143,7 +142,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
             </Link>
             <button
               type="button"
-              onClick={() => setIsCartOpen(true)}
+              onClick={openDrawer}
               className="relative ml-1 grid size-10 place-items-center border-l border-[color:var(--ink)]/25 pl-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:ml-2 sm:size-11 sm:pl-2"
               aria-label={`Корзина, товаров: ${itemCount}`}
             >
@@ -212,7 +211,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
           </nav>
         </aside>
       </div>
-      {isCartOpen ? <CartDrawer onClose={() => setIsCartOpen(false)} isCustomerLoggedIn={isCustomerLoggedIn} /> : null}
+      {isDrawerOpen ? <CartDrawer onClose={closeDrawer} isCustomerLoggedIn={isCustomerLoggedIn} /> : null}
     </>
   );
 }

@@ -41,14 +41,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const cookieStore = await cookies();
   const customerId = await getCustomerIdFromSession(cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value);
   const categories = await getCachedSiteCategories();
-  const initialFavoriteIds = customerId
-    ? (await prisma.favorite.findMany({ where: { customerId }, select: { productId: true } })).map((favorite) => favorite.productId)
+  const initialFavorites = customerId
+    ? await prisma.favorite.findMany({ where: { customerId }, select: { productId: true, selectedSize: true } })
     : [];
 
   return (
     <html lang="ru" className={`${archivoBlack.variable} ${ibmPlexMono.variable} ${montserrat.variable} h-full`}>
       <body className="flex min-h-full flex-col antialiased">
-        <FavoritesProvider isCustomerLoggedIn={Boolean(customerId)} initialFavoriteIds={initialFavoriteIds}>
+        <FavoritesProvider isCustomerLoggedIn={Boolean(customerId)} initialFavorites={initialFavorites}>
           <CartProvider>
             <SiteChrome categories={categories} isCustomerLoggedIn={Boolean(customerId)}>{children}</SiteChrome>
           </CartProvider>

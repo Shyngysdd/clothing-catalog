@@ -10,7 +10,7 @@ async function getAuthenticatedCustomerId() {
   return getCustomerIdFromSession(cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value);
 }
 
-export async function toggleCustomerFavorite(productId: string) {
+export async function toggleCustomerFavorite(productId: string, selectedSize?: string) {
   const customerId = await getAuthenticatedCustomerId();
   if (!customerId || !productId) return { authenticated: false as const, favorite: false };
 
@@ -22,25 +22,25 @@ export async function toggleCustomerFavorite(productId: string) {
     return { authenticated: true as const, favorite: false };
   }
 
-  await prisma.favorite.create({ data: { customerId, productId } });
+  await prisma.favorite.create({ data: { customerId, productId, selectedSize: selectedSize || null } });
   revalidatePath("/favorites");
   revalidatePath("/account/favorites");
   return { authenticated: true as const, favorite: true };
 }
 
-export async function mergeGuestFavorites(productIds: string[]) {
+export async function mergeGuestFavorites(favorites: { productId: string; selectedSize?: string }[]) {
   const customerId = await getAuthenticatedCustomerId();
   if (!customerId) return { authenticated: false as const, mergedProductIds: [] as string[] };
 
-  const uniqueProductIds = [...new Set(productIds.filter(Boolean))];
-  if (uniqueProductIds.length > 0) {
+  const uniqueFavorites = [...new Map(favorites.filter((favorite) => favorite.productId).map((favorite) => [favorite.productId, favorite])).values()];
+  if (uniqueFavorites.length > 0) {
     await prisma.favorite.createMany({
-      data: uniqueProductIds.map((productId) => ({ customerId, productId })),
+      data: uniqueFavorites.map((favorite) => ({ customerId, productId: favorite.productId, selectedSize: favorite.selectedSize || null })),
       skipDuplicates: true,
     });
     revalidatePath("/favorites");
     revalidatePath("/account/favorites");
   }
 
-  return { authenticated: true as const, mergedProductIds: uniqueProductIds };
+  return { authenticated: true as const, mergedProductIds: uniqueFavorites.map((favorite) => favorite.productId) };
 }

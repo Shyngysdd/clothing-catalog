@@ -122,6 +122,7 @@ model Favorite {
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   customerId String
   productId  String
+  selectedSize String?
   createdAt  DateTime @default(now())
 
   @@unique([customerId, productId])

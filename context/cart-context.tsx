@@ -16,12 +16,16 @@ type CartContextValue = {
   addItem: (product: CatalogProduct, size: string) => void;
   removeItem: (productId: string, size: string) => void;
   clearCart: () => void;
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   function addItem(product: CatalogProduct, size: string) {
     setItems((currentItems) => {
@@ -51,6 +55,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems([]);
   }
 
+  function openDrawer() {
+    setIsDrawerOpen(true);
+  }
+
+  function closeDrawer() {
+    setIsDrawerOpen(false);
+  }
+
   const value = useMemo(
     () => ({
       items,
@@ -59,8 +71,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       addItem,
       removeItem,
       clearCart,
+      isDrawerOpen,
+      openDrawer,
+      closeDrawer,
     }),
-    [items],
+    [items, isDrawerOpen],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
