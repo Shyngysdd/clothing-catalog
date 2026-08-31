@@ -19,6 +19,25 @@ function parsePrice(value: string) {
 type SortOption = "default" | "price-asc" | "price-desc" | "newest" | "alphabetical" | "sale";
 type GridDensity = "1" | "2";
 
+function CatalogProductPreview({ product, index, isSoldOut }: { product: CatalogProduct; index: number; isSoldOut: boolean }) {
+  const frames = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
+  const [activeFrame, setActiveFrame] = useState(0);
+
+  return (
+    <div
+      className={`look-product-media aspect-[4/5] transition-[filter,transform] duration-200 ease-out group-hover:scale-[0.985] group-hover:brightness-75 ${isSoldOut ? "grayscale" : ""}`}
+      style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)" } as CSSProperties}
+      onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)}
+      onMouseLeave={() => setActiveFrame(0)}
+    >
+      {frames.map((imageUrl, frameIndex) => <Image key={imageUrl} src={imageUrl} alt="" fill sizes="(max-width: 767px) 50vw, (max-width: 1024px) 50vw, 25vw" className={`look-gallery-frame product-card-photo ${activeFrame === frameIndex ? "is-active" : ""}`} />)}
+      <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
+      {isSoldOut ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
+      {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
+    </div>
+  );
+}
+
 export function CatalogClient({ products, initialSearch }: { products: CatalogProduct[]; initialSearch: string }) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const searchParams = useSearchParams();
@@ -307,15 +326,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
                     aria-label={`Открыть ${product.name}`}
                   >
                     <p className="font-display mb-3 text-3xl leading-none tracking-[-0.04em] text-[color:var(--accent)]">LOOK {String(index + 1).padStart(2, "0")}</p>
-                    <div
-                      className={`look-product-media aspect-[4/5] transition-[filter,transform] duration-200 ease-out group-hover:scale-[0.985] group-hover:brightness-75 ${isSoldOut ? "grayscale" : ""}`}
-                      style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)" } as CSSProperties}
-                    >
-                      {product.imageUrl ? <Image src={product.imageUrl} alt="" fill sizes="(max-width: 767px) 50vw, (max-width: 1024px) 50vw, 25vw" className="product-card-photo" /> : null}
-                      <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
-                      {isSoldOut ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
-                      {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
-                    </div>
+                    <CatalogProductPreview product={product} index={index} isSoldOut={isSoldOut} />
                     <div className="catalog-product-info mt-4">
                       <p className="catalog-product-name text-lg font-medium tracking-[-0.02em]">{product.name}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-2"><p className="catalog-product-price font-mono-price text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
