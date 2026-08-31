@@ -1,11 +1,13 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { customerSessionMaxAge, CUSTOMER_SESSION_COOKIE, createCustomerSessionToken } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
 import { createVerificationData, sendVerificationEmail } from "@/lib/email-verification";
+import { clearLoginAttempts, createLoginAttemptKey, getClientIp, isLoginBlocked, recordFailedLogin } from "@/lib/login-rate-limit";
+import { createPasswordResetData, sendPasswordResetEmail } from "@/lib/password-reset";
 
 async function setCustomerSession(customerId: string) {
   const cookieStore = await cookies();
@@ -66,13 +68,60 @@ export async function registerCustomer(formData: FormData) {
 export async function loginCustomer(formData: FormData) {
   const email = formData.get("email");
   const password = formData.get("password");
-  if (typeof email !== "string" || typeof password !== "string") redirect("/account/login?error=1");
+  const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "unknown";
+  const requestHeaders = await headers();
+  const attemptKey = createLoginAttemptKey("customer", getClientIp(requestHeaders), normalizedEmail);
+  if (isLoginBlocked(attemptKey)) redirect("/account/login?error=blocked");
+  if (typeof email !== "string" || typeof password !== "string") {
+    const blocked = recordFailedLogin(attemptKey);
+    redirect(`/account/login?error=${blocked ? "blocked" : "invalid"}`);
+  }
 
-  const customer = await prisma.customer.findUnique({ where: { email: email.trim().toLowerCase() } });
-  if (!customer || !(await bcrypt.compare(password, customer.passwordHash))) redirect("/account/login?error=1");
+  const customer = await prisma.customer.findUnique({ where: { email: normalizedEmail } });
+  if (!customer || !(await bcrypt.compare(password, customer.passwordHash))) {
+    const blocked = recordFailedLogin(attemptKey);
+    redirect(`/account/login?error=${blocked ? "blocked" : "invalid"}`);
+  }
 
+  clearLoginAttempts(attemptKey);
   await setCustomerSession(customer.id);
   redirect("/account");
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = formData.get("email");
+  const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+  if (!normalizedEmail) redirect("/account/forgot-password?sent=1");
+
+  const customer = await prisma.customer.findUnique({ where: { email: normalizedEmail }, select: { id: true, email: true, passwordResetEmailSentAt: true } });
+  if (customer && (!customer.passwordResetEmailSentAt || Date.now() - customer.passwordResetEmailSentAt.getTime() >= 2 * 60 * 1000)) {
+    const reset = createPasswordResetData();
+    await prisma.customer.update({ where: { id: customer.id }, data: reset });
+    try {
+      await sendPasswordResetEmail(customer.email, reset.passwordResetToken);
+    } catch {
+      // Always show the same confirmation to avoid revealing account existence.
+    }
+  }
+  redirect("/account/forgot-password?sent=1");
+}
+
+export async function resetCustomerPassword(formData: FormData) {
+  const token = formData.get("token");
+  const password = formData.get("password");
+  const passwordConfirmation = formData.get("passwordConfirmation");
+  if (typeof token !== "string" || typeof password !== "string" || typeof passwordConfirmation !== "string" || password.length < 8 || password !== passwordConfirmation) {
+    redirect(`/account/reset-password?token=${encodeURIComponent(typeof token === "string" ? token : "")}&error=invalid`);
+  }
+
+  const customer = await prisma.customer.findFirst({ where: { passwordResetToken: token, passwordResetTokenExpiry: { gt: new Date() } }, select: { id: true } });
+  if (!customer) redirect("/account/reset-password?error=expired");
+
+  await prisma.customer.update({
+    where: { id: customer.id },
+    data: { passwordHash: await bcrypt.hash(password, 12), passwordResetToken: null, passwordResetTokenExpiry: null, passwordResetEmailSentAt: null },
+  });
+  redirect("/account/login?reset=1");
 }
 
 export async function logoutCustomer() {

@@ -9,7 +9,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
         <h1 className="font-display mt-3 text-5xl leading-none tracking-[-0.04em]">Вход</h1>
         <label htmlFor="password" className="mt-8 block text-sm font-medium">Пароль</label>
         <input id="password" name="password" type="password" autoComplete="current-password" required className="mt-2 min-h-12 w-full border border-[color:var(--ink)]/25 px-3 text-sm outline-none focus:border-[color:var(--ink)]" />
-        {error ? <p className="mt-3 text-sm text-[color:var(--accent)]">Неверный пароль.</p> : null}
+        {error ? <p className="mt-3 text-sm text-[color:var(--accent)]">{error === "blocked" ? "Слишком много попыток, попробуйте позже" : "Неверный пароль."}</p> : null}
         <button type="submit" className="mt-6 flex min-h-12 w-full items-center justify-center bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)]">Войти</button>
       </form>
     </main>

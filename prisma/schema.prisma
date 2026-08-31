@@ -82,6 +82,9 @@ model Customer {
   verificationToken String? @unique
   verificationTokenExpiry DateTime?
   verificationEmailSentAt DateTime?
+  passwordResetToken String? @unique
+  passwordResetTokenExpiry DateTime?
+  passwordResetEmailSentAt DateTime?
   passwordHash String
   name         String
   phone        String?
