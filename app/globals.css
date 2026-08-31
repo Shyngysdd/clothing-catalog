@@ -75,7 +75,7 @@ textarea {
 .discount-stamp {
   position: absolute;
   z-index: 2;
-  bottom: 0.75rem;
+  top: 0.75rem;
   left: 0.75rem;
   display: grid;
   width: 3.5rem;
@@ -272,6 +272,15 @@ textarea {
 
 .home-product-marquee:hover .home-product-track {
   animation-play-state: paused;
+}
+
+.recommendations-track {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.recommendations-track::-webkit-scrollbar {
+  display: none;
 }
 
 .home-look-card {

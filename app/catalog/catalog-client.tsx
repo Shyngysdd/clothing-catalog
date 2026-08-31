@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
@@ -22,7 +22,22 @@ type GridDensity = "1" | "2";
 function CatalogProductPreview({ product, index, isSoldOut }: { product: CatalogProduct; index: number; isSoldOut: boolean }) {
   const frames = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
   const [activeFrame, setActiveFrame] = useState(0);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const suppressClickRef = useRef(false);
   const discountPercent = getDiscountPercent(product);
+
+  function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
+    const touchStart = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!touchStart || frames.length < 2) return;
+    const touch = event.changedTouches[0];
+    const horizontalDistance = touch.clientX - touchStart.x;
+    const verticalDistance = touch.clientY - touchStart.y;
+    if (Math.abs(verticalDistance) >= Math.abs(horizontalDistance) || Math.abs(horizontalDistance) < 28) return;
+    setActiveFrame((current) => (horizontalDistance < 0 ? (current + 1) % frames.length : (current - 1 + frames.length) % frames.length));
+    suppressClickRef.current = true;
+    window.setTimeout(() => { suppressClickRef.current = false; }, 250);
+  }
 
   return (
     <div
@@ -30,11 +45,15 @@ function CatalogProductPreview({ product, index, isSoldOut }: { product: Catalog
       style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor } as CSSProperties}
       onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)}
       onMouseLeave={() => setActiveFrame(0)}
+      onTouchStart={(event) => { const touch = event.touches[0]; touchStartRef.current = { x: touch.clientX, y: touch.clientY }; }}
+      onTouchEnd={handleTouchEnd}
+      onClick={(event) => { if (suppressClickRef.current) { event.preventDefault(); event.stopPropagation(); } }}
     >
       <div className={`look-product-photo-layer ${isSoldOut ? "grayscale" : ""}`}>{frames.map((imageUrl, frameIndex) => <div key={imageUrl} className={`look-gallery-frame ${activeFrame === frameIndex ? "is-active" : ""}`}><Image src={imageUrl} alt="" fill sizes="(max-width: 767px) 50vw, (max-width: 1024px) 50vw, 25vw" className="product-card-photo" /></div>)}</div>
       <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
-      {isSoldOut ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
+      {isSoldOut ? <span className="absolute right-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
       {discountPercent ? <span className="discount-stamp">−{discountPercent}%</span> : null}
+      {frames.length > 1 ? <span className="absolute bottom-[3.25rem] left-1/2 z-[3] flex -translate-x-1/2 gap-1" aria-hidden="true">{frames.map((_, frameIndex) => <i key={frameIndex} className={`block size-1.5 rounded-full border border-[color:var(--paper)]/70 ${activeFrame === frameIndex ? "bg-[color:var(--paper)]" : "bg-transparent"}`} />)}</span> : null}
     </div>
   );
 }

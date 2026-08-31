@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { useRef, useState } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
 
@@ -10,16 +11,34 @@ const formatPrice = new Intl.NumberFormat("ru-KZ");
 
 function RecommendationCard({ product, index }: { product: CatalogProduct; index: number }) {
   const frames = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
+  const [activeFrame, setActiveFrame] = useState(0);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const suppressClickRef = useRef(false);
   const isSoldOut = !product.sizes.some((size) => size.inStock);
   const discountPercent = getDiscountPercent(product);
 
-  return <article className={`look-product-card group min-w-[13.5rem] flex-1 md:min-w-0 ${isSoldOut ? "opacity-60" : ""}`}>
+  function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
+    const touchStart = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!touchStart || frames.length < 2) return;
+    const touch = event.changedTouches[0];
+    const horizontalDistance = touch.clientX - touchStart.x;
+    const verticalDistance = touch.clientY - touchStart.y;
+
+    if (Math.abs(verticalDistance) >= Math.abs(horizontalDistance) || Math.abs(horizontalDistance) < 28 || Math.abs(horizontalDistance) > 90) return;
+    setActiveFrame((current) => (horizontalDistance < 0 ? (current + 1) % frames.length : (current - 1 + frames.length) % frames.length));
+    suppressClickRef.current = true;
+    window.setTimeout(() => { suppressClickRef.current = false; }, 250);
+  }
+
+  return <article className={`look-product-card group w-[72vw] shrink-0 snap-start sm:w-[17rem] lg:w-[18rem] ${isSoldOut ? "opacity-60" : ""}`}>
     <Link href={`/catalog/${product.id}`} className="block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]" aria-label={`Открыть ${product.name}`}>
       <p className="font-display mb-3 text-3xl leading-none tracking-[-0.04em] text-[color:var(--accent)]">LOOK {String(index + 1).padStart(2, "0")}</p>
-      <div className="look-product-media aspect-[4/5]" style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor } as CSSProperties}>
-        {frames.length > 0 ? <div className="look-product-photo-layer">{frames.map((imageUrl, frameIndex) => <div key={imageUrl} className={`look-gallery-frame ${frameIndex === 0 ? "is-active" : ""}`}><Image src={imageUrl} alt="" fill sizes="(max-width: 767px) 72vw, (max-width: 1024px) 50vw, 25vw" className={`product-card-photo ${isSoldOut ? "grayscale" : ""}`} /></div>)}</div> : product.galleryTones.map((tone, frameIndex) => <div key={`${tone}-${frameIndex}`} className={`look-gallery-frame look-gallery-frame--${tone} ${frameIndex === 0 ? "is-active" : ""}`} />)}
+      <div className="look-product-media aspect-[4/5]" style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor } as CSSProperties} onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)} onMouseLeave={() => setActiveFrame(0)} onTouchStart={(event) => { const touch = event.touches[0]; touchStartRef.current = { x: touch.clientX, y: touch.clientY }; }} onTouchEnd={handleTouchEnd} onClick={(event) => { if (suppressClickRef.current) { event.preventDefault(); event.stopPropagation(); } }}>
+        {frames.length > 0 ? <div className="look-product-photo-layer">{frames.map((imageUrl, frameIndex) => <div key={imageUrl} className={`look-gallery-frame ${frameIndex === activeFrame ? "is-active" : ""}`}><Image src={imageUrl} alt="" fill sizes="(max-width: 767px) 72vw, (max-width: 1024px) 50vw, 25vw" className={`product-card-photo ${isSoldOut ? "grayscale" : ""}`} /></div>)}</div> : product.galleryTones.map((tone, frameIndex) => <div key={`${tone}-${frameIndex}`} className={`look-gallery-frame look-gallery-frame--${tone} ${frameIndex === activeFrame ? "is-active" : ""}`} />)}
         <p className="look-product-sizes">{isSoldOut ? "НЕТ В НАЛИЧИИ" : `РАЗМЕРЫ: ${product.sizes.filter((size) => size.inStock).map((size) => size.size).join(" · ")}`}</p>
         {discountPercent ? <span className="discount-stamp">−{discountPercent}%</span> : null}
+        {frames.length > 1 ? <span className="absolute bottom-[3.25rem] left-1/2 z-[3] flex -translate-x-1/2 gap-1" aria-hidden="true">{frames.map((_, frameIndex) => <i key={frameIndex} className={`block size-1.5 rounded-full border border-[color:var(--paper)]/70 ${activeFrame === frameIndex ? "bg-[color:var(--paper)]" : "bg-transparent"}`} />)}</span> : null}
       </div>
       <div className="mt-4"><h3 className="text-lg font-medium tracking-[-0.02em]">{product.name}</h3><div className="mt-2 flex flex-wrap items-center gap-2"><p className="font-mono-price text-base">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div></div>
     </Link>
@@ -27,12 +46,20 @@ function RecommendationCard({ product, index }: { product: CatalogProduct; index
 }
 
 export function ProductRecommendations({ title, products }: { title: string; products: CatalogProduct[] }) {
+  const trackRef = useRef<HTMLDivElement>(null);
   if (products.length === 0) return null;
 
+  function scrollRecommendations(direction: "previous" | "next") {
+    const track = trackRef.current;
+    if (!track) return;
+    const distance = Math.round(track.clientWidth * 0.82) * (direction === "next" ? 1 : -1);
+    track.scrollBy({ left: distance, behavior: "smooth" });
+  }
+
   return <section className="mt-12 border-t border-[color:var(--ink)]/15 pt-10 sm:mt-16 sm:pt-12" aria-labelledby={`${title}-heading`}>
-    <div className="mb-7"><p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ПОДБОРКА</p><h2 id={`${title}-heading`} className="font-display mt-3 text-[clamp(2.35rem,6vw,3.75rem)] leading-[0.9] tracking-[-0.04em]">{title}</h2></div>
-    <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 sm:overflow-visible sm:px-0 lg:grid-cols-3 xl:grid-cols-4">
-      {products.map((product, index) => <div key={product.id} className="snap-start sm:contents"><RecommendationCard product={product} index={index} /></div>)}
-    </div>
+    <div className="mb-7 flex items-end justify-between gap-5"><div><p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ПОДБОРКА</p><h2 id={`${title}-heading`} className="font-display mt-3 text-[clamp(2.35rem,6vw,3.75rem)] leading-[0.9] tracking-[-0.04em]">{title}</h2></div><div className="hidden items-center gap-2 md:flex"><button type="button" onClick={() => scrollRecommendations("previous")} aria-label={`Прокрутить «${title}» влево`} className="grid size-11 place-items-center border border-[color:var(--ink)]/25 text-[color:var(--ink)] transition hover:border-[color:var(--accent)] hover:bg-[color:var(--accent)] hover:text-[color:var(--white)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--gold)]"><span aria-hidden="true">←</span></button><button type="button" onClick={() => scrollRecommendations("next")} aria-label={`Прокрутить «${title}» вправо`} className="grid size-11 place-items-center border border-[color:var(--ink)]/25 text-[color:var(--ink)] transition hover:border-[color:var(--accent)] hover:bg-[color:var(--accent)] hover:text-[color:var(--white)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--gold)]"><span aria-hidden="true">→</span></button></div></div>
+    <div className="relative -mx-4 sm:mx-0"><div aria-hidden="true" className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-[color:var(--paper)] to-transparent sm:hidden" /><div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-[color:var(--paper)] to-transparent" /><div ref={trackRef} className="recommendations-track flex snap-x snap-mandatory flex-nowrap gap-4 overflow-x-auto scroll-smooth px-4 pb-2 sm:gap-6 sm:px-0">
+      {products.map((product, index) => <RecommendationCard key={product.id} product={product} index={index} />)}
+    </div></div>
   </section>;
 }

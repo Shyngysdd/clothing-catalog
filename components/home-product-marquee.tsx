@@ -16,7 +16,7 @@ function HomeProductPreview({ product, tone }: { product: CatalogProduct; tone: 
   return <div className="look-product-media aspect-[4/5]" style={{ "--look-tone": tone, backgroundColor: product.imageColor } as CSSProperties} onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)} onMouseLeave={() => setActiveFrame(0)}>
     <div className={`look-product-photo-layer ${product.sizes.length > 0 && product.sizes.every((size) => !size.inStock) ? "grayscale" : ""}`}>{frames.map((imageUrl, index) => <div key={imageUrl} className={`look-gallery-frame ${activeFrame === index ? "is-active" : ""}`}><Image src={imageUrl} alt="" fill sizes="(max-width: 767px) 72vw, 18rem" className="product-card-photo" /></div>)}</div>
     <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
-    {product.sizes.length > 0 && product.sizes.every((size) => !size.inStock) ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
+    {product.sizes.length > 0 && product.sizes.every((size) => !size.inStock) ? <span className="absolute right-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
     {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
   </div>;
 }
