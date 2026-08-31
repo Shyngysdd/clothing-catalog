@@ -253,6 +253,50 @@ async function uploadZipImage(entry: JSZip.JSZipObject) {
   return saveProductImage(new File([imageBytes], entry.name.split("/").pop() || "image", { type }));
 }
 
+async function loadImageZip(file: FormDataEntryValue | null) {
+  if (!(file instanceof File) || file.size === 0) throw new Error("Выберите ZIP-архив с фотографиями.");
+  if (file.size > 200 * 1024 * 1024) throw new Error("ZIP-архив не должен превышать 200 МБ.");
+  try {
+    return await JSZip.loadAsync(await file.arrayBuffer());
+  } catch {
+    throw new Error("Не удалось открыть ZIP-архив. Проверьте файл и попробуйте снова.");
+  }
+}
+
+export type PhotosOnlyImportReport = { updatedSkus: string[]; photosNotFound: string[]; errors: string[] };
+
+export async function importPhotosOnly(_: PhotosOnlyImportReport | null, formData: FormData): Promise<PhotosOnlyImportReport> {
+  const report: PhotosOnlyImportReport = { updatedSkus: [], photosNotFound: [], errors: [] };
+  let zip: JSZip;
+  try {
+    zip = await loadImageZip(formData.get("imagesZip"));
+  } catch (error) {
+    return { ...report, errors: [error instanceof Error ? error.message : "Не удалось открыть архив."] };
+  }
+
+  const products = await prisma.product.findMany({ select: { id: true, sku: true } });
+  for (const product of products) {
+    const entries = zipImageEntries(zip, product.sku);
+    if (!entries.main && !entries.gallery.length) {
+      report.photosNotFound.push(product.sku);
+      continue;
+    }
+    try {
+      const mainImage = entries.main ? await uploadZipImage(entries.main) : null;
+      const galleryImages = (await Promise.all(entries.gallery.map(uploadZipImage))).filter((url): url is string => Boolean(url));
+      await prisma.product.update({ where: { id: product.id }, data: { ...(mainImage ? { imageUrl: mainImage } : {}), ...(galleryImages.length ? { galleryUrls: galleryImages } : {}) } });
+      report.updatedSkus.push(product.sku);
+    } catch (error) {
+      report.errors.push(`${product.sku}: ${error instanceof Error ? error.message : "не удалось загрузить фото."}`);
+    }
+  }
+  revalidatePath("/");
+  revalidatePath("/catalog");
+  revalidatePath("/looks");
+  revalidatePath("/admin/products");
+  return report;
+}
+
 export async function importProductsCsv(_: CsvImportReport | null, formData: FormData): Promise<CsvImportReport> {
   const file = formData.get("csv");
   const zipFile = formData.get("imagesZip");
@@ -263,14 +307,7 @@ export async function importProductsCsv(_: CsvImportReport | null, formData: For
 
   let imageZip: JSZip | null = null;
   if (zipFile instanceof File && zipFile.size > 0) {
-    if (zipFile.size > 200 * 1024 * 1024) {
-      return { ...report, skipped: [{ line: 0, reason: "ZIP-архив не должен превышать 200 МБ." }] };
-    }
-    try {
-      imageZip = await JSZip.loadAsync(await zipFile.arrayBuffer());
-    } catch {
-      return { ...report, skipped: [{ line: 0, reason: "Не удалось открыть ZIP-архив. Проверьте файл и попробуйте снова." }] };
-    }
+    try { imageZip = await loadImageZip(zipFile); } catch (error) { return { ...report, skipped: [{ line: 0, reason: error instanceof Error ? error.message : "Не удалось открыть ZIP-архив." }] }; }
   }
 
   const parsed = toCsvRows(await file.text());
