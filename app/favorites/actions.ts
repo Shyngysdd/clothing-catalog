@@ -28,7 +28,7 @@ export async function toggleCustomerFavorite(productId: string, selectedSize?: s
   return { authenticated: true as const, favorite: true };
 }
 
-export async function mergeGuestFavorites(favorites: { productId: string; selectedSize?: string }[]) {
+export async function mergeGuestFavorites(favorites: { productId: string; selectedSize?: string | null }[]) {
   const customerId = await getAuthenticatedCustomerId();
   if (!customerId) return { authenticated: false as const, mergedProductIds: [] as string[] };
 
