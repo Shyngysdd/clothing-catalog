@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ProductDetailClient } from "./product-detail-client";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

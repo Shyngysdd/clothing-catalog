@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { deleteImage, saveImage } from "@/lib/product-images";
+import { deleteImage } from "@/lib/product-images";
 import { prisma } from "@/lib/prisma";
 
 function getText(formData: FormData, name: string) {
@@ -18,7 +18,7 @@ export async function updateBanner(formData: FormData) {
   const title = getText(formData, "title");
   const subtitle = getText(formData, "subtitle") || null;
   const linkUrl = getText(formData, "linkUrl");
-  const image = formData.get("image");
+  const uploadedImageUrl = getText(formData, "imageUrl");
   const removeImage = formData.get("removeImage") === "on";
   if (!slot || !title || !linkUrl) redirectWithError("Заполните заголовок и ссылку баннера.");
   if (!linkUrl.startsWith("/") && !/^https?:\/\//.test(linkUrl)) redirectWithError("Ссылка должна начинаться с /, http:// или https://.");
@@ -26,16 +26,18 @@ export async function updateBanner(formData: FormData) {
   const currentBanner = await prisma.banner.findUnique({ where: { slot } });
   if (!currentBanner) redirectWithError("Слот баннера не найден.");
 
-  let uploadedImage: string | null = null;
-  try {
-    uploadedImage = image instanceof File ? await saveImage(image, "banners") : null;
-  } catch (error) {
-    redirectWithError(error instanceof Error ? error.message : "Не удалось загрузить изображение.");
+  if (uploadedImageUrl) {
+    try {
+      const url = new URL(uploadedImageUrl);
+      if (url.protocol !== "https:" || !url.hostname.endsWith(".blob.vercel-storage.com")) throw new Error();
+    } catch {
+      redirectWithError("Некорректная ссылка на изображение.");
+    }
   }
 
-  const imageUrl = uploadedImage ?? (removeImage ? null : currentBanner.imageUrl);
+  const imageUrl = uploadedImageUrl || (removeImage ? null : currentBanner.imageUrl);
   await prisma.banner.update({ where: { slot }, data: { title, subtitle, linkUrl, imageUrl } });
-  if ((uploadedImage || removeImage) && currentBanner.imageUrl) await deleteImage(currentBanner.imageUrl);
+  if ((uploadedImageUrl || removeImage) && currentBanner.imageUrl) await deleteImage(currentBanner.imageUrl);
   revalidatePath("/");
   revalidatePath("/admin/banners");
   redirect("/admin/banners?saved=1");

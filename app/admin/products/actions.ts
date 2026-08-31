@@ -76,10 +76,18 @@ function productData(input: ProductInput) {
 }
 
 async function getUploadedImages(formData: FormData) {
-  const mainImage = formData.get("mainImage");
-  const galleryImages = formData.getAll("galleryImages");
-  const imageUrl = mainImage instanceof File ? await saveProductImage(mainImage) : null;
-  const galleryUrls = (await Promise.all(galleryImages.map((file) => file instanceof File ? saveProductImage(file) : null))).filter((url): url is string => Boolean(url));
+  const isBlobUrl = (value: string) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && url.hostname.endsWith(".blob.vercel-storage.com");
+    } catch {
+      return false;
+    }
+  };
+  const imageUrl = getText(formData, "mainImageUrl") || null;
+  const galleryUrls = formData.getAll("galleryImageUrl").map(String).filter(Boolean);
+  if (imageUrl && !isBlobUrl(imageUrl)) throw new Error("Некорректная ссылка на главное фото.");
+  if (galleryUrls.some((url) => !isBlobUrl(url))) throw new Error("Некорректная ссылка на фото галереи.");
   return { imageUrl, galleryUrls };
 }
 
@@ -253,11 +261,27 @@ async function uploadZipImage(entry: JSZip.JSZipObject) {
   return saveProductImage(new File([imageBytes], entry.name.split("/").pop() || "image", { type }));
 }
 
-async function loadImageZip(file: FormDataEntryValue | null) {
-  if (!(file instanceof File) || file.size === 0) throw new Error("Выберите ZIP-архив с фотографиями.");
-  if (file.size > 200 * 1024 * 1024) throw new Error("ZIP-архив не должен превышать 200 МБ.");
+const MAX_ZIP_SIZE = 100 * 1024 * 1024;
+
+function isVercelBlobUrl(value: string) {
   try {
-    return await JSZip.loadAsync(await file.arrayBuffer());
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname.endsWith(".blob.vercel-storage.com");
+  } catch {
+    return false;
+  }
+}
+
+async function loadImageZip(blobUrl: string) {
+  if (!blobUrl || !isVercelBlobUrl(blobUrl)) throw new Error("Не удалось получить ZIP-архив из хранилища.");
+  const response = await fetch(blobUrl);
+  if (!response.ok) throw new Error("Не удалось скачать ZIP-архив.");
+  const contentLength = Number(response.headers.get("content-length") ?? 0);
+  if (contentLength > MAX_ZIP_SIZE) throw new Error("ZIP-архив не должен превышать 100 МБ.");
+  const bytes = await response.arrayBuffer();
+  if (bytes.byteLength > MAX_ZIP_SIZE) throw new Error("ZIP-архив не должен превышать 100 МБ.");
+  try {
+    return await JSZip.loadAsync(bytes);
   } catch {
     throw new Error("Не удалось открыть ZIP-архив. Проверьте файл и попробуйте снова.");
   }
@@ -269,7 +293,7 @@ export async function importPhotosOnly(_: PhotosOnlyImportReport | null, formDat
   const report: PhotosOnlyImportReport = { updatedSkus: [], photosNotFound: [], errors: [] };
   let zip: JSZip;
   try {
-    zip = await loadImageZip(formData.get("imagesZip"));
+    zip = await loadImageZip(getText(formData, "imagesZipUrl"));
   } catch (error) {
     return { ...report, errors: [error instanceof Error ? error.message : "Не удалось открыть архив."] };
   }
@@ -299,15 +323,15 @@ export async function importPhotosOnly(_: PhotosOnlyImportReport | null, formDat
 
 export async function importProductsCsv(_: CsvImportReport | null, formData: FormData): Promise<CsvImportReport> {
   const file = formData.get("csv");
-  const zipFile = formData.get("imagesZip");
+  const imagesZipUrl = getText(formData, "imagesZipUrl");
   const report: CsvImportReport = { created: 0, updated: 0, skipped: [], photosNotFound: [] };
   if (!(file instanceof File) || file.size === 0) {
     return { ...report, skipped: [{ line: 0, reason: "Выберите непустой CSV-файл." }] };
   }
 
   let imageZip: JSZip | null = null;
-  if (zipFile instanceof File && zipFile.size > 0) {
-    try { imageZip = await loadImageZip(zipFile); } catch (error) { return { ...report, skipped: [{ line: 0, reason: error instanceof Error ? error.message : "Не удалось открыть ZIP-архив." }] }; }
+  if (imagesZipUrl) {
+    try { imageZip = await loadImageZip(imagesZipUrl); } catch (error) { return { ...report, skipped: [{ line: 0, reason: error instanceof Error ? error.message : "Не удалось открыть ZIP-архив." }] }; }
   }
 
   const parsed = toCsvRows(await file.text());

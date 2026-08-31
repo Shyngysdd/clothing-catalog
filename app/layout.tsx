@@ -5,6 +5,7 @@ import { CartProvider } from "@/context/cart-context";
 import { FavoritesProvider } from "@/context/favorites-context";
 import { CUSTOMER_SESSION_COOKIE, getCustomerIdFromSession } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
+import { getCachedSiteCategories } from "@/lib/site-categories";
 import { cookies } from "next/headers";
 import "./globals.css";
 
@@ -39,12 +40,7 @@ export const dynamic = "force-dynamic";
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const cookieStore = await cookies();
   const customerId = await getCustomerIdFromSession(cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value);
-  const categoryGroups = await prisma.product.groupBy({
-    by: ["category"],
-    _count: { _all: true },
-    orderBy: { category: "asc" },
-  });
-  const categories = categoryGroups.map((group) => ({ name: group.category, count: group._count._all }));
+  const categories = await getCachedSiteCategories();
   const initialFavoriteIds = customerId
     ? (await prisma.favorite.findMany({ where: { customerId }, select: { productId: true } })).map((favorite) => favorite.productId)
     : [];

@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { toCatalogLook } from "@/lib/catalog-types";
 import { LooksClient } from "./looks-client";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function LooksPage() {
   const dbLooks = await prisma.look.findMany({

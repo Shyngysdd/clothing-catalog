@@ -4,7 +4,7 @@ import { HomeProductMarquee } from "@/components/home-product-marquee";
 import { prisma } from "@/lib/prisma";
 import { resolveSectionProducts } from "@/lib/home-sections";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const bannerFallbacks = {
   hero: { title: "Billion.co", subtitle: "Новая глава городского гардероба — строгая, тактильная, личная.", linkUrl: "/catalog?category=новинки", imageUrl: null },

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { CatalogClient } from "./catalog-client";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ category?: string; sale?: string; search?: string }> }) {
   const { category, sale, search } = await searchParams;

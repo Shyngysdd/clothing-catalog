@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { toCatalogLook } from "@/lib/catalog-types";
 import { LookDetailClient } from "./look-detail-client";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function LookDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
