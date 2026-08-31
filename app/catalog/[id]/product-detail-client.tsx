@@ -7,10 +7,11 @@ import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
+import { ProductRecommendations } from "@/components/product-recommendations";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
-export function ProductDetailClient({ product }: { product: CatalogProduct }) {
+export function ProductDetailClient({ product, similarProducts, frequentlyBoughtTogether }: { product: CatalogProduct; similarProducts: CatalogProduct[]; frequentlyBoughtTogether: CatalogProduct[] }) {
   const [activeFrame, setActiveFrame] = useState(0);
   const galleryImages = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
   const firstAvailableSize = product.sizes.find((size) => size.inStock)?.size ?? "";
@@ -49,6 +50,8 @@ export function ProductDetailClient({ product }: { product: CatalogProduct }) {
           </div>
         </section>
       </div>
+      <ProductRecommendations title="Похожие товары" products={similarProducts} />
+      <ProductRecommendations title="С этим часто выбирают" products={frequentlyBoughtTogether} />
       {isSizeTableOpen ? <div className="fixed inset-0 z-50 grid place-items-center bg-[color:var(--ink)]/45 p-4" role="dialog" aria-modal="true" aria-label="Таблица размеров"><div className="w-full max-w-sm bg-[color:var(--paper)] p-6 shadow-xl"><div className="flex items-start justify-between gap-4"><h2 className="font-display text-3xl leading-none">Таблица размеров</h2><button type="button" onClick={() => setIsSizeTableOpen(false)} className="text-xl text-[color:var(--ink)]/60 hover:text-[color:var(--ink)]" aria-label="Закрыть">×</button></div><p className="mt-5 text-sm leading-6 text-[color:var(--ink)]/70">Уточняйте параметры и наличие у консультанта.</p></div></div> : null}
     </main>
   );

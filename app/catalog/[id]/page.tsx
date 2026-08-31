@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getFrequentlyBoughtTogether, getSimilarProducts } from "@/lib/recommendations";
 import { prisma } from "@/lib/prisma";
 import { ProductDetailClient } from "./product-detail-client";
 
@@ -29,5 +30,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const product = await prisma.product.findUnique({ where: { id }, include: { sizes: true } });
   if (!product) notFound();
 
-  return <ProductDetailClient product={product} />;
+  const [similarProducts, frequentlyBoughtTogether] = await Promise.all([
+    getSimilarProducts(product),
+    getFrequentlyBoughtTogether(product.id),
+  ]);
+
+  return <ProductDetailClient product={product} similarProducts={similarProducts} frequentlyBoughtTogether={frequentlyBoughtTogether} />;
 }
