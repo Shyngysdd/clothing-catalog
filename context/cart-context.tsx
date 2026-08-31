@@ -47,7 +47,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function removeItem(productId: string, size: string) {
     setItems((currentItems) =>
-      currentItems.filter((item) => item.id !== productId || item.size !== size),
+      currentItems.flatMap((item) => {
+        if (item.id !== productId || item.size !== size) return [item];
+        return item.quantity > 1 ? [{ ...item, quantity: item.quantity - 1 }] : [];
+      }),
     );
   }
 

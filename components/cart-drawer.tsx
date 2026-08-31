@@ -134,7 +134,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn }: { onClose: () => voi
                     onClick={() => removeItem(item.id, item.size)}
                     className="self-start text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]"
                   >
-                    Удалить
+                    Убрать 1
                   </button>
                 </div>
               </li>
