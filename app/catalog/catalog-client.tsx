@@ -320,21 +320,21 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
             </button>
           </div>
           {sortedProducts.length > 0 ? (
-            <div data-density={gridDensity === "2" ? "compact" : "comfortable"} className={`catalog-product-grid grid ${gridDensity === "2" ? "grid-cols-2" : "grid-cols-1"} gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`}>
+            <div data-density={gridDensity === "2" ? "compact" : "comfortable"} className={`catalog-product-grid grid items-stretch ${gridDensity === "2" ? "grid-cols-2" : "grid-cols-1"} gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`}>
               {sortedProducts.map((product, index) => {
                 const isSoldOut = product.sizes.length > 0 && product.sizes.every((size) => !size.inStock);
                 return (
-                <article key={product.id} className={`look-product-card group relative ${isSoldOut ? "opacity-60" : ""}`}>
+                <article key={product.id} className={`look-product-card group relative flex h-full flex-col ${isSoldOut ? "opacity-60" : ""}`}>
                   <Link
                     href={`/catalog/${product.id}`}
-                    className="block w-full text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]"
+                    className="flex h-full w-full flex-col text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]"
                     aria-label={`Открыть ${product.name}`}
                   >
                     <p className="font-display mb-3 text-3xl leading-none tracking-[-0.04em] text-[color:var(--accent)]">LOOK {String(index + 1).padStart(2, "0")}</p>
                     <CatalogProductPreview product={product} index={index} isSoldOut={isSoldOut} />
-                    <div className="catalog-product-info mt-4">
-                      <p className="catalog-product-name text-lg font-medium tracking-[-0.02em]">{product.name}</p>
-                      <div className="mt-2 flex flex-wrap items-center gap-2"><p className="catalog-product-price font-mono-price text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
+                    <div className="catalog-product-info mt-4 flex min-h-[4.6rem] flex-1 flex-col sm:min-h-[5.5rem]">
+                      <p className="catalog-product-name line-clamp-2 min-h-[2.1rem] text-lg font-medium leading-[1.2] tracking-[-0.02em] sm:min-h-[2.7rem]">{product.name}</p>
+                      <div className="mt-auto min-h-[2.5rem] pt-2 sm:min-h-[2.75rem]"><p className="catalog-product-price font-mono-price text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="mt-0.5 font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
                     </div>
                   </Link>
                   <button type="button" onClick={() => toggleFavorite(product.id, product.sizes.find((size) => size.inStock)?.size)} className="absolute right-3 top-12 z-10 grid size-9 place-items-center rounded-full bg-[color:var(--paper)]/90 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label={isFavorite(product.id) ? "Убрать из избранного" : "Добавить в избранное"} aria-pressed={isFavorite(product.id)}><svg aria-hidden="true" viewBox="0 0 24 24" fill={isFavorite(product.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" className={`size-5 ${isFavorite(product.id) ? "text-[color:var(--accent)]" : ""}`}><path d="M20.8 8.7c0 5-8.8 10.1-8.8 10.1S3.2 13.7 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z" strokeLinecap="round" strokeLinejoin="round" /></svg></button>
