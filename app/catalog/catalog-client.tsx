@@ -3,11 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
 import { useFavorites } from "@/context/favorites-context";
+import { useSwipeGallery } from "@/hooks/use-swipe-gallery";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
@@ -22,22 +23,8 @@ type GridDensity = "1" | "2";
 function CatalogProductPreview({ product, index, isSoldOut }: { product: CatalogProduct; index: number; isSoldOut: boolean }) {
   const frames = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
   const [activeFrame, setActiveFrame] = useState(0);
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-  const suppressClickRef = useRef(false);
+  const swipeGallery = useSwipeGallery({ frameCount: frames.length, setActiveFrame });
   const discountPercent = getDiscountPercent(product);
-
-  function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
-    const touchStart = touchStartRef.current;
-    touchStartRef.current = null;
-    if (!touchStart || frames.length < 2) return;
-    const touch = event.changedTouches[0];
-    const horizontalDistance = touch.clientX - touchStart.x;
-    const verticalDistance = touch.clientY - touchStart.y;
-    if (Math.abs(verticalDistance) >= Math.abs(horizontalDistance) || Math.abs(horizontalDistance) < 28) return;
-    setActiveFrame((current) => (horizontalDistance < 0 ? (current + 1) % frames.length : (current - 1 + frames.length) % frames.length));
-    suppressClickRef.current = true;
-    window.setTimeout(() => { suppressClickRef.current = false; }, 250);
-  }
 
   return (
     <div
@@ -45,9 +32,7 @@ function CatalogProductPreview({ product, index, isSoldOut }: { product: Catalog
       style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor } as CSSProperties}
       onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)}
       onMouseLeave={() => setActiveFrame(0)}
-      onTouchStart={(event) => { const touch = event.touches[0]; touchStartRef.current = { x: touch.clientX, y: touch.clientY }; }}
-      onTouchEnd={handleTouchEnd}
-      onClick={(event) => { if (suppressClickRef.current) { event.preventDefault(); event.stopPropagation(); } }}
+      {...swipeGallery}
     >
       <div className={`look-product-photo-layer ${isSoldOut ? "grayscale" : ""}`}>{frames.map((imageUrl, frameIndex) => <div key={imageUrl} className={`look-gallery-frame ${activeFrame === frameIndex ? "is-active" : ""}`}><Image src={imageUrl} alt="" fill sizes="(max-width: 767px) 50vw, (max-width: 1024px) 50vw, 25vw" className="product-card-photo" /></div>)}</div>
       <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>

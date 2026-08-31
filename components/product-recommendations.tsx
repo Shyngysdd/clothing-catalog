@@ -6,35 +6,21 @@ import type { CSSProperties } from "react";
 import { useRef, useState } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
+import { useSwipeGallery } from "@/hooks/use-swipe-gallery";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
 function RecommendationCard({ product, index }: { product: CatalogProduct; index: number }) {
   const frames = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
   const [activeFrame, setActiveFrame] = useState(0);
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-  const suppressClickRef = useRef(false);
+  const swipeGallery = useSwipeGallery({ frameCount: frames.length, setActiveFrame, maxSwipeDistance: 110 });
   const isSoldOut = !product.sizes.some((size) => size.inStock);
   const discountPercent = getDiscountPercent(product);
-
-  function handleTouchEnd(event: React.TouchEvent<HTMLDivElement>) {
-    const touchStart = touchStartRef.current;
-    touchStartRef.current = null;
-    if (!touchStart || frames.length < 2) return;
-    const touch = event.changedTouches[0];
-    const horizontalDistance = touch.clientX - touchStart.x;
-    const verticalDistance = touch.clientY - touchStart.y;
-
-    if (Math.abs(verticalDistance) >= Math.abs(horizontalDistance) || Math.abs(horizontalDistance) < 28 || Math.abs(horizontalDistance) > 90) return;
-    setActiveFrame((current) => (horizontalDistance < 0 ? (current + 1) % frames.length : (current - 1 + frames.length) % frames.length));
-    suppressClickRef.current = true;
-    window.setTimeout(() => { suppressClickRef.current = false; }, 250);
-  }
 
   return <article className={`look-product-card group w-[72vw] shrink-0 snap-start sm:w-[17rem] lg:w-[18rem] ${isSoldOut ? "opacity-60" : ""}`}>
     <Link href={`/catalog/${product.id}`} className="block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]" aria-label={`Открыть ${product.name}`}>
       <p className="font-display mb-3 text-3xl leading-none tracking-[-0.04em] text-[color:var(--accent)]">LOOK {String(index + 1).padStart(2, "0")}</p>
-      <div className="look-product-media aspect-[4/5]" style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor } as CSSProperties} onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)} onMouseLeave={() => setActiveFrame(0)} onTouchStart={(event) => { const touch = event.touches[0]; touchStartRef.current = { x: touch.clientX, y: touch.clientY }; }} onTouchEnd={handleTouchEnd} onClick={(event) => { if (suppressClickRef.current) { event.preventDefault(); event.stopPropagation(); } }}>
+      <div className="look-product-media aspect-[4/5]" style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor } as CSSProperties} onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)} onMouseLeave={() => setActiveFrame(0)} {...swipeGallery}>
         {frames.length > 0 ? <div className="look-product-photo-layer">{frames.map((imageUrl, frameIndex) => <div key={imageUrl} className={`look-gallery-frame ${frameIndex === activeFrame ? "is-active" : ""}`}><Image src={imageUrl} alt="" fill sizes="(max-width: 767px) 72vw, (max-width: 1024px) 50vw, 25vw" className={`product-card-photo ${isSoldOut ? "grayscale" : ""}`} /></div>)}</div> : product.galleryTones.map((tone, frameIndex) => <div key={`${tone}-${frameIndex}`} className={`look-gallery-frame look-gallery-frame--${tone} ${frameIndex === activeFrame ? "is-active" : ""}`} />)}
         <p className="look-product-sizes">{isSoldOut ? "НЕТ В НАЛИЧИИ" : `РАЗМЕРЫ: ${product.sizes.filter((size) => size.inStock).map((size) => size.size).join(" · ")}`}</p>
         {discountPercent ? <span className="discount-stamp">−{discountPercent}%</span> : null}
