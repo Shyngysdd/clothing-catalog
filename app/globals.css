@@ -425,13 +425,18 @@ textarea {
   }
 
   .home-product-track {
+    align-items: stretch;
     gap: 1rem;
-    padding-right: 1rem;
+    padding-right: 0;
     animation: home-marquee 28s linear infinite;
   }
 
   .home-look-card {
-    width: clamp(7.75rem, 35vw, 17rem);
+    width: clamp(7.75rem, 40vw, 10.5rem);
+  }
+
+  .home-look-card .look-number {
+    font-size: 1.5rem;
   }
 }
 
