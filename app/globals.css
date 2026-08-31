@@ -152,18 +152,10 @@ textarea {
   transform: scale(0.985);
 }
 
-.product-card-photo-sharp,
-.product-detail-photo-sharp {
+.product-card-photo,
+.product-detail-photo {
   z-index: 1;
-  object-fit: contain;
-}
-
-.product-card-photo-blur-bg,
-.product-detail-photo-blur-bg {
-  z-index: 0;
   object-fit: cover;
-  filter: blur(28px) brightness(0.88);
-  transform: scale(1.12);
 }
 
 .look-product-media::before {

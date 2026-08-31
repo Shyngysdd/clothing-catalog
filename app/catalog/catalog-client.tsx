@@ -31,7 +31,7 @@ function CatalogProductPreview({ product, index, isSoldOut }: { product: Catalog
       onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)}
       onMouseLeave={() => setActiveFrame(0)}
     >
-      <div className={`look-product-photo-layer ${isSoldOut ? "grayscale" : ""}`}>{frames.map((imageUrl, frameIndex) => <div key={imageUrl} className={`look-gallery-frame ${activeFrame === frameIndex ? "is-active" : ""}`}><Image src={imageUrl} alt="" aria-hidden="true" fill sizes="(max-width: 767px) 50vw, (max-width: 1024px) 50vw, 25vw" quality={25} className="product-card-photo-blur-bg" /><Image src={imageUrl} alt="" fill sizes="(max-width: 767px) 50vw, (max-width: 1024px) 50vw, 25vw" className="product-card-photo-sharp" /></div>)}</div>
+      <div className={`look-product-photo-layer ${isSoldOut ? "grayscale" : ""}`}>{frames.map((imageUrl, frameIndex) => <div key={imageUrl} className={`look-gallery-frame ${activeFrame === frameIndex ? "is-active" : ""}`}><Image src={imageUrl} alt="" fill sizes="(max-width: 767px) 50vw, (max-width: 1024px) 50vw, 25vw" className="product-card-photo" /></div>)}</div>
       <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
       {isSoldOut ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
       {discountPercent ? <span className="discount-stamp">−{discountPercent}%</span> : null}
