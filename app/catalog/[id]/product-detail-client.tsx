@@ -24,14 +24,14 @@ export function ProductDetailClient({ product }: { product: CatalogProduct }) {
       <Link href="/catalog" className="font-mono-price text-xs tracking-[0.12em] text-[color:var(--accent)]">← В КАТАЛОГ</Link>
       <div className="mt-6 grid gap-9 lg:grid-cols-2 lg:gap-14">
         <section>
-          <div className="look-preview aspect-[4/5]">
+          <div className="look-preview aspect-[4/5]" style={{ backgroundColor: product.imageColor }}>
             {galleryImages.length > 0
               ? galleryImages.map((imageUrl, index) => <Image key={imageUrl} src={imageUrl} alt={`${product.name}, кадр ${index + 1}`} fill sizes="(max-width: 1024px) 100vw, 50vw" className={`look-gallery-frame product-detail-photo ${activeFrame === index ? "is-active" : ""}`} />)
               : product.galleryTones.map((tone, index) => <div key={`${tone}-${index}`} className={`look-gallery-frame look-gallery-frame--${tone} ${activeFrame === index ? "is-active" : ""}`} />)}
             {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
           </div>
           <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
-            {(galleryImages.length > 0 ? galleryImages : product.galleryTones).map((frame, index) => <button key={`${frame}-${index}`} type="button" onClick={() => setActiveFrame(index)} aria-label={`Показать кадр ${index + 1}`} aria-pressed={activeFrame === index} className={`relative aspect-[4/5] w-16 shrink-0 overflow-hidden border-2 transition-colors sm:w-20 ${galleryImages.length > 0 ? "" : `look-gallery-frame look-gallery-frame--${frame}`} ${activeFrame === index ? "border-[color:var(--accent)]" : "border-transparent hover:border-[color:var(--gold)]"}`}>{galleryImages.length > 0 ? <Image src={frame} alt="" fill sizes="80px" className="object-cover" /> : null}</button>)}
+            {(galleryImages.length > 0 ? galleryImages : product.galleryTones).map((frame, index) => <button key={`${frame}-${index}`} type="button" onClick={() => setActiveFrame(index)} aria-label={`Показать кадр ${index + 1}`} aria-pressed={activeFrame === index} style={galleryImages.length > 0 ? { backgroundColor: product.imageColor } : undefined} className={`relative aspect-[4/5] w-16 shrink-0 overflow-hidden border-2 transition-colors sm:w-20 ${galleryImages.length > 0 ? "" : `look-gallery-frame look-gallery-frame--${frame}`} ${activeFrame === index ? "border-[color:var(--accent)]" : "border-transparent hover:border-[color:var(--gold)]"}`}>{galleryImages.length > 0 ? <Image src={frame} alt="" fill sizes="80px" className="product-detail-photo" /> : null}</button>)}
           </div>
         </section>
         <section className="lg:pt-3">

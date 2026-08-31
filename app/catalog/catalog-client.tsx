@@ -19,21 +19,31 @@ function parsePrice(value: string) {
 type SortOption = "default" | "price-asc" | "price-desc" | "newest" | "alphabetical" | "sale";
 type GridDensity = "1" | "2";
 
-function CatalogProductPreview({ product, index, isSoldOut }: { product: CatalogProduct; index: number; isSoldOut: boolean }) {
+function CatalogProductPreview({ product, index, isSoldOut, favorite, onToggleFavorite }: { product: CatalogProduct; index: number; isSoldOut: boolean; favorite: boolean; onToggleFavorite: () => void }) {
   const frames = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
   const [activeFrame, setActiveFrame] = useState(0);
+  const discountPercent = getDiscountPercent(product);
 
   return (
     <div
       className={`look-product-media aspect-[4/5] transition-[filter,transform] duration-200 ease-out group-hover:scale-[0.985] group-hover:brightness-75 ${isSoldOut ? "grayscale" : ""}`}
-      style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)" } as CSSProperties}
+      style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor } as CSSProperties}
       onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)}
       onMouseLeave={() => setActiveFrame(0)}
     >
       {frames.map((imageUrl, frameIndex) => <Image key={imageUrl} src={imageUrl} alt="" fill sizes="(max-width: 767px) 50vw, (max-width: 1024px) 50vw, 25vw" className={`look-gallery-frame product-card-photo ${activeFrame === frameIndex ? "is-active" : ""}`} />)}
       <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
       {isSoldOut ? <span className="absolute left-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
-      {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
+      {discountPercent ? <span className="discount-stamp">−{discountPercent}%</span> : null}
+      <button
+        type="button"
+        onClick={(event) => { event.preventDefault(); event.stopPropagation(); onToggleFavorite(); }}
+        className={`absolute right-3 z-10 grid size-9 place-items-center rounded-full bg-[color:var(--paper)]/90 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] ${discountPercent ? "top-20" : "top-3"}`}
+        aria-label={favorite ? "Убрать из избранного" : "Добавить в избранное"}
+        aria-pressed={favorite}
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill={favorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" className={`size-5 ${favorite ? "text-[color:var(--accent)]" : ""}`}><path d="M20.8 8.7c0 5-8.8 10.1-8.8 10.1S3.2 13.7 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
     </div>
   );
 }
@@ -326,21 +336,12 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
                     aria-label={`Открыть ${product.name}`}
                   >
                     <p className="font-display mb-3 text-3xl leading-none tracking-[-0.04em] text-[color:var(--accent)]">LOOK {String(index + 1).padStart(2, "0")}</p>
-                    <CatalogProductPreview product={product} index={index} isSoldOut={isSoldOut} />
+                    <CatalogProductPreview product={product} index={index} isSoldOut={isSoldOut} favorite={isFavorite(product.id)} onToggleFavorite={() => toggleFavorite(product.id, product.sizes.find((size) => size.inStock)?.size)} />
                     <div className="catalog-product-info mt-4">
                       <p className="catalog-product-name text-lg font-medium tracking-[-0.02em]">{product.name}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-2"><p className="catalog-product-price font-mono-price text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
                     </div>
                   </Link>
-                  <button
-                    type="button"
-                    onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleFavorite(product.id, product.sizes.find((size) => size.inStock)?.size); }}
-                    className="absolute right-3 top-12 z-10 grid size-9 place-items-center rounded-full bg-[color:var(--paper)]/90 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]"
-                    aria-label={isFavorite(product.id) ? "Убрать из избранного" : "Добавить в избранное"}
-                    aria-pressed={isFavorite(product.id)}
-                  >
-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill={isFavorite(product.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" className={`size-5 ${isFavorite(product.id) ? "text-[color:var(--accent)]" : ""}`}><path d="M20.8 8.7c0 5-8.8 10.1-8.8 10.1S3.2 13.7 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  </button>
                 </article>
                 );
               })}

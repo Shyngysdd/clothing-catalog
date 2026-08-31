@@ -142,11 +142,11 @@ textarea {
 
 .product-card-photo {
   z-index: 0;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .product-detail-photo {
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .look-product-media::before {

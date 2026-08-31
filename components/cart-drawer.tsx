@@ -14,7 +14,7 @@ type DeliveryMethod = "pickup" | "delivery";
 type FormErrors = Partial<Record<"name" | "phone" | "address", string>>;
 
 export function CartDrawer({ onClose, isCustomerLoggedIn }: { onClose: () => void; isCustomerLoggedIn: boolean }) {
-  const { items, totalPrice, removeItem, clearCart } = useCart();
+  const { items, totalPrice, incrementItem, decrementItem, clearCart } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
@@ -126,16 +126,14 @@ export function CartDrawer({ onClose, isCustomerLoggedIn }: { onClose: () => voi
                   {item.imageUrl ? <div className="relative size-16 shrink-0 overflow-hidden rounded-md"><Image src={item.imageUrl} alt="" fill sizes="64px" className="object-cover" /></div> : <div className="size-16 shrink-0 rounded-md" style={{ backgroundColor: item.imageColor }} />}
                   <div className="min-w-0 flex-1">
                     <p className="font-medium">{item.name}</p>
-                    <p className="mt-1 text-sm text-[color:var(--ink)]/60">Размер: {item.size} · {item.quantity} шт.</p>
+                    <p className="mt-1 text-sm text-[color:var(--ink)]/60">Размер: {item.size}</p>
                     <p className="font-mono-price mt-2 text-sm">{formatPrice.format(item.price * item.quantity)} ₸</p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(item.id, item.size)}
-                    className="self-start text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]"
-                  >
-                    Убрать 1
-                  </button>
+                  <div className="flex min-h-11 shrink-0 items-center border border-[color:var(--ink)]/25" aria-label={`Количество: ${item.quantity}`}>
+                    <button type="button" onClick={() => decrementItem(item.id, item.size)} className="grid size-10 place-items-center text-lg text-[color:var(--ink)]/70 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label="Уменьшить количество">−</button>
+                    <span className="grid min-w-8 place-items-center px-1 font-mono-price text-sm">{item.quantity}</span>
+                    <button type="button" onClick={() => incrementItem(item.id, item.size)} className="grid size-10 place-items-center text-lg text-[color:var(--ink)]/70 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label="Увеличить количество">+</button>
+                  </div>
                 </div>
               </li>
             ))}

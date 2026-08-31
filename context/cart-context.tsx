@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 
@@ -14,6 +14,8 @@ type CartContextValue = {
   itemCount: number;
   totalPrice: number;
   addItem: (product: CatalogProduct, size: string) => void;
+  incrementItem: (productId: string, size: string) => void;
+  decrementItem: (productId: string, size: string) => void;
   removeItem: (productId: string, size: string) => void;
   clearCart: () => void;
   isDrawerOpen: boolean;
@@ -54,6 +56,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   }
 
+  function incrementItem(productId: string, size: string) {
+    setItems((currentItems) => currentItems.map((item) => item.id === productId && item.size === size ? { ...item, quantity: item.quantity + 1 } : item));
+  }
+
+  const decrementItem = useCallback((productId: string, size: string) => {
+    setItems((currentItems) => currentItems.flatMap((item) => {
+      if (item.id !== productId || item.size !== size) return [item];
+      return item.quantity > 1 ? [{ ...item, quantity: item.quantity - 1 }] : [];
+    }));
+  }, []);
+
   function clearCart() {
     setItems([]);
   }
@@ -72,13 +85,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       itemCount: items.reduce((count, item) => count + item.quantity, 0),
       totalPrice: items.reduce((total, item) => total + item.price * item.quantity, 0),
       addItem,
+      incrementItem,
+      decrementItem,
       removeItem,
       clearCart,
       isDrawerOpen,
       openDrawer,
       closeDrawer,
     }),
-    [items, isDrawerOpen],
+    [items, isDrawerOpen, decrementItem],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
