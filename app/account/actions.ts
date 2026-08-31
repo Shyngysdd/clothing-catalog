@@ -3,7 +3,7 @@
 import bcrypt from "bcryptjs";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { customerSessionMaxAge, CUSTOMER_SESSION_COOKIE, createCustomerSessionToken } from "@/lib/customer-auth";
+import { customerSessionMaxAge, CUSTOMER_SESSION_COOKIE, createCustomerSessionToken, getCustomerIdFromSession } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
 import { createVerificationData, sendVerificationEmail } from "@/lib/email-verification";
 import { clearLoginAttempts, createLoginAttemptKey, getClientIp, isLoginBlocked, recordFailedLogin } from "@/lib/login-rate-limit";
@@ -18,6 +18,49 @@ async function setCustomerSession(customerId: string) {
     maxAge: customerSessionMaxAge,
     path: "/",
   });
+}
+
+async function requireCustomerId() {
+  const cookieStore = await cookies();
+  const customerId = await getCustomerIdFromSession(cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value);
+  if (!customerId) redirect("/account/login");
+  return customerId;
+}
+
+export async function updateProfile(formData: FormData) {
+  const customerId = await requireCustomerId();
+  const name = formData.get("name");
+  const phone = formData.get("phone");
+  const normalizedName = typeof name === "string" ? name.trim() : "";
+  const normalizedPhone = typeof phone === "string" ? phone.trim() : "";
+
+  if (!normalizedName) redirect("/account?profile=invalid");
+
+  await prisma.customer.update({
+    where: { id: customerId },
+    data: { name: normalizedName, phone: normalizedPhone || null },
+  });
+  redirect("/account?profile=success");
+}
+
+export async function changePassword(formData: FormData) {
+  const customerId = await requireCustomerId();
+  const currentPassword = formData.get("currentPassword");
+  const newPassword = formData.get("newPassword");
+  const passwordConfirmation = formData.get("passwordConfirmation");
+
+  if (typeof currentPassword !== "string" || typeof newPassword !== "string" || typeof passwordConfirmation !== "string") {
+    redirect("/account?password=invalid");
+  }
+  if (newPassword.length < 8) redirect("/account?password=short");
+  if (newPassword !== passwordConfirmation) redirect("/account?password=mismatch");
+
+  const customer = await prisma.customer.findUnique({ where: { id: customerId }, select: { passwordHash: true } });
+  if (!customer) redirect("/account/login");
+  if (!(await bcrypt.compare(currentPassword, customer.passwordHash))) redirect("/account?password=current");
+
+  await prisma.customer.update({ where: { id: customerId }, data: { passwordHash: await bcrypt.hash(newPassword, 12) } });
+  redirect("/account?password=success");
 }
 
 export async function registerCustomer(formData: FormData) {
@@ -131,9 +174,7 @@ export async function logoutCustomer() {
 }
 
 export async function resendVerificationEmail() {
-  const cookieStore = await cookies();
-  const customerId = await (await import("@/lib/customer-auth")).getCustomerIdFromSession(cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value);
-  if (!customerId) redirect("/account/login");
+  const customerId = await requireCustomerId();
 
   const customer = await prisma.customer.findUnique({ where: { id: customerId }, select: { email: true, emailVerified: true, verificationEmailSentAt: true } });
   if (!customer || customer.emailVerified) redirect("/account");

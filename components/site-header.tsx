@@ -7,6 +7,7 @@ import { BRAND_CONFIG } from "@/lib/brand-config";
 import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
 import { CartDrawer } from "./cart-drawer";
+import type { SavedAddress } from "@/lib/address-format";
 
 type CategoryNavItem = { name: string; count: number };
 
@@ -50,7 +51,7 @@ function SearchIcon() {
   return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><circle cx="10.8" cy="10.8" r="6.3" /><path d="m16 16 4.2 4.2" strokeLinecap="round" /></svg>;
 }
 
-export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: CategoryNavItem[]; isCustomerLoggedIn: boolean }) {
+export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: { categories: CategoryNavItem[]; isCustomerLoggedIn: boolean; savedAddresses: SavedAddress[] }) {
   const [isNavigatorOpen, setIsNavigatorOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -211,7 +212,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn }: { categories: Cat
           </nav>
         </aside>
       </div>
-      {isDrawerOpen ? <CartDrawer onClose={closeDrawer} isCustomerLoggedIn={isCustomerLoggedIn} /> : null}
+      {isDrawerOpen ? <CartDrawer onClose={closeDrawer} isCustomerLoggedIn={isCustomerLoggedIn} savedAddresses={savedAddresses} /> : null}
     </>
   );
 }

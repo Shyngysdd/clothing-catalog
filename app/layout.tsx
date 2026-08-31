@@ -44,13 +44,16 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const initialFavorites = customerId
     ? await prisma.favorite.findMany({ where: { customerId }, select: { productId: true, selectedSize: true } })
     : [];
+  const savedAddresses = customerId
+    ? await prisma.customerAddress.findMany({ where: { customerId }, select: { id: true, label: true, city: true, addressLine: true, apartment: true, comment: true, isDefault: true }, orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }] })
+    : [];
 
   return (
     <html lang="ru" className={`${archivoBlack.variable} ${ibmPlexMono.variable} ${montserrat.variable} h-full`}>
       <body className="flex min-h-full flex-col antialiased">
         <FavoritesProvider isCustomerLoggedIn={Boolean(customerId)} initialFavorites={initialFavorites}>
           <CartProvider>
-            <SiteChrome categories={categories} isCustomerLoggedIn={Boolean(customerId)}>{children}</SiteChrome>
+            <SiteChrome categories={categories} isCustomerLoggedIn={Boolean(customerId)} savedAddresses={savedAddresses}>{children}</SiteChrome>
           </CartProvider>
         </FavoritesProvider>
       </body>

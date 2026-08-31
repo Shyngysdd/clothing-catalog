@@ -6,6 +6,8 @@ import { useState } from "react";
 import { createOrderFromCart } from "@/app/account/order-actions";
 import { useCart } from "@/context/cart-context";
 import { BRAND_CONFIG } from "@/lib/brand-config";
+import { formatSavedAddress } from "@/lib/address-format";
+import type { SavedAddress } from "@/lib/address-format";
 import { OverlayPanel } from "./overlay-panel";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
@@ -13,12 +15,15 @@ const formatPrice = new Intl.NumberFormat("ru-KZ");
 type DeliveryMethod = "pickup" | "delivery";
 type FormErrors = Partial<Record<"name" | "phone" | "address", string>>;
 
-export function CartDrawer({ onClose, isCustomerLoggedIn }: { onClose: () => void; isCustomerLoggedIn: boolean }) {
+export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { onClose: () => void; isCustomerLoggedIn: boolean; savedAddresses: SavedAddress[] }) {
   const { items, totalPrice, incrementItem, decrementItem, clearCart } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(() => {
+    const defaultAddress = savedAddresses.find((savedAddress) => savedAddress.isDefault);
+    return defaultAddress ? formatSavedAddress(defaultAddress) : "";
+  });
   const [errors, setErrors] = useState<FormErrors>({});
   const [orderFormed, setOrderFormed] = useState(false);
   const [orderError, setOrderError] = useState("");
@@ -217,6 +222,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn }: { onClose: () => voi
               {deliveryMethod === "delivery" ? (
                 <div>
                   <label htmlFor="delivery-address" className="text-sm font-medium">Адрес доставки</label>
+                  {savedAddresses.length > 0 ? <div className="mt-3"><p className="font-mono-price text-[10px] tracking-[0.1em] text-[color:var(--ink)]/55">СОХРАНЁННЫЕ АДРЕСА</p><div className="mt-2 grid gap-2">{savedAddresses.map((savedAddress) => { const formattedAddress = formatSavedAddress(savedAddress); return <button key={savedAddress.id} type="button" onClick={() => { setAddress(formattedAddress); clearError("address"); }} aria-pressed={address === formattedAddress} className={`min-h-11 border px-3 py-2 text-left text-sm transition-colors ${address === formattedAddress ? "border-[color:var(--accent)] bg-[color:var(--accent)]/8" : "border-[color:var(--ink)]/20 hover:border-[color:var(--accent)]"}`}><span className="font-medium">{savedAddress.label || "Адрес доставки"}{savedAddress.isDefault ? " · основной" : ""}</span><span className="mt-1 block text-xs leading-5 text-[color:var(--ink)]/65">{formattedAddress}</span></button>; })}</div></div> : null}
                   <input
                     id="delivery-address"
                     type="text"
@@ -228,7 +234,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn }: { onClose: () => voi
                     }}
                     aria-invalid={Boolean(errors.address)}
                     aria-describedby={errors.address ? "delivery-address-error" : undefined}
-                  className="mt-2 min-h-11 w-full rounded-lg border border-[color:var(--ink)]/25 px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
+                  className="mt-3 min-h-11 w-full rounded-lg border border-[color:var(--ink)]/25 px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
                   />
                   {errors.address ? <p id="delivery-address-error" className="mt-1 text-sm text-[color:var(--accent)]">{errors.address}</p> : null}
                 </div>
