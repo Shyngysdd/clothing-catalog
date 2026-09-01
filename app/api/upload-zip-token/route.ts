@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       onBeforeGenerateToken: async (pathname) => {
         const isAdmin = await isValidAdminSession(getCookie(request, ADMIN_SESSION_COOKIE));
         const isZip = pathname.startsWith("product-imports/");
-        const isImage = pathname.startsWith("product-images/") || pathname.startsWith("banners/");
+        const isImage = pathname.startsWith("product-images/") || pathname.startsWith("banners/") || pathname.startsWith("looks/");
         if (!isAdmin || (!isZip && !isImage)) {
           throw new Error("Недостаточно прав для загрузки архива.");
         }

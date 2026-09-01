@@ -12,6 +12,7 @@ export function LookDetailClient({ look }: { look: CatalogLook }) {
   const [activeFrame, setActiveFrame] = useState(0);
   const { addItem } = useCart();
   const lookProducts = look.items;
+  const frames = look.photoUrls.length > 0 ? look.photoUrls : look.photoTones;
 
   function addLookToCart() {
     lookProducts.forEach((product) => {
@@ -24,12 +25,12 @@ export function LookDetailClient({ look }: { look: CatalogLook }) {
     <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16">
       <Link href="/looks" className="font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← ВСЕ ОБРАЗЫ</Link>
       <div className="mt-6 look-preview aspect-[3/4] max-h-[70svh]">
-        {look.photoTones.map((placeholder, index) => (
-          <div key={`${placeholder}-${index}`} className={`look-gallery-frame look-gallery-frame--${placeholder} ${index === activeFrame ? "is-active" : ""}`} />
-        ))}
+        {look.photoUrls.length > 0
+          ? look.photoUrls.map((photoUrl, index) => <div key={photoUrl} className={`look-gallery-frame ${index === activeFrame ? "is-active" : ""}`}><Image src={photoUrl} alt={`${look.title}, кадр ${index + 1}`} fill sizes="(max-width: 1024px) 100vw, 64rem" className="product-detail-photo" /></div>)
+          : look.photoTones.map((placeholder, index) => <div key={`${placeholder}-${index}`} className={`look-gallery-frame look-gallery-frame--${placeholder} ${index === activeFrame ? "is-active" : ""}`} />)}
       </div>
       <div className="mt-4 flex justify-center gap-2" aria-label="Кадры образа">
-        {look.photoTones.map((_, index) => (
+        {frames.map((_, index) => (
           <button key={index} type="button" onClick={() => setActiveFrame(index)} aria-label={`Показать кадр ${index + 1}`} aria-current={activeFrame === index} className={`size-2 rounded-full transition-colors ${activeFrame === index ? "bg-[color:var(--accent)]" : "bg-[color:var(--ink)]/25 hover:bg-[color:var(--ink)]/55"}`} />
         ))}
       </div>

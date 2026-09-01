@@ -47,6 +47,7 @@ model Look {
   title       String
   description String?
   photoTones  String[]
+  photoUrls   String[]     @default([])
   items       LookItem[]
   createdAt   DateTime   @default(now())
 }

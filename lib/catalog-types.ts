@@ -28,6 +28,7 @@ export type CatalogLook = {
   title: string;
   description: string | null;
   photoTones: string[];
+  photoUrls: string[];
   items: CatalogProduct[];
 };
 
@@ -38,6 +39,7 @@ export function toCatalogLook(look: {
   title: string;
   description: string | null;
   photoTones: string[];
+  photoUrls: string[];
   items: { product: ProductWithSizes }[];
 }): CatalogLook {
   return { ...look, items: look.items.map((item) => ({ ...item.product, sizes: item.product.sizes })) };

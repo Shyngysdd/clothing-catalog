@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     if (typeof body.blobUrl !== "string" || !isBlobUrl(body.blobUrl)) {
       return NextResponse.json({ error: "Некорректная ссылка на изображение." }, { status: 400 });
     }
-    if (body.kind !== "product" && body.kind !== "banner") {
+    if (body.kind !== "product" && body.kind !== "banner" && body.kind !== "look") {
       return NextResponse.json({ error: "Некорректный тип изображения." }, { status: 400 });
     }
 
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     if (!source.ok) throw new Error("Не удалось получить загруженное изображение.");
     const image = await normalizeImage(
       Buffer.from(await source.arrayBuffer()),
-      body.kind === "banner" ? BANNER_IMAGE_SIZE : PRODUCT_IMAGE_SIZE,
+      body.kind === "product" ? PRODUCT_IMAGE_SIZE : BANNER_IMAGE_SIZE,
     );
     const blob = await put(`${getOriginalDirectory(body.blobUrl)}normalized-image.webp`, image, {
       access: "public",

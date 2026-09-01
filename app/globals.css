@@ -437,8 +437,7 @@ textarea {
   }
 
   .look-product-sizes {
-    opacity: 1;
-    transform: none;
+    display: none;
   }
 
   .home-product-marquee {
