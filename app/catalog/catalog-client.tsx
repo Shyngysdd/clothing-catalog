@@ -29,7 +29,9 @@ function CatalogProductPreview({ product, index, isSoldOut }: { product: Catalog
   return (
     <div
       className="look-product-media aspect-[4/5]"
-      style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor } as CSSProperties}
+      style={(product.imageUrl
+        ? { background: "var(--white)" }
+        : { "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor }) as CSSProperties}
       onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)}
       onMouseLeave={() => setActiveFrame(0)}
       {...swipeGallery}

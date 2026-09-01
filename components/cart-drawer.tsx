@@ -16,7 +16,7 @@ type DeliveryMethod = "pickup" | "delivery";
 type FormErrors = Partial<Record<"name" | "phone" | "address", string>>;
 
 export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { onClose: () => void; isCustomerLoggedIn: boolean; savedAddresses: SavedAddress[] }) {
-  const { items, totalPrice, incrementItem, decrementItem, clearCart } = useCart();
+  const { items, totalPrice, incrementItem, decrementItem, removeItemEntirely, clearCart } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
@@ -134,11 +134,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { on
                     <p className="mt-1 text-sm text-[color:var(--ink)]/60">Размер: {item.size}</p>
                     <p className="font-mono-price mt-2 text-sm">{formatPrice.format(item.price * item.quantity)} ₸</p>
                   </div>
-                  <div className="flex min-h-11 shrink-0 items-center border border-[color:var(--ink)]/25" aria-label={`Количество: ${item.quantity}`}>
-                    <button type="button" onClick={() => decrementItem(item.id, item.size)} className="grid size-10 place-items-center text-lg text-[color:var(--ink)]/70 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label="Уменьшить количество">−</button>
-                    <span className="grid min-w-8 place-items-center px-1 font-mono-price text-sm">{item.quantity}</span>
-                    <button type="button" onClick={() => incrementItem(item.id, item.size)} className="grid size-10 place-items-center text-lg text-[color:var(--ink)]/70 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label="Увеличить количество">+</button>
-                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-2"><div className="flex min-h-11 items-center border border-[color:var(--ink)]/25" aria-label={`Количество: ${item.quantity}`}><button type="button" onClick={() => decrementItem(item.id, item.size)} className="grid size-10 place-items-center text-lg text-[color:var(--ink)]/70 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label="Уменьшить количество">−</button><span className="grid min-w-8 place-items-center px-1 font-mono-price text-sm">{item.quantity}</span><button type="button" onClick={() => incrementItem(item.id, item.size)} className="grid size-10 place-items-center text-lg text-[color:var(--ink)]/70 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label="Увеличить количество">+</button></div><button type="button" onClick={() => removeItemEntirely(item.id, item.size)} className="min-h-11 px-2 text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Удалить</button></div>
                 </div>
               </li>
             ))}

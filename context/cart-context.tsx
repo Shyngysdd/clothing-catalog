@@ -16,7 +16,7 @@ type CartContextValue = {
   addItem: (product: CatalogProduct, size: string) => void;
   incrementItem: (productId: string, size: string) => void;
   decrementItem: (productId: string, size: string) => void;
-  removeItem: (productId: string, size: string) => void;
+  removeItemEntirely: (productId: string, size: string) => void;
   clearCart: () => void;
   isDrawerOpen: boolean;
   openDrawer: () => void;
@@ -47,13 +47,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }
 
-  function removeItem(productId: string, size: string) {
-    setItems((currentItems) =>
-      currentItems.flatMap((item) => {
-        if (item.id !== productId || item.size !== size) return [item];
-        return item.quantity > 1 ? [{ ...item, quantity: item.quantity - 1 }] : [];
-      }),
-    );
+  function removeItemEntirely(productId: string, size: string) {
+    setItems((currentItems) => currentItems.filter((item) => item.id !== productId || item.size !== size));
   }
 
   function incrementItem(productId: string, size: string) {
@@ -87,7 +82,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       addItem,
       incrementItem,
       decrementItem,
-      removeItem,
+      removeItemEntirely,
       clearCart,
       isDrawerOpen,
       openDrawer,

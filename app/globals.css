@@ -30,8 +30,31 @@ textarea {
 
 :where(button, a) {
   transition-property: color, background-color, border-color, box-shadow, opacity, transform;
-  transition-duration: 220ms;
+  transition-duration: 160ms;
   transition-timing-function: ease-out;
+}
+
+:where(button:not(:disabled), a[href], [role="button"]) {
+  touch-action: manipulation;
+}
+
+:where(button:not(:disabled), a[href], [role="button"]):active {
+  opacity: 0.84;
+  transform: scale(0.98);
+}
+
+:where(button:not(:disabled)):active {
+  filter: brightness(0.94);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(button, a) {
+    transition-duration: 0ms;
+  }
+
+  :where(button:not(:disabled), a[href], [role="button"]):active {
+    transform: none;
+  }
 }
 
 .font-display {
@@ -155,7 +178,7 @@ textarea {
 .product-card-photo,
 .product-detail-photo {
   z-index: 1;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .look-product-media::before {
