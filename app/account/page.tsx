@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { CUSTOMER_SESSION_COOKIE, getCustomerIdFromSession } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
 import { changePassword, logoutCustomer, resendVerificationEmail, updateProfile } from "./actions";
+import { RecentlyViewed } from "@/components/recently-viewed";
 
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ verification?: string; profile?: string; password?: string }> }) {
   const cookieStore = await cookies();
@@ -13,6 +14,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
 
   const customer = await prisma.customer.findUnique({ where: { id: customerId }, select: { name: true, email: true, phone: true, emailVerified: true } });
   if (!customer) redirect("/account/login");
+  const allProducts = await prisma.product.findMany({ include: { sizes: true }, orderBy: { createdAt: "desc" } });
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-16">
@@ -42,6 +44,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         <Link href="/account/favorites" className="border border-[color:var(--ink)]/25 px-5 py-4 text-sm font-medium hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]">Избранное</Link>
         <Link href="/account/addresses" className="border border-[color:var(--ink)]/25 px-5 py-4 text-sm font-medium hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]">Адреса</Link>
       </nav>
+      <RecentlyViewed allProducts={allProducts} />
       <form action={logoutCustomer} className="mt-8">
         <button type="submit" className="text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)]">Выйти</button>
       </form>

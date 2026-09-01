@@ -121,9 +121,9 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { on
           </div>
         </div>
       ) : items.length > 0 ? (
-        <div className="flex min-h-0 flex-1 flex-col">
-          <CartItemsList className="shrink-0 px-5 sm:px-6" />
-          <form noValidate onSubmit={handleSubmit} className="min-h-0 flex-1 overflow-y-auto border-t border-[color:var(--ink)]/15 px-5 py-5 sm:px-6">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <CartItemsList className="px-5 sm:px-6" />
+          <form noValidate onSubmit={handleSubmit} className="border-t border-[color:var(--ink)]/15 px-5 py-5 sm:px-6">
             <CartSummary items={items} />
 
             <div className="mt-6 space-y-4">

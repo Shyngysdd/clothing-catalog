@@ -20,6 +20,9 @@ type ProductInput = {
   fit: string | null;
   care: string[];
   imageColor: string;
+  colorGroup: string | null;
+  color: string | null;
+  colorSwatch: string | null;
   galleryTones: string[];
   sizes: { size: string; inStock: boolean }[];
 };
@@ -57,6 +60,10 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
   if (!/^#[0-9a-fA-F]{6}$/.test(getText(formData, "imageColor"))) {
     redirectWithError(returnPath, "Цвет должен быть в формате #RRGGBB.");
   }
+  const colorSwatch = getText(formData, "colorSwatch") || null;
+  if (colorSwatch && !/^#[0-9a-fA-F]{6}$/.test(colorSwatch)) {
+    redirectWithError(returnPath, "Свотч цвета должен быть в формате #RRGGBB.");
+  }
 
   return {
     name, brand, sku, category, price, originalPrice,
@@ -65,6 +72,9 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
     fit: getText(formData, "fit") || null,
     care,
     imageColor: getText(formData, "imageColor"),
+    colorGroup: getText(formData, "colorGroup") || null,
+    color: getText(formData, "color") || null,
+    colorSwatch,
     galleryTones: formData.getAll("galleryTones").map(String),
     sizes,
   };
@@ -74,7 +84,8 @@ function productData(input: ProductInput) {
   return {
     name: input.name, brand: input.brand, sku: input.sku, category: input.category, price: input.price,
     originalPrice: input.originalPrice, description: input.description, composition: input.composition,
-    care: input.care, fit: input.fit, imageColor: input.imageColor, galleryTones: input.galleryTones,
+    care: input.care, fit: input.fit, imageColor: input.imageColor, colorGroup: input.colorGroup,
+    color: input.color, colorSwatch: input.colorSwatch, galleryTones: input.galleryTones,
   };
 }
 
@@ -282,6 +293,9 @@ function validateCsvRow(row: CsvRow) {
       composition: row.composition.trim() || null,
       fit: row.fit.trim() || null,
       care, sizes, imageColor,
+      colorGroup: row.colorGroup?.trim() || null,
+      color: row.color?.trim() || null,
+      colorSwatch: row.colorSwatch?.trim() || null,
     },
   } as const;
 }
@@ -402,6 +416,7 @@ export async function importProductsCsv(_: CsvImportReport | null, formData: For
         sku: input.sku, name: input.name, category: input.category, price: input.price,
         originalPrice: input.originalPrice, description: input.description, composition: input.composition,
         fit: input.fit, care: input.care, imageColor: input.imageColor,
+        colorGroup: input.colorGroup, color: input.color, colorSwatch: input.colorSwatch,
       };
       const imageEntries = imageZip ? zipImageEntries(imageZip, input.sku) : null;
       if (imageZip && !imageEntries?.main) report.photosNotFound.push(input.sku);

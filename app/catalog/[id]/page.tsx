@@ -31,10 +31,17 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const product = await prisma.product.findUnique({ where: { id }, include: { sizes: true } });
   if (!product) notFound();
 
-  const [similarProducts, frequentlyBoughtTogether] = await Promise.all([
+  const [similarProducts, frequentlyBoughtTogether, colorSiblings] = await Promise.all([
     getSimilarProducts(product),
     getFrequentlyBoughtTogether(product.id),
+    product.colorGroup
+      ? prisma.product.findMany({
+          where: { colorGroup: product.colorGroup, id: { not: product.id } },
+          select: { id: true, color: true, colorSwatch: true, imageColor: true },
+          orderBy: { createdAt: "asc" },
+        })
+      : Promise.resolve([]),
   ]);
 
-  return <ProductDetailClient product={product} similarProducts={similarProducts} frequentlyBoughtTogether={frequentlyBoughtTogether} />;
+  return <ProductDetailClient product={product} similarProducts={similarProducts} frequentlyBoughtTogether={frequentlyBoughtTogether} colorSiblings={colorSiblings} />;
 }

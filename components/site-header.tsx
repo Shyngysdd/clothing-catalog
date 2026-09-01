@@ -100,7 +100,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
             </span>
           </div>
           <div className="flex min-w-0 items-center gap-0.5 sm:gap-2">
-            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="min-h-10 px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:min-h-11 sm:px-0 sm:text-sm">
+            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="hidden min-h-10 px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:inline-flex sm:min-h-11 sm:px-0 sm:text-sm">
               Каталог
             </button>
             <Link href="/looks" className="inline-flex min-h-10 items-center px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:min-h-11 sm:px-0 sm:text-sm">
@@ -127,7 +127,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
             </a>
             <Link
               href={accountHref}
-              className="flex h-10 items-center gap-1 px-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:h-11 sm:gap-1.5"
+              className="hidden h-10 items-center gap-1 px-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:flex sm:h-11 sm:gap-1.5"
               aria-label={isCustomerLoggedIn ? "Личный кабинет" : "Войти в личный кабинет"}
             >
               <AccountIcon />
@@ -141,7 +141,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
               <FavoritesIcon />
               {favoriteIds.length > 0 ? <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-xs leading-5 text-white">{favoriteIds.length}</span> : null}
             </Link>
-            <Link href="/cart" className="relative ml-1 grid size-10 place-items-center border-l border-[color:var(--ink)]/25 pl-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:hidden" aria-label={`Корзина, товаров: ${itemCount}`}>
+            <Link href="/cart" className="relative ml-1 hidden size-10 place-items-center border-l border-[color:var(--ink)]/25 pl-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label={`Корзина, товаров: ${itemCount}`}>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L20 7H6.2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="10" cy="20" r="1" fill="currentColor" stroke="none" /><circle cx="17" cy="20" r="1" fill="currentColor" stroke="none" /></svg>
               {itemCount > 0 ? <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-xs leading-5 text-white">{itemCount}</span> : null}
             </Link>

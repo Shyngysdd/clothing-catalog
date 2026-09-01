@@ -74,13 +74,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       return [...currentItems, { ...product, size, quantity: 1 }];
     });
-    if (window.matchMedia("(min-width: 640px)").matches) {
-      setIsDrawerOpen(true);
-    } else {
-      if (noticeTimeoutRef.current) window.clearTimeout(noticeTimeoutRef.current);
-      setCartNotice("Добавлено в корзину");
-      noticeTimeoutRef.current = window.setTimeout(() => setCartNotice(null), 2200);
-    }
+    if (noticeTimeoutRef.current) window.clearTimeout(noticeTimeoutRef.current);
+    setCartNotice("Добавлено в корзину");
+    noticeTimeoutRef.current = window.setTimeout(() => setCartNotice(null), 2200);
   }
 
   function removeItemEntirely(productId: string, size: string) {

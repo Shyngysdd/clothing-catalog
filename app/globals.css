@@ -321,7 +321,7 @@ textarea {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 180ms ease-out;
+  transition: opacity 200ms ease;
 }
 
 .look-gallery-frame.is-active {

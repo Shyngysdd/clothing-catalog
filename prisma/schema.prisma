@@ -23,6 +23,9 @@ model Product {
   imageUrl      String?
   galleryTones  String[]
   galleryUrls   String[]      @default([])
+  colorGroup    String?
+  color         String?
+  colorSwatch   String?
   sizes         ProductSize[]
   lookItems     LookItem[]
   createdAt     DateTime      @default(now())

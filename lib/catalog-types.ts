@@ -16,6 +16,9 @@ export type CatalogProduct = {
   imageUrl: string | null;
   galleryTones: string[];
   galleryUrls: string[];
+  colorGroup: string | null;
+  color: string | null;
+  colorSwatch: string | null;
   sizes: CatalogSize[];
   createdAt: Date | string;
 };

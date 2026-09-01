@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HomeProductMarquee } from "@/components/home-product-marquee";
+import { RecentlyViewed } from "@/components/recently-viewed";
 import { prisma } from "@/lib/prisma";
 import { resolveSectionProducts } from "@/lib/home-sections";
 import { BRAND_CONFIG } from "@/lib/brand-config";
@@ -45,5 +46,6 @@ export default async function Home() {
     </section>
 
     {resolvedSections.slice(1).map(({ section, products }) => <section key={section.id} className="mx-auto max-w-[90rem] px-4 pb-10 pt-16 sm:px-6 sm:pb-16 sm:pt-24 lg:px-10"><div className="mb-7 flex flex-col items-start gap-3 sm:mb-9 sm:flex-row sm:items-end sm:justify-between sm:gap-4"><h2 className="font-display text-[clamp(2.4rem,7vw,3.75rem)] leading-[0.9] tracking-[-0.05em]">{section.title}</h2><Link href={section.type === "sale" ? "/catalog?sale=true" : section.type === "category" ? `/catalog?category=${encodeURIComponent(section.categoryValue ?? "")}` : "/catalog"} className="font-mono-price mb-1 text-xs tracking-[0.08em] text-[color:var(--accent)]">В КАТАЛОГ →</Link></div><HomeProductMarquee products={products} /></section>)}
+    <RecentlyViewed allProducts={products} />
   </main>;
 }
