@@ -293,6 +293,10 @@ textarea {
   animation: none;
 }
 
+.recently-viewed--static .home-product-track {
+  animation: none;
+}
+
 .home-product-marquee:hover .home-product-track {
   animation-play-state: paused;
 }

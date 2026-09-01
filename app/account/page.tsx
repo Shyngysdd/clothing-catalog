@@ -44,7 +44,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         <Link href="/account/favorites" className="border border-[color:var(--ink)]/25 px-5 py-4 text-sm font-medium hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]">Избранное</Link>
         <Link href="/account/addresses" className="border border-[color:var(--ink)]/25 px-5 py-4 text-sm font-medium hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]">Адреса</Link>
       </nav>
-      <RecentlyViewed allProducts={allProducts} />
+      <RecentlyViewed allProducts={allProducts} disableAnimationForSmallSelection />
       <form action={logoutCustomer} className="mt-8">
         <button type="submit" className="text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)]">Выйти</button>
       </form>

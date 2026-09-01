@@ -11,6 +11,8 @@ export type FavoriteEntry = { productId: string; selectedSize?: string | null };
 type FavoritesContextValue = {
   favorites: FavoriteEntry[];
   favoriteIds: string[];
+  isCustomerLoggedIn: boolean;
+  setSession: (session: { isCustomerLoggedIn: boolean; favorites: FavoriteEntry[] }) => void;
   isFavorite: (productId: string) => boolean;
   getFavorite: (productId: string) => FavoriteEntry | undefined;
   toggleFavorite: (productId: string, selectedSize?: string) => void;
@@ -36,8 +38,9 @@ function readGuestFavorites(): FavoriteEntry[] {
   }
 }
 
-export function FavoritesProvider({ children, isCustomerLoggedIn, initialFavorites }: { children: ReactNode; isCustomerLoggedIn: boolean; initialFavorites: FavoriteEntry[] }) {
-  const [favorites, setFavorites] = useState(initialFavorites);
+export function FavoritesProvider({ children }: { children: ReactNode }) {
+  const [favorites, setFavorites] = useState<FavoriteEntry[]>([]);
+  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
 
   useEffect(() => {
     if (isCustomerLoggedIn) {
@@ -70,10 +73,15 @@ export function FavoritesProvider({ children, isCustomerLoggedIn, initialFavorit
     });
   }, [favorites, isCustomerLoggedIn]);
 
+  const setSession = useCallback((session: { isCustomerLoggedIn: boolean; favorites: FavoriteEntry[] }) => {
+    setIsCustomerLoggedIn(session.isCustomerLoggedIn);
+    setFavorites(session.isCustomerLoggedIn ? session.favorites : readGuestFavorites());
+  }, []);
+
   const value = useMemo(() => {
     const favoriteIds = favorites.map((favorite) => favorite.productId);
-    return { favorites, favoriteIds, isFavorite: (productId: string) => favoriteIds.includes(productId), getFavorite: (productId: string) => favorites.find((favorite) => favorite.productId === productId), toggleFavorite };
-  }, [favorites, toggleFavorite]);
+    return { favorites, favoriteIds, isCustomerLoggedIn, setSession, isFavorite: (productId: string) => favoriteIds.includes(productId), getFavorite: (productId: string) => favorites.find((favorite) => favorite.productId === productId), toggleFavorite };
+  }, [favorites, isCustomerLoggedIn, setSession, toggleFavorite]);
 
   return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
 }

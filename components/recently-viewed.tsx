@@ -23,7 +23,7 @@ function getRecentlyViewedIds() {
   }
 }
 
-export function RecentlyViewed({ allProducts }: { allProducts: CatalogProduct[] }) {
+export function RecentlyViewed({ allProducts, disableAnimationForSmallSelection = false }: { allProducts: CatalogProduct[]; disableAnimationForSmallSelection?: boolean }) {
   const [recentIds, setRecentIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export function RecentlyViewed({ allProducts }: { allProducts: CatalogProduct[] 
   if (products.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-[90rem] px-4 pt-16 sm:px-6 sm:pt-24 lg:px-10">
+    <section className={`mx-auto max-w-[90rem] px-4 pt-16 sm:px-6 sm:pt-24 lg:px-10 ${disableAnimationForSmallSelection && products.length <= 2 ? "recently-viewed--static" : ""}`}>
       <h2 className="font-display mb-7 text-[clamp(2.4rem,7vw,3.75rem)] leading-[0.9] tracking-[-0.05em] sm:mb-9">Вы недавно смотрели</h2>
       <HomeProductMarquee products={products} />
     </section>

@@ -23,7 +23,12 @@ function getInput(formData: FormData, returnPath: string) {
 export async function createLook(formData: FormData) {
   const input = getInput(formData, "/admin/looks/new");
   const look = await prisma.look.create({
-    data: { ...input, items: { create: input.productIds.map((productId) => ({ productId })) } },
+    data: {
+      title: input.title,
+      description: input.description,
+      photoTones: input.photoTones,
+      items: { create: input.productIds.map((productId) => ({ productId })) },
+    },
   });
   revalidatePath("/admin/looks");
   redirect(`/admin/looks/${look.id}`);

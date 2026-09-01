@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
+import { useSession } from "@/components/session-gate";
 
 type Tab = { href: string; label: string; icon: React.ReactNode; matches: (pathname: string) => boolean };
 
@@ -13,10 +14,11 @@ function FavoritesIcon() { return <svg aria-hidden="true" viewBox="0 0 24 24" fi
 function CartIcon() { return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L20 7H6.2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="10" cy="20" r="1" fill="currentColor" stroke="none" /><circle cx="17" cy="20" r="1" fill="currentColor" stroke="none" /></svg>; }
 function AccountIcon() { return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><circle cx="12" cy="8" r="3.5" /><path d="M4.5 20c.7-3.5 3.3-5.5 7.5-5.5s6.8 2 7.5 5.5" strokeLinecap="round" /></svg>; }
 
-export function MobileTabbar({ isCustomerLoggedIn }: { isCustomerLoggedIn: boolean }) {
+export function MobileTabbar() {
   const pathname = usePathname();
   const { itemCount } = useCart();
   const { favoriteIds } = useFavorites();
+  const { isCustomerLoggedIn } = useSession();
   if (pathname.startsWith("/admin")) return null;
 
   const tabs: Tab[] = [
