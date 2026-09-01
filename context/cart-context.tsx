@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 
@@ -25,12 +25,38 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
+const CART_STORAGE_KEY = "cart-items";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [cartNotice, setCartNotice] = useState<string | null>(null);
   const noticeTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    try {
+      const savedItems = localStorage.getItem(CART_STORAGE_KEY);
+      if (savedItems) {
+        const parsedItems: unknown = JSON.parse(savedItems);
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- клиентская гидратация внешнего хранилища при монтировании.
+        if (Array.isArray(parsedItems)) setItems(parsedItems as CartItem[]);
+      }
+    } catch {
+      // Недоступное или повреждённое хранилище не должно мешать работе корзины.
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // В приватном режиме браузер может запретить запись в localStorage.
+    }
+  }, [isHydrated, items]);
 
   function addItem(product: CatalogProduct, size: string) {
     setItems((currentItems) => {
