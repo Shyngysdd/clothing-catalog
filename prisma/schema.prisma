@@ -11,6 +11,7 @@ model Product {
   id            String        @id @default(cuid())
   sku           String        @unique
   name          String
+  brand         String        @default("BILLION.CO")
   category      String
   price         Int
   originalPrice Int?

@@ -334,8 +334,9 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
                   >
                     <p className="font-display mb-3 text-3xl leading-none tracking-[-0.04em] text-[color:var(--accent)]">LOOK {String(index + 1).padStart(2, "0")}</p>
                     <CatalogProductPreview product={product} index={index} isSoldOut={isSoldOut} />
-                    <div className="catalog-product-info mt-4 flex min-h-[4.6rem] flex-1 flex-col sm:min-h-[5.5rem]">
-                      <p className="catalog-product-name line-clamp-2 min-h-[2.1rem] text-lg font-medium leading-[1.2] tracking-[-0.02em] sm:min-h-[2.7rem]">{product.name}</p>
+                    <div className="catalog-product-info mt-4 flex min-h-[5.45rem] flex-1 flex-col sm:min-h-[6.4rem]">
+                      <p className="font-mono-price text-[0.65rem] tracking-[0.12em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p>
+                      <p className="catalog-product-name mt-1 line-clamp-2 min-h-[2.1rem] text-lg font-medium leading-[1.2] tracking-[-0.02em] sm:min-h-[2.7rem]">{product.name}</p>
                       <div className="mt-auto min-h-[2.5rem] pt-2 sm:min-h-[2.75rem]"><p className="catalog-product-price font-mono-price text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="mt-0.5 font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
                     </div>
                   </Link>

@@ -11,9 +11,9 @@ export function SiteChrome({ children, categories, isCustomerLoggedIn, savedAddr
   const pathname = usePathname();
   if (pathname.startsWith("/admin")) return <>{children}</>;
 
-  return <>
+  return <div className="pb-[4.75rem] sm:pb-0">
     <SiteHeader categories={categories} isCustomerLoggedIn={isCustomerLoggedIn} savedAddresses={savedAddresses} />
     <main className="flex-1">{children}</main>
     <SiteFooter />
-  </>;
+  </div>;
 }

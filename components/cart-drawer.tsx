@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { createOrderFromCart } from "@/app/account/order-actions";
@@ -8,6 +7,8 @@ import { useCart } from "@/context/cart-context";
 import { BRAND_CONFIG } from "@/lib/brand-config";
 import { formatSavedAddress } from "@/lib/address-format";
 import type { SavedAddress } from "@/lib/address-format";
+import { CartSummary } from "./cart-summary";
+import { CartItemsList } from "./cart-items-list";
 import { OverlayPanel } from "./overlay-panel";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
@@ -16,7 +17,7 @@ type DeliveryMethod = "pickup" | "delivery";
 type FormErrors = Partial<Record<"name" | "phone" | "address", string>>;
 
 export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { onClose: () => void; isCustomerLoggedIn: boolean; savedAddresses: SavedAddress[] }) {
-  const { items, totalPrice, incrementItem, decrementItem, removeItemEntirely, clearCart } = useCart();
+  const { items, totalPrice, clearCart } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
@@ -31,6 +32,10 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { on
 
   function clearError(field: keyof FormErrors) {
     setErrors((currentErrors) => ({ ...currentErrors, [field]: undefined }));
+  }
+
+  function handleClearCart() {
+    if (window.confirm("Очистить корзину?")) clearCart();
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -96,14 +101,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { on
         <h2 id="cart-drawer-title" className="font-display text-4xl leading-none tracking-[-0.04em]">
           {orderFormed ? "Заказ" : "Корзина"}
         </h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="grid size-11 place-items-center rounded-lg text-xl text-[color:var(--ink)]/60 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]"
-          aria-label="Закрыть корзину"
-        >
-          ×
-        </button>
+        <div className="flex items-center gap-1"><button type="button" onClick={handleClearCart} disabled={orderFormed || items.length === 0} className="min-h-11 px-2 text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-0" aria-label="Очистить корзину">Очистить всё</button><button type="button" onClick={onClose} className="grid size-11 place-items-center rounded-lg text-xl text-[color:var(--ink)]/60 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]" aria-label="Закрыть корзину">×</button></div>
       </div>
 
       {orderFormed ? (
@@ -124,27 +122,9 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { on
         </div>
       ) : items.length > 0 ? (
         <div className="flex min-h-0 flex-1 flex-col">
-          <ul className="shrink-0 divide-y divide-[color:var(--ink)]/15 px-5 sm:px-6">
-            {items.map((item) => (
-              <li key={`${item.id}-${item.size}`} className="py-5">
-                <div className="flex gap-3">
-                  {item.imageUrl ? <div className="relative size-16 shrink-0 overflow-hidden rounded-md"><Image src={item.imageUrl} alt="" fill sizes="64px" className="object-cover" /></div> : <div className="size-16 shrink-0 rounded-md" style={{ backgroundColor: item.imageColor }} />}
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium">{item.name}</p>
-                    <p className="mt-1 text-sm text-[color:var(--ink)]/60">Размер: {item.size}</p>
-                    <p className="font-mono-price mt-2 text-sm">{formatPrice.format(item.price * item.quantity)} ₸</p>
-                  </div>
-                  <div className="flex shrink-0 flex-col items-end gap-2"><div className="flex min-h-11 items-center border border-[color:var(--ink)]/25" aria-label={`Количество: ${item.quantity}`}><button type="button" onClick={() => decrementItem(item.id, item.size)} className="grid size-10 place-items-center text-lg text-[color:var(--ink)]/70 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label="Уменьшить количество">−</button><span className="grid min-w-8 place-items-center px-1 font-mono-price text-sm">{item.quantity}</span><button type="button" onClick={() => incrementItem(item.id, item.size)} className="grid size-10 place-items-center text-lg text-[color:var(--ink)]/70 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label="Увеличить количество">+</button></div><button type="button" onClick={() => removeItemEntirely(item.id, item.size)} className="min-h-11 px-2 text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Удалить</button></div>
-                </div>
-              </li>
-            ))}
-          </ul>
-
+          <CartItemsList className="shrink-0 px-5 sm:px-6" />
           <form noValidate onSubmit={handleSubmit} className="min-h-0 flex-1 overflow-y-auto border-t border-[color:var(--ink)]/15 px-5 py-5 sm:px-6">
-            <div className="flex items-center justify-between">
-              <span className="font-display text-3xl leading-none">Итого</span>
-              <span className="font-mono-price text-lg">{formatPrice.format(totalPrice)} ₸</span>
-            </div>
+            <CartSummary items={items} />
 
             <div className="mt-6 space-y-4">
               <div>

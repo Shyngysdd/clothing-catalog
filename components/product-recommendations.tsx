@@ -26,8 +26,9 @@ function RecommendationCard({ product, index }: { product: CatalogProduct; index
         {discountPercent ? <span className="discount-stamp">−{discountPercent}%</span> : null}
         {frames.length > 1 ? <span className="absolute bottom-[3.25rem] left-1/2 z-[3] flex -translate-x-1/2 gap-1" aria-hidden="true">{frames.map((_, frameIndex) => <i key={frameIndex} className={`block size-1.5 rounded-full border border-[color:var(--paper)]/70 ${activeFrame === frameIndex ? "bg-[color:var(--paper)]" : "bg-transparent"}`} />)}</span> : null}
       </div>
-      <div className="mt-4 flex min-h-[5.5rem] flex-1 flex-col">
-        <h3 className="line-clamp-2 min-h-[2.7rem] text-lg font-medium leading-[1.2] tracking-[-0.02em]">{product.name}</h3>
+      <div className="mt-4 flex min-h-[6.4rem] flex-1 flex-col">
+        <p className="font-mono-price text-[0.65rem] tracking-[0.12em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p>
+        <h3 className="mt-1 line-clamp-2 min-h-[2.7rem] text-lg font-medium leading-[1.2] tracking-[-0.02em]">{product.name}</h3>
         <div className="mt-auto min-h-[2.75rem] pt-2">
           <p className="font-mono-price text-base">{formatPrice.format(product.price)} ₸</p>
           {product.originalPrice ? <p className="mt-0.5 font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}

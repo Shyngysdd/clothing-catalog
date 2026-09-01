@@ -56,7 +56,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
   const router = useRouter();
-  const { itemCount, isDrawerOpen, openDrawer, closeDrawer } = useCart();
+  const { itemCount, isDrawerOpen, openDrawer, closeDrawer, cartNotice } = useCart();
   const { favoriteIds } = useFavorites();
   const accountHref = isCustomerLoggedIn ? "/account" : "/account/login";
   const accountLabel = isCustomerLoggedIn ? "Профиль" : "Войти";
@@ -141,12 +141,11 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
               <FavoritesIcon />
               {favoriteIds.length > 0 ? <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-xs leading-5 text-white">{favoriteIds.length}</span> : null}
             </Link>
-            <button
-              type="button"
-              onClick={openDrawer}
-              className="relative ml-1 grid size-10 place-items-center border-l border-[color:var(--ink)]/25 pl-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:ml-2 sm:size-11 sm:pl-2"
-              aria-label={`Корзина, товаров: ${itemCount}`}
-            >
+            <Link href="/cart" className="relative ml-1 grid size-10 place-items-center border-l border-[color:var(--ink)]/25 pl-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:hidden" aria-label={`Корзина, товаров: ${itemCount}`}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L20 7H6.2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="10" cy="20" r="1" fill="currentColor" stroke="none" /><circle cx="17" cy="20" r="1" fill="currentColor" stroke="none" /></svg>
+              {itemCount > 0 ? <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-xs leading-5 text-white">{itemCount}</span> : null}
+            </Link>
+            <button type="button" onClick={openDrawer} className="relative ml-2 hidden size-11 place-items-center border-l border-[color:var(--ink)]/25 pl-2 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:grid" aria-label={`Корзина, товаров: ${itemCount}`}>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5">
                 <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L20 7H6.2" strokeLinecap="round" strokeLinejoin="round" />
                 <circle cx="10" cy="20" r="1" fill="currentColor" stroke="none" />
@@ -213,6 +212,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
         </aside>
       </div>
       {isDrawerOpen ? <CartDrawer onClose={closeDrawer} isCustomerLoggedIn={isCustomerLoggedIn} savedAddresses={savedAddresses} /> : null}
+      {cartNotice ? <div className="pointer-events-none fixed bottom-5 left-1/2 z-[70] -translate-x-1/2 border border-[color:var(--gold)] bg-[color:var(--ink)] px-4 py-3 text-sm text-[color:var(--white)] shadow-sm sm:hidden" role="status">{cartNotice}</div> : null}
     </>
   );
 }

@@ -1,0 +1,12 @@
+"use client";
+
+import Image from "next/image";
+import { useCart } from "@/context/cart-context";
+
+const formatPrice = new Intl.NumberFormat("ru-KZ");
+
+export function CartItemsList({ className = "" }: { className?: string }) {
+  const { items, incrementItem, decrementItem, removeItemEntirely } = useCart();
+
+  return <ul className={`divide-y divide-[color:var(--ink)]/15 ${className}`}>{items.map((item) => <li key={`${item.id}-${item.size}`} className="py-5"><div className="flex gap-3"><div className="relative size-16 shrink-0 overflow-hidden rounded-md border border-[color:var(--ink)]/10 sm:size-20">{item.imageUrl ? <Image src={item.imageUrl} alt="" fill sizes="80px" className="object-cover" /> : <div className="size-full" style={{ backgroundColor: item.imageColor }} />}</div><div className="min-w-0 flex-1"><p className="font-mono-price text-[0.65rem] tracking-[0.12em] text-[color:var(--accent)]">{item.brand.toUpperCase()}</p><p className="mt-1 line-clamp-2 font-medium">{item.name}</p><p className="mt-1 text-sm text-[color:var(--ink)]/60">Размер: {item.size}</p><p className="font-mono-price mt-2 text-sm">{formatPrice.format(item.price * item.quantity)} ₸</p></div><div className="flex shrink-0 flex-col items-end gap-2"><div className="flex min-h-11 items-center border border-[color:var(--ink)]/25" aria-label={`Количество: ${item.quantity}`}><button type="button" onClick={() => decrementItem(item.id, item.size)} className="grid size-10 place-items-center text-lg text-[color:var(--ink)]/70 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label="Уменьшить количество">−</button><span className="grid min-w-8 place-items-center px-1 font-mono-price text-sm">{item.quantity}</span><button type="button" onClick={() => incrementItem(item.id, item.size)} className="grid size-10 place-items-center text-lg text-[color:var(--ink)]/70 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label="Увеличить количество">+</button></div><button type="button" onClick={() => removeItemEntirely(item.id, item.size)} className="min-h-11 px-2 text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Удалить</button></div></div></li>)}</ul>;
+}

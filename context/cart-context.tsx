@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 
@@ -21,6 +21,7 @@ type CartContextValue = {
   isDrawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
+  cartNotice: string | null;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -28,6 +29,8 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [cartNotice, setCartNotice] = useState<string | null>(null);
+  const noticeTimeoutRef = useRef<number | null>(null);
 
   function addItem(product: CatalogProduct, size: string) {
     setItems((currentItems) => {
@@ -45,6 +48,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       return [...currentItems, { ...product, size, quantity: 1 }];
     });
+    if (window.matchMedia("(min-width: 640px)").matches) {
+      setIsDrawerOpen(true);
+    } else {
+      if (noticeTimeoutRef.current) window.clearTimeout(noticeTimeoutRef.current);
+      setCartNotice("Добавлено в корзину");
+      noticeTimeoutRef.current = window.setTimeout(() => setCartNotice(null), 2200);
+    }
   }
 
   function removeItemEntirely(productId: string, size: string) {
@@ -87,8 +97,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       isDrawerOpen,
       openDrawer,
       closeDrawer,
+      cartNotice,
     }),
-    [items, isDrawerOpen, decrementItem],
+    [items, isDrawerOpen, decrementItem, cartNotice],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

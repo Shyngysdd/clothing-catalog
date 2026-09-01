@@ -9,6 +9,7 @@ import { deleteProductImage, saveProductImage } from "@/lib/product-images";
 
 type ProductInput = {
   name: string;
+  brand: string;
   sku: string;
   category: string;
   price: number;
@@ -32,6 +33,7 @@ function redirectWithError(path: string, message: string): never {
 
 function parseProductInput(formData: FormData, returnPath: string): ProductInput {
   const name = getText(formData, "name");
+  const brand = getText(formData, "brand") || "BILLION.CO";
   const sku = getText(formData, "sku");
   const category = getText(formData, "category");
   const priceRaw = getText(formData, "price");
@@ -56,7 +58,7 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
   }
 
   return {
-    name, sku, category, price, originalPrice,
+    name, brand, sku, category, price, originalPrice,
     description: getText(formData, "description") || null,
     composition: getText(formData, "composition") || null,
     fit: getText(formData, "fit") || null,
@@ -69,7 +71,7 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
 
 function productData(input: ProductInput) {
   return {
-    name: input.name, sku: input.sku, category: input.category, price: input.price,
+    name: input.name, brand: input.brand, sku: input.sku, category: input.category, price: input.price,
     originalPrice: input.originalPrice, description: input.description, composition: input.composition,
     care: input.care, fit: input.fit, imageColor: input.imageColor, galleryTones: input.galleryTones,
   };

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo_Black, IBM_Plex_Mono, Montserrat } from "next/font/google";
 import { SiteChrome } from "@/components/site-chrome";
+import { MobileTabbar } from "@/components/mobile-tabbar";
 import { CartProvider } from "@/context/cart-context";
 import { FavoritesProvider } from "@/context/favorites-context";
 import { CUSTOMER_SESSION_COOKIE, getCustomerIdFromSession } from "@/lib/customer-auth";
@@ -54,6 +55,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <FavoritesProvider isCustomerLoggedIn={Boolean(customerId)} initialFavorites={initialFavorites}>
           <CartProvider>
             <SiteChrome categories={categories} isCustomerLoggedIn={Boolean(customerId)} savedAddresses={savedAddresses}>{children}</SiteChrome>
+            <MobileTabbar isCustomerLoggedIn={Boolean(customerId)} />
           </CartProvider>
         </FavoritesProvider>
       </body>

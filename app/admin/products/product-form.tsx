@@ -5,7 +5,7 @@ import { FormEvent, useState } from "react";
 import Image from "next/image";
 
 type EditableProduct = {
-  name: string; sku: string; category: string; price: number; originalPrice: number | null;
+  name: string; brand: string; sku: string; category: string; price: number; originalPrice: number | null;
   description: string | null; composition: string | null; fit: string | null; care: string[];
   imageColor: string; imageUrl: string | null; galleryTones: string[]; galleryUrls: string[]; sizes: { size: string; inStock: boolean }[];
 };
@@ -79,6 +79,7 @@ export function ProductForm({ product, action }: { product?: EditableProduct; ac
     <form onSubmit={submit} className="mt-8 space-y-8">
       <section className="grid gap-5 sm:grid-cols-2">
         <label className="sm:col-span-2">Название<input name="name" required defaultValue={product?.name} className={inputClass} /></label>
+        <label>Бренд <span className="text-[color:var(--ink)]/50">(необязательно)</span><input name="brand" defaultValue={product?.brand ?? "BILLION.CO"} className={inputClass} /></label>
         <label>Артикул<input name="sku" required defaultValue={product?.sku} className={inputClass} /></label>
         <label>Категория<input name="category" required defaultValue={product?.category} className={inputClass} /></label>
         <label>Цена, ₸<input name="price" required min="1" step="1" type="number" defaultValue={product?.price} className={inputClass} /></label>
