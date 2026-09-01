@@ -28,6 +28,24 @@ export async function toggleCustomerFavorite(productId: string, selectedSize?: s
   return { authenticated: true as const, favorite: true };
 }
 
+export async function toggleCustomerLookFavorite(lookId: string) {
+  const customerId = await getAuthenticatedCustomerId();
+  if (!customerId || !lookId) return { authenticated: false as const, favorite: false };
+
+  const existingFavorite = await prisma.lookFavorite.findUnique({ where: { customerId_lookId: { customerId, lookId } } });
+  if (existingFavorite) {
+    await prisma.lookFavorite.delete({ where: { id: existingFavorite.id } });
+    revalidatePath("/favorites");
+    revalidatePath("/account/favorites");
+    return { authenticated: true as const, favorite: false };
+  }
+
+  await prisma.lookFavorite.create({ data: { customerId, lookId } });
+  revalidatePath("/favorites");
+  revalidatePath("/account/favorites");
+  return { authenticated: true as const, favorite: true };
+}
+
 export async function mergeGuestFavorites(favorites: { productId: string; selectedSize?: string | null }[]) {
   const customerId = await getAuthenticatedCustomerId();
   if (!customerId) return { authenticated: false as const, mergedProductIds: [] as string[] };
@@ -43,4 +61,21 @@ export async function mergeGuestFavorites(favorites: { productId: string; select
   }
 
   return { authenticated: true as const, mergedProductIds: uniqueFavorites.map((favorite) => favorite.productId) };
+}
+
+export async function mergeGuestLookFavorites(lookIds: string[]) {
+  const customerId = await getAuthenticatedCustomerId();
+  if (!customerId) return { authenticated: false as const, mergedLookIds: [] as string[] };
+
+  const uniqueLookIds = [...new Set(lookIds.filter(Boolean))];
+  if (uniqueLookIds.length > 0) {
+    await prisma.lookFavorite.createMany({
+      data: uniqueLookIds.map((lookId) => ({ customerId, lookId })),
+      skipDuplicates: true,
+    });
+    revalidatePath("/favorites");
+    revalidatePath("/account/favorites");
+  }
+
+  return { authenticated: true as const, mergedLookIds: uniqueLookIds };
 }

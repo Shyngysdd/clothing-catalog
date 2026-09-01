@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/context/cart-context";
+import { useFavorites } from "@/context/favorites-context";
 import type { CatalogLook } from "@/lib/catalog-types";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
@@ -11,6 +12,7 @@ const formatPrice = new Intl.NumberFormat("ru-KZ");
 export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; lookNumber: number }) {
   const [activeFrame, setActiveFrame] = useState(0);
   const { addItem } = useCart();
+  const { isLookFavorite, toggleLookFavorite } = useFavorites();
   const lookProducts = look.items;
   const frames = look.photoUrls.length > 0 ? look.photoUrls : look.photoTones;
 
@@ -53,7 +55,10 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
       </div>
       <div className="mt-8 flex flex-col gap-5 border-t border-[color:var(--ink)]/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="font-mono-price text-2xl">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
-        <button type="button" onClick={addLookToCart} className="min-h-12 bg-[color:var(--ink)] px-6 text-sm font-medium text-white hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Добавить весь образ в корзину</button>
+        <div className="grid gap-3 sm:flex">
+          <button type="button" onClick={() => toggleLookFavorite(look.id)} aria-pressed={isLookFavorite(look.id)} className={`min-h-12 border px-5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] ${isLookFavorite(look.id) ? "border-[color:var(--accent)] text-[color:var(--accent)]" : "border-[color:var(--ink)]/25 hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{isLookFavorite(look.id) ? "В избранном" : "В избранное"}</button>
+          <button type="button" onClick={addLookToCart} className="min-h-12 bg-[color:var(--ink)] px-6 text-sm font-medium text-white hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Добавить весь образ в корзину</button>
+        </div>
       </div>
     </section>
   );

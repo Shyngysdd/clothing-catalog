@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/context/cart-context";
+import { useFavorites } from "@/context/favorites-context";
 import type { CatalogLook } from "@/lib/catalog-types";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
@@ -42,6 +43,7 @@ function LookPreview({ photoUrls, placeholders }: { photoUrls: string[]; placeho
 
 export function LooksClient({ looks }: { looks: CatalogLook[] }) {
   const { addItem } = useCart();
+  const { isLookFavorite, toggleLookFavorite } = useFavorites();
   const [selectedSize, setSelectedSize] = useState("Все");
   const sizes = useMemo(() => ["Все", ...Array.from(new Set(looks.flatMap((look) => look.items.flatMap((product) => product.sizes.filter((size) => size.inStock).map((size) => size.size)))).values())], [looks]);
   const filteredLooks = selectedSize === "Все" ? looks : looks.filter((look) => look.items.some((product) => product.sizes.some((size) => size.inStock && size.size === selectedSize)));
@@ -77,7 +79,16 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
                 );
 
           return (
-            <article key={look.id} className="flex h-full flex-col border border-[color:var(--ink)]/15 bg-[color:var(--white)] p-2 sm:p-4">
+            <article key={look.id} className="relative flex h-full flex-col border border-[color:var(--ink)]/15 bg-[color:var(--white)] p-2 sm:p-4">
+              <button
+                type="button"
+                onClick={() => toggleLookFavorite(look.id)}
+                aria-label={isLookFavorite(look.id) ? `Убрать образ «${look.title}» из избранного` : `Добавить образ «${look.title}» в избранное`}
+                aria-pressed={isLookFavorite(look.id)}
+                className="absolute right-4 top-4 z-10 grid size-9 place-items-center rounded-full bg-[color:var(--paper)]/90 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]"
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill={isLookFavorite(look.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" className={`size-5 ${isLookFavorite(look.id) ? "text-[color:var(--accent)]" : ""}`}><path d="M20.8 8.7c0 5-8.8 10.1-8.8 10.1S3.2 13.7 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </button>
               <Link href={`/looks/${look.id}`} className="group flex flex-1 flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]">
                 <LookPreview photoUrls={previewPhotoUrls} placeholders={look.photoTones} />
                 <div className="flex flex-1 flex-col pt-3 sm:pt-5">

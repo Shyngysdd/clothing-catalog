@@ -49,6 +49,8 @@ model Look {
   photoTones  String[]
   photoUrls   String[]     @default([])
   items       LookItem[]
+  favorites   LookFavorite[]
+  favorites   LookFavorite[]
   createdAt   DateTime   @default(now())
 }
 
@@ -95,8 +97,34 @@ model Customer {
   phone        String?
   orders       Order[]
   favorites    Favorite[]
+  lookFavorites LookFavorite[]
+  lookFavorites LookFavorite[]
   addresses    CustomerAddress[]
   createdAt    DateTime   @default(now())
+}
+
+model LookFavorite {
+  id         String   @id @default(cuid())
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+  look       Look     @relation(fields: [lookId], references: [id], onDelete: Cascade)
+  lookId     String
+  createdAt  DateTime @default(now())
+
+  @@unique([customerId, lookId])
+  @@index([lookId])
+}
+
+model LookFavorite {
+  id         String   @id @default(cuid())
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+  look       Look     @relation(fields: [lookId], references: [id], onDelete: Cascade)
+  lookId     String
+  createdAt  DateTime @default(now())
+
+  @@unique([customerId, lookId])
+  @@index([lookId])
 }
 
 model CustomerAddress {

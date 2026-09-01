@@ -12,7 +12,7 @@ type SessionState = {
   categories: { name: string; count: number }[];
 };
 
-type SessionResponse = SessionState & { favorites: FavoriteEntry[] };
+type SessionResponse = SessionState & { favorites: FavoriteEntry[]; lookFavoriteIds: string[] };
 
 const SessionContext = createContext<SessionState>({
   isCustomerLoggedIn: false,
@@ -24,6 +24,7 @@ function isSessionResponse(value: unknown): value is SessionResponse {
   return typeof value === "object" && value !== null
     && "isCustomerLoggedIn" in value && typeof value.isCustomerLoggedIn === "boolean"
     && "favorites" in value && Array.isArray(value.favorites)
+    && "lookFavoriteIds" in value && Array.isArray(value.lookFavoriteIds)
     && "savedAddresses" in value && Array.isArray(value.savedAddresses)
     && "categories" in value && Array.isArray(value.categories);
 }
@@ -41,7 +42,7 @@ export function SessionGate({ children }: { children: ReactNode }) {
         const response = await fetch("/api/session", { signal: controller.signal, cache: "no-store" });
         const payload: unknown = await response.json();
         if (!response.ok || !isSessionResponse(payload)) return;
-        setSession({ isCustomerLoggedIn: payload.isCustomerLoggedIn, favorites: payload.favorites });
+        setSession({ isCustomerLoggedIn: payload.isCustomerLoggedIn, favorites: payload.favorites, lookFavoriteIds: payload.lookFavoriteIds });
         setSessionState({
           isCustomerLoggedIn: payload.isCustomerLoggedIn,
           savedAddresses: payload.savedAddresses,
