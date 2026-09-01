@@ -1,5 +1,5 @@
 export const BRAND_CONFIG = {
-  name: "Billion.co",
+  name: "AKSHYN",
   instagramUrl: "https://www.instagram.com/billion.co.official/",
   whatsappNumber: "77081306033",
   freeShippingThreshold: 30000,

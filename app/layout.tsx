@@ -7,6 +7,7 @@ import { FavoritesProvider } from "@/context/favorites-context";
 import { CUSTOMER_SESSION_COOKIE, getCustomerIdFromSession } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
 import { getCachedSiteCategories } from "@/lib/site-categories";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 import { cookies } from "next/headers";
 import "./globals.css";
 
@@ -29,7 +30,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Billion.co — каталог одежды и обуви",
+  title: `${BRAND_CONFIG.name} — каталог одежды и обуви`,
   description: "Демо-каталог одежды и обуви: выберите товары и оформите заказ через WhatsApp.",
   icons: {
     icon: "/icon",

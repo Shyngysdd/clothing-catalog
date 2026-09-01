@@ -3,11 +3,12 @@ import Link from "next/link";
 import { HomeProductMarquee } from "@/components/home-product-marquee";
 import { prisma } from "@/lib/prisma";
 import { resolveSectionProducts } from "@/lib/home-sections";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 
 export const revalidate = 60;
 
 const bannerFallbacks = {
-  hero: { title: "Billion.co", subtitle: "Новая глава городского гардероба — строгая, тактильная, личная.", linkUrl: "/catalog?category=новинки", imageUrl: null },
+  hero: { title: BRAND_CONFIG.name, subtitle: "Новая глава городского гардероба — строгая, тактильная, личная.", linkUrl: "/catalog?category=новинки", imageUrl: null },
   "category-1": { title: "Ветровки", subtitle: "ВЫБОРКА / 01", linkUrl: "/catalog?category=Ветровки", imageUrl: null },
   "category-2": { title: "Обувь", subtitle: "ВЫБОРКА / 02", linkUrl: "/catalog?category=Обувь", imageUrl: null },
 };

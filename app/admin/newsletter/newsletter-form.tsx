@@ -2,12 +2,13 @@
 
 import { useActionState, useState } from "react";
 import { sendNewsletterCampaign, type NewsletterState } from "./actions";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 
 const initialState: NewsletterState = { status: "idle" };
 const presets = {
-  "Новинки": { subject: "Новое поступление в Billion.co", body: "В Billion.co появились новые вещи.\n\nДобавьте здесь краткое описание поступления и ключевых товаров.\n\nСмотрите новинки в каталоге." },
-  "Скидки": { subject: "Скидки в Billion.co", body: "Мы подготовили подборку вещей со скидкой.\n\nДобавьте здесь информацию о скидках, сроках и выбранных товарах.\n\nКоличество товаров ограничено." },
-  "Акция": { subject: "Специальная акция Billion.co", body: "Для вас действует специальное предложение.\n\nДобавьте здесь условия акции, период действия и промокод, если он нужен.\n\nДо встречи в Billion.co." },
+  "Новинки": { subject: `Новое поступление в ${BRAND_CONFIG.name}`, body: `В ${BRAND_CONFIG.name} появились новые вещи.\n\nДобавьте здесь краткое описание поступления и ключевых товаров.\n\nСмотрите новинки в каталоге.` },
+  "Скидки": { subject: `Скидки в ${BRAND_CONFIG.name}`, body: "Мы подготовили подборку вещей со скидкой.\n\nДобавьте здесь информацию о скидках, сроках и выбранных товарах.\n\nКоличество товаров ограничено." },
+  "Акция": { subject: `Специальная акция ${BRAND_CONFIG.name}`, body: `Для вас действует специальное предложение.\n\nДобавьте здесь условия акции, период действия и промокод, если он нужен.\n\nДо встречи в ${BRAND_CONFIG.name}.` },
 };
 
 export function NewsletterForm() {

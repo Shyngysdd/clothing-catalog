@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 
 const EXPIRY_MS = 24 * 60 * 60 * 1000;
 
@@ -22,8 +23,8 @@ export async function sendVerificationEmail(email: string, token: string) {
   const { error } = await resend.emails.send({
     from,
     to: email,
-    subject: "Подтвердите email для Billion.co",
-    html: `<p>Здравствуйте!</p><p>Подтвердите ваш email для личного кабинета Billion.co:</p><p><a href="${verifyUrl}">Подтвердить email</a></p><p>Ссылка действует 24 часа.</p>`,
+    subject: `Подтвердите email для ${BRAND_CONFIG.name}`,
+    html: `<p>Здравствуйте!</p><p>Подтвердите ваш email для личного кабинета ${BRAND_CONFIG.name}:</p><p><a href="${verifyUrl}">Подтвердить email</a></p><p>Ссылка действует 24 часа.</p>`,
   });
   if (error) throw new Error(error.message);
   return true;

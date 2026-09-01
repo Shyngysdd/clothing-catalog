@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { looks } from "../data/looks";
 import { products } from "../data/products";
+import { BRAND_CONFIG } from "../lib/brand-config";
 
 const prisma = new PrismaClient();
 
@@ -16,6 +17,7 @@ async function main() {
   for (const product of products) {
     const data = {
       name: product.name,
+      brand: BRAND_CONFIG.name,
       category: product.category,
       price: product.price,
       originalPrice: originalPrices[product.sku] ?? null,
@@ -58,7 +60,7 @@ async function main() {
       update: {},
       create: {
         slot: "hero",
-        title: "Billion.co",
+        title: BRAND_CONFIG.name,
         subtitle: "Новая глава городского гардероба — строгая, тактильная, личная.",
         linkUrl: "/catalog?category=новинки",
         imageUrl: null,

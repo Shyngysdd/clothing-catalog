@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getFrequentlyBoughtTogether, getSimilarProducts } from "@/lib/recommendations";
 import { prisma } from "@/lib/prisma";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 import { ProductDetailClient } from "./product-detail-client";
 
 export const revalidate = 60;
@@ -9,10 +10,10 @@ export const revalidate = 60;
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const product = await prisma.product.findUnique({ where: { id }, select: { name: true, description: true, imageUrl: true } });
-  if (!product) return { title: "Товар не найден | Billion.co" };
+  if (!product) return { title: `Товар не найден | ${BRAND_CONFIG.name}` };
 
-  const title = `${product.name} | Billion.co`;
-  const description = product.description || `Купить ${product.name} в каталоге Billion.co.`;
+  const title = `${product.name} | ${BRAND_CONFIG.name}`;
+  const description = product.description || `Купить ${product.name} в каталоге ${BRAND_CONFIG.name}.`;
   return {
     title,
     description,

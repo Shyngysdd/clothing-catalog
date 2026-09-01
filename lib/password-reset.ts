@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { getAppUrl } from "@/lib/email-verification";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 
 const EXPIRY_MS = 24 * 60 * 60 * 1000;
 
@@ -21,8 +22,8 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   const { error } = await resend.emails.send({
     from,
     to: email,
-    subject: "Сброс пароля для Billion.co",
-    html: `<p>Здравствуйте!</p><p>Чтобы задать новый пароль для личного кабинета Billion.co, перейдите по ссылке:</p><p><a href="${resetUrl}">Сбросить пароль</a></p><p>Ссылка действует 24 часа. Если вы не запрашивали сброс, просто проигнорируйте это письмо.</p>`,
+    subject: `Сброс пароля для ${BRAND_CONFIG.name}`,
+    html: `<p>Здравствуйте!</p><p>Чтобы задать новый пароль для личного кабинета ${BRAND_CONFIG.name}, перейдите по ссылке:</p><p><a href="${resetUrl}">Сбросить пароль</a></p><p>Ссылка действует 24 часа. Если вы не запрашивали сброс, просто проигнорируйте это письмо.</p>`,
   });
   if (error) throw new Error(error.message);
   return true;

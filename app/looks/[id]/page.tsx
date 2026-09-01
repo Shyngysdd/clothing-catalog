@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 import { toCatalogLook } from "@/lib/catalog-types";
 import { LookDetailClient } from "./look-detail-client";
 
@@ -12,10 +13,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     where: { id },
     select: { title: true, description: true, items: { select: { product: { select: { imageUrl: true } } } } },
   });
-  if (!look) return { title: "Образ не найден | Billion.co" };
+  if (!look) return { title: `Образ не найден | ${BRAND_CONFIG.name}` };
 
-  const title = `${look.title} | Billion.co`;
-  const description = look.description || `Образ «${look.title}» из каталога Billion.co.`;
+  const title = `${look.title} | ${BRAND_CONFIG.name}`;
+  const description = look.description || `Образ «${look.title}» из каталога ${BRAND_CONFIG.name}.`;
   const imageUrl = look.items.map((item) => item.product.imageUrl).find(Boolean);
   return {
     title,

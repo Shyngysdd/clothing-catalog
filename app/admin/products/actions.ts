@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { deleteProductImage, isBlobUrl, saveProductImage } from "@/lib/product-images";
+import { BRAND_CONFIG } from "@/lib/brand-config";
 
 type ProductInput = {
   name: string;
@@ -33,7 +34,7 @@ function redirectWithError(path: string, message: string): never {
 
 function parseProductInput(formData: FormData, returnPath: string): ProductInput {
   const name = getText(formData, "name");
-  const brand = getText(formData, "brand") || "BILLION.CO";
+  const brand = getText(formData, "brand") || BRAND_CONFIG.name;
   const sku = getText(formData, "sku");
   const category = getText(formData, "category");
   const priceRaw = getText(formData, "price");

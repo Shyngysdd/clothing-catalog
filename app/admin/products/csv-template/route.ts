@@ -9,7 +9,7 @@ const exampleRows = [
 export function GET(request: Request) {
   const isExample = new URL(request.url).searchParams.get("mode") === "example";
   const content = isExample ? `${exampleRows}\n` : `${header}\n`;
-  const fileName = isExample ? "billion-products-example.csv" : "billion-products-template.csv";
+  const fileName = isExample ? "products-example.csv" : "products-template.csv";
 
   return new Response(`\uFEFF${content}`, {
     headers: {
