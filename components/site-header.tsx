@@ -90,7 +90,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
   return (
     <>
       <header className="sticky top-0 z-40 border-b-2 border-[color:var(--ink)]/35 bg-[color:var(--paper)]/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[90rem] items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-4 lg:px-10">
+        <div className="mx-auto flex max-w-[90rem] items-center justify-between gap-4 px-3 py-3 sm:px-6 sm:py-4 lg:px-10">
           <div className="flex shrink-0 items-center gap-4 sm:gap-6">
             <Link href="/" className="font-brand text-[0.95rem] sm:text-xl">
               {BRAND_CONFIG.name}
@@ -99,11 +99,11 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
               КАТАЛОГ / 2026
             </span>
           </div>
-          <div className="flex min-w-0 items-center gap-0.5 sm:gap-2">
-            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="hidden min-h-10 px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:inline-flex sm:min-h-11 sm:px-0 sm:text-sm">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-3 lg:gap-4">
+            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="hidden shrink-0 whitespace-nowrap min-h-10 px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:inline-flex sm:min-h-11 sm:px-0 sm:text-sm">
               Каталог
             </button>
-            <Link href="/looks" className="inline-flex min-h-10 items-center px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:min-h-11 sm:px-0 sm:text-sm">
+            <Link href="/looks" className="inline-flex shrink-0 whitespace-nowrap min-h-10 items-center px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:min-h-11 sm:px-0 sm:text-sm">
               Образы
             </Link>
             <button type="button" onClick={() => setIsSearchOpen(true)} className="hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] min-[390px]:grid sm:size-11" aria-label="Поиск товаров"><SearchIcon /></button>

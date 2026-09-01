@@ -8,7 +8,7 @@ import type { CatalogLook } from "@/lib/catalog-types";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
-export function LookDetailClient({ look }: { look: CatalogLook }) {
+export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; lookNumber: number }) {
   const [activeFrame, setActiveFrame] = useState(0);
   const { addItem } = useCart();
   const lookProducts = look.items;
@@ -35,7 +35,7 @@ export function LookDetailClient({ look }: { look: CatalogLook }) {
         ))}
       </div>
       <div className="mt-10 border-b border-[color:var(--ink)]/15 pb-7">
-        <p className="look-number text-4xl leading-none text-[color:var(--accent)]">ОБРАЗ {String(look.id).padStart(2, "0")}</p>
+        <p className="look-number text-4xl leading-none text-[color:var(--accent)]">ОБРАЗ {String(lookNumber).padStart(2, "0")}</p>
         <h1 className="font-section mt-4 text-[clamp(2.35rem,7vw,3.75rem)] leading-[0.95]">{look.title}</h1>
         <p className="mt-5 max-w-2xl leading-7 text-[color:var(--ink)]/70">{look.description}</p>
       </div>

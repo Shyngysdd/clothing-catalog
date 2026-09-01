@@ -39,5 +39,6 @@ export default async function LookDetailPage({ params }: { params: Promise<{ id:
 
   if (!look) notFound();
 
-  return <LookDetailClient look={toCatalogLook(look)} />;
+  const lookNumber = await prisma.look.count({ where: { createdAt: { gt: look.createdAt } } }) + 1;
+  return <LookDetailClient look={toCatalogLook(look)} lookNumber={lookNumber} />;
 }

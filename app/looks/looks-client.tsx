@@ -1,23 +1,26 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/context/cart-context";
 import type { CatalogLook } from "@/lib/catalog-types";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
-function LookPreview({ placeholders }: { placeholders: string[] }) {
+function LookPreview({ photoUrls, placeholders }: { photoUrls: string[]; placeholders: string[] }) {
   const [isHovered, setIsHovered] = useState(false);
   const [activeFrame, setActiveFrame] = useState(0);
 
+  const frames = photoUrls.length > 0 ? photoUrls : placeholders;
+
   useEffect(() => {
-    if (!isHovered || placeholders.length < 2) return;
+    if (!isHovered || frames.length < 2) return;
     const timer = window.setInterval(() => {
-      setActiveFrame((current) => (current + 1) % placeholders.length);
+      setActiveFrame((current) => (current + 1) % frames.length);
     }, 520);
     return () => window.clearInterval(timer);
-  }, [isHovered, placeholders.length]);
+  }, [isHovered, frames.length]);
 
   function resetPreview() {
     setIsHovered(false);
@@ -30,12 +33,9 @@ function LookPreview({ placeholders }: { placeholders: string[] }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={resetPreview}
     >
-      {placeholders.map((placeholder, index) => (
-        <div
-          key={`${placeholder}-${index}`}
-          className={`look-gallery-frame look-gallery-frame--${placeholder} ${index === activeFrame ? "is-active" : ""}`}
-        />
-      ))}
+      {photoUrls.length > 0
+        ? photoUrls.map((photoUrl, index) => <div key={photoUrl} className={`look-gallery-frame ${index === activeFrame ? "is-active" : ""}`}><Image src={photoUrl} alt="" fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 28rem" className="product-card-photo" /></div>)
+        : placeholders.map((placeholder, index) => <div key={`${placeholder}-${index}`} className={`look-gallery-frame look-gallery-frame--${placeholder} ${index === activeFrame ? "is-active" : ""}`} />)}
     </div>
   );
 }
@@ -69,11 +69,17 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
       <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-6 lg:grid-cols-3">
         {filteredLooks.map((look, index) => {
           const lookProducts = look.items;
+          const previewPhotoUrls =
+            look.photoUrls.length > 0
+              ? look.photoUrls
+              : lookProducts.flatMap((product) =>
+                  product.imageUrl ? [product.imageUrl] : [],
+                );
 
           return (
             <article key={look.id} className="flex h-full flex-col border border-[color:var(--ink)]/15 bg-[color:var(--white)] p-2 sm:p-4">
               <Link href={`/looks/${look.id}`} className="group flex flex-1 flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]">
-                <LookPreview placeholders={look.photoTones} />
+                <LookPreview photoUrls={previewPhotoUrls} placeholders={look.photoTones} />
                 <div className="flex flex-1 flex-col pt-3 sm:pt-5">
                   <p className="look-number text-base leading-none text-[color:var(--accent)] sm:text-2xl">ОБРАЗ {String(index + 1).padStart(2, "0")}</p>
                   <h2 className="font-section mt-2 text-lg leading-tight sm:mt-3 sm:text-3xl">{look.title}</h2>
