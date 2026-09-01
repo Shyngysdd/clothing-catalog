@@ -5,7 +5,7 @@ import JSZip from "jszip";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { deleteProductImage, saveProductImage } from "@/lib/product-images";
+import { deleteProductImage, isBlobUrl, saveProductImage } from "@/lib/product-images";
 
 type ProductInput = {
   name: string;
@@ -78,14 +78,6 @@ function productData(input: ProductInput) {
 }
 
 async function getUploadedImages(formData: FormData) {
-  const isBlobUrl = (value: string) => {
-    try {
-      const url = new URL(value);
-      return url.protocol === "https:" && url.hostname.endsWith(".blob.vercel-storage.com");
-    } catch {
-      return false;
-    }
-  };
   const imageUrl = getText(formData, "mainImageUrl") || null;
   const galleryUrls = formData.getAll("galleryImageUrl").map(String).filter(Boolean);
   if (imageUrl && !isBlobUrl(imageUrl)) throw new Error("Некорректная ссылка на главное фото.");
@@ -151,13 +143,72 @@ export async function updateProduct(id: string, formData: FormData) {
 }
 
 export async function deleteProduct(id: string) {
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: { imageUrl: true, galleryUrls: true },
+  });
   await prisma.$transaction(async (tx) => {
     await tx.lookItem.deleteMany({ where: { productId: id } });
     await tx.product.delete({ where: { id } });
   });
+  if (product) await Promise.all([...(product.imageUrl ? [product.imageUrl] : []), ...product.galleryUrls].map(deleteProductImage));
   revalidatePath("/admin/products");
   revalidatePath("/admin/looks");
   revalidatePath("/looks");
+  revalidatePath("/catalog");
+  revalidatePath("/");
+  redirect("/admin/products");
+}
+
+function assertBulkDeletionConfirmed(formData: FormData) {
+  if (formData.get("confirmation") !== "УДАЛИТЬ") {
+    throw new Error("Для массового удаления введите слово «УДАЛИТЬ».");
+  }
+}
+
+export async function deleteAllProducts(formData: FormData) {
+  assertBulkDeletionConfirmed(formData);
+  const products = await prisma.product.findMany({
+    select: { id: true, imageUrl: true, galleryUrls: true },
+  });
+
+  await prisma.$transaction(async (tx) => {
+    await tx.lookItem.deleteMany({});
+    await tx.product.deleteMany({});
+    await tx.look.deleteMany({});
+  });
+
+  const imageUrls = products.flatMap((product) => [
+    ...(product.imageUrl ? [product.imageUrl] : []),
+    ...product.galleryUrls,
+  ]);
+  await Promise.all(imageUrls.map(deleteProductImage));
+
+  revalidatePath("/admin/products");
+  revalidatePath("/admin/looks");
+  revalidatePath("/looks");
+  revalidatePath("/catalog");
+  revalidatePath("/");
+  redirect("/admin/products");
+}
+
+export async function deleteAllProductPhotos(formData: FormData) {
+  assertBulkDeletionConfirmed(formData);
+  const products = await prisma.product.findMany({
+    select: { imageUrl: true, galleryUrls: true },
+  });
+  const imageUrls = products.flatMap((product) => [
+    ...(product.imageUrl ? [product.imageUrl] : []),
+    ...product.galleryUrls,
+  ]);
+
+  await Promise.all(imageUrls.map(deleteProductImage));
+  await prisma.product.updateMany({ data: { imageUrl: null, galleryUrls: [] } });
+
+  revalidatePath("/admin/products");
+  revalidatePath("/looks");
+  revalidatePath("/catalog");
+  revalidatePath("/");
   redirect("/admin/products");
 }
 

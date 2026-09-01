@@ -21,6 +21,7 @@ export function ProductForm({ product, action }: { product?: EditableProduct; ac
   const [imageColor, setImageColor] = useState(product?.imageColor ?? "#17181C");
   const [tones, setTones] = useState(product?.galleryTones ?? ["accent", "ink"]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isNormalizing, setIsNormalizing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState("");
@@ -57,7 +58,21 @@ export function ProductForm({ product, action }: { product?: EditableProduct; ac
             onUploadProgress: ({ percentage }) => setUploadProgress(Math.round(((completedBytes + file.size * percentage / 100) / totalBytes) * 100)),
           });
           completedBytes += file.size;
-          return blob.url;
+          setIsNormalizing(true);
+          try {
+            const response = await fetch("/api/normalize-image", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ blobUrl: blob.url, kind: "product" }),
+            });
+            const result = await response.json().catch(() => null) as { error?: unknown; url?: unknown } | null;
+            if (!response.ok || typeof result?.url !== "string") {
+              throw new Error(typeof result?.error === "string" ? result.error : "Не удалось обработать изображение.");
+            }
+            return result.url;
+          } finally {
+            setIsNormalizing(false);
+          }
         };
         if (main instanceof File && main.size > 0) formData.set("mainImageUrl", await uploadFile(main));
         for (const file of gallery) formData.append("galleryImageUrl", await uploadFile(file));
@@ -94,7 +109,7 @@ export function ProductForm({ product, action }: { product?: EditableProduct; ac
 
       <section><h2 className="font-display text-3xl leading-none">Размеры</h2><div className="mt-4 space-y-3">{sizes.map((item, index) => <div key={index} className="flex items-center gap-3"><input name="size" value={item.size} onChange={(event) => setSizes((current) => current.map((size, sizeIndex) => sizeIndex === index ? { ...size, size: event.target.value } : size))} placeholder="Например, M" className="min-h-11 w-32 border border-[color:var(--ink)]/25 px-3 text-sm outline-none focus:border-[color:var(--ink)]" /><label className="flex min-h-11 items-center gap-2 text-sm"><input name={`inStock-${index}`} type="checkbox" checked={item.inStock} onChange={(event) => setSizes((current) => current.map((size, sizeIndex) => sizeIndex === index ? { ...size, inStock: event.target.checked } : size))} className="size-4 accent-[color:var(--accent)]" />В наличии</label><button type="button" onClick={() => setSizes((current) => current.filter((_, sizeIndex) => sizeIndex !== index))} className="text-sm text-[color:var(--accent)]">Убрать</button></div>)}</div><button type="button" onClick={() => setSizes((current) => [...current, { size: "", inStock: true }])} className="mt-3 text-sm underline underline-offset-4">Добавить размер</button></section>
 
-      <button type="submit" disabled={isUploading || isSaving} className="flex min-h-12 w-full items-center justify-center bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)] disabled:cursor-wait disabled:opacity-60">{isUploading ? `Загружаем фото ${uploadProgress}%…` : isSaving ? "Сохраняем товар…" : "Сохранить товар"}</button>
+      <button type="submit" disabled={isUploading || isNormalizing || isSaving} className="flex min-h-12 w-full items-center justify-center bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)] disabled:cursor-wait disabled:opacity-60">{isNormalizing ? "Обрабатываем фото…" : isUploading ? `Загружаем фото ${uploadProgress}%…` : isSaving ? "Сохраняем товар…" : "Сохранить товар"}</button>
     </form>
   );
 }
