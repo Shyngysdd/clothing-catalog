@@ -8,6 +8,14 @@
   --gold: #b08d4f;
 }
 
+html.dark {
+  --ink: #edeeea;
+  --paper: #17181c;
+  --white: #ffffff;
+  --accent: #c94f57;
+  --gold: #c9a35c;
+}
+
 html {
   background: var(--paper);
   overflow-x: clip;

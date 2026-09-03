@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { BRAND_CONFIG } from "@/lib/brand-config";
 import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
+import { useTheme } from "@/context/theme-context";
 import { CartDrawer } from "./cart-drawer";
 import type { SavedAddress } from "@/lib/address-format";
 
@@ -51,6 +52,14 @@ function SearchIcon() {
   return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><circle cx="10.8" cy="10.8" r="6.3" /><path d="m16 16 4.2 4.2" strokeLinecap="round" /></svg>;
 }
 
+function ThemeIcon({ theme }: { theme: "light" | "dark" }) {
+  return theme === "dark" ? (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5a8.5 8.5 0 1 0 11.7 11.7Z" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  ) : (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2M12 19.5v2M21.5 12h-2M4.5 12h-2M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4M18.7 18.7l-1.4-1.4M6.7 6.7 5.3 5.3" strokeLinecap="round" /></svg>
+  );
+}
+
 export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: { categories: CategoryNavItem[]; isCustomerLoggedIn: boolean; savedAddresses: SavedAddress[] }) {
   const [isNavigatorOpen, setIsNavigatorOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -58,6 +67,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
   const router = useRouter();
   const { itemCount, isDrawerOpen, openDrawer, closeDrawer, cartNotice } = useCart();
   const { favoriteIds } = useFavorites();
+  const { theme, toggleTheme } = useTheme();
   const accountHref = isCustomerLoggedIn ? "/account" : "/account/login";
   const accountLabel = isCustomerLoggedIn ? "Профиль" : "Войти";
   const whatsappHref = `https://wa.me/${BRAND_CONFIG.whatsappNumber}?text=${encodeURIComponent("Здравствуйте! У меня вопрос по сайту")}`;
@@ -100,13 +110,14 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1 sm:gap-3 lg:gap-4">
-            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="hidden shrink-0 whitespace-nowrap min-h-10 px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:inline-flex sm:min-h-11 sm:px-0 sm:text-sm">
+            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="hidden shrink-0 whitespace-nowrap min-h-10 items-center px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:inline-flex sm:min-h-11 sm:px-0 sm:text-sm">
               Каталог
             </button>
             <Link href="/looks" className="inline-flex shrink-0 whitespace-nowrap min-h-10 items-center px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:min-h-11 sm:px-0 sm:text-sm">
               Образы
             </Link>
             <button type="button" onClick={() => setIsSearchOpen(true)} className="hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] min-[390px]:grid sm:size-11" aria-label="Поиск товаров"><SearchIcon /></button>
+            <button type="button" onClick={toggleTheme} className="grid size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:size-11" aria-label={theme === "dark" ? "Включить светлую тему" : "Включить тёмную тему"} title={theme === "dark" ? "Светлая тема" : "Тёмная тема"}><ThemeIcon theme={theme} /></button>
             <a
               href={BRAND_CONFIG.instagramUrl}
               target="_blank"

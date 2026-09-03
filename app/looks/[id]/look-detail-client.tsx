@@ -57,7 +57,7 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
         <p className="font-mono-price text-2xl">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
         <div className="grid gap-3 sm:flex">
           <button type="button" onClick={() => toggleLookFavorite(look.id)} aria-pressed={isLookFavorite(look.id)} className={`min-h-12 border px-5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] ${isLookFavorite(look.id) ? "border-[color:var(--accent)] text-[color:var(--accent)]" : "border-[color:var(--ink)]/25 hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{isLookFavorite(look.id) ? "В избранном" : "В избранное"}</button>
-          <button type="button" onClick={addLookToCart} className="min-h-12 bg-[color:var(--ink)] px-6 text-sm font-medium text-white hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Добавить весь образ в корзину</button>
+          <button type="button" onClick={addLookToCart} className="min-h-12 bg-[color:var(--ink)] px-6 text-sm font-medium text-[color:var(--paper)] hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Добавить весь образ в корзину</button>
         </div>
       </div>
     </section>

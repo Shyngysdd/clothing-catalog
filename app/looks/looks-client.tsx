@@ -98,7 +98,7 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
                   <p className="font-mono-price mt-auto pt-3 text-xs sm:pt-4 sm:text-lg">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
                 </div>
               </Link>
-              <button type="button" onClick={() => addLookToCart(look)} className="mt-3 min-h-10 w-full bg-[color:var(--ink)] px-2 text-xs font-medium text-white hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:mt-4 sm:min-h-11 sm:px-4 sm:text-sm">
+              <button type="button" onClick={() => addLookToCart(look)} className="mt-3 min-h-10 w-full bg-[color:var(--ink)] px-2 text-xs font-medium text-[color:var(--paper)] hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:mt-4 sm:min-h-11 sm:px-4 sm:text-sm">
                 <span className="sm:hidden">В корзину</span><span className="hidden sm:inline">Добавить весь образ в корзину</span>
               </button>
             </article>
