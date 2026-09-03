@@ -326,6 +326,14 @@ html.dark .look-product-media {
   z-index: 0;
 }
 
+.editorial-banner-image-overlay {
+  background: color-mix(in srgb, var(--paper) 12%, transparent);
+}
+
+html.dark .editorial-banner-image-overlay {
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
 .home-editorial-hero {
   display: grid;
   grid-template-columns: minmax(15rem, 0.58fr) minmax(0, 1.42fr);
@@ -422,7 +430,7 @@ html.dark .look-product-media {
 .home-category-frames {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(10rem, 0.85fr);
-  align-items: end;
+  align-items: start;
   gap: clamp(0.75rem, 2.5vw, 2rem);
 }
 
@@ -434,11 +442,12 @@ html.dark .look-product-media {
 }
 
 .home-category-frame--tall {
-  min-height: clamp(28rem, 50vw, 43rem);
+  min-height: clamp(26rem, 42vw, 38rem);
 }
 
 .home-category-frame--short {
-  min-height: clamp(18rem, 30vw, 28rem);
+  min-height: clamp(22rem, 34vw, 32rem);
+  margin-top: clamp(2rem, 5vw, 4.5rem);
 }
 
 .catalog-page {
@@ -970,6 +979,7 @@ html.dark .look-editorial-card {
 
   .home-category-frame--short {
     min-height: 16rem;
+    margin-top: 0;
   }
 
   .catalog-page-header {

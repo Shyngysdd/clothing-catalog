@@ -16,7 +16,7 @@ const bannerFallbacks = {
 
 function BannerBackground({ imageUrl }: { imageUrl: string | null }) {
   if (!imageUrl) return null;
-  return <div className="editorial-banner-image absolute inset-0"><Image src={imageUrl} alt="" fill sizes="100vw" className="object-cover" /><span className="absolute inset-0 bg-[color:var(--paper)]/35" /></div>;
+  return <div className="editorial-banner-image absolute inset-0"><Image src={imageUrl} alt="" fill sizes="100vw" className="object-cover" /><span className="editorial-banner-image-overlay absolute inset-0" /></div>;
 }
 
 export default async function Home() {
