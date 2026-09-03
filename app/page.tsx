@@ -16,7 +16,7 @@ const bannerFallbacks = {
 
 function BannerBackground({ imageUrl }: { imageUrl: string | null }) {
   if (!imageUrl) return null;
-  return <div className="editorial-banner-image absolute inset-0"><Image src={imageUrl} alt="" fill sizes="100vw" className="object-cover" /><span className="absolute inset-0 bg-gradient-to-t from-[color:var(--ink)]/85 via-[color:var(--ink)]/25 to-[color:var(--ink)]/15" /></div>;
+  return <div className="editorial-banner-image absolute inset-0"><Image src={imageUrl} alt="" fill sizes="100vw" className="object-cover" /><span className="absolute inset-0 bg-[color:var(--paper)]/35" /></div>;
 }
 
 export default async function Home() {
@@ -32,20 +32,26 @@ export default async function Home() {
   const categoryTwo = banners.get("category-2") ?? bannerFallbacks["category-2"];
   const resolvedSections = homeSections.map((section) => ({ section, products: resolveSectionProducts(section, products, groupedOrderItems) })).filter((item) => item.products.length > 0);
 
-  return <main className="w-full">
-    <Link href={hero.linkUrl} className={`editorial-banner ${hero.imageUrl ? "bg-[color:var(--ink)]" : "lookbook-media"} flex min-h-[60svh] cursor-pointer items-end border border-[color:var(--ink)]/15 px-6 py-8 text-[color:var(--white)] sm:px-10 sm:py-12 lg:px-16 lg:py-16`}>
-      <BannerBackground imageUrl={hero.imageUrl} />
-      <div><p className="font-mono-price text-xs tracking-[0.18em] text-[color:var(--gold)]">КОЛЛЕКЦИЯ / 2026</p><h1 className="font-brand mt-5 max-w-4xl text-[clamp(2.8rem,14vw,10.5rem)] leading-[0.86] sm:leading-[0.78]">{hero.title}</h1>{hero.subtitle ? <p className="mt-7 max-w-sm text-sm leading-6 text-[color:var(--white)]/75 sm:text-base">{hero.subtitle}</p> : null}</div>
-    </Link>
-
-    {resolvedSections.slice(0, 1).map(({ section, products }) => <section key={section.id} className="mx-auto max-w-[90rem] px-4 pt-16 sm:px-6 sm:pt-24 lg:px-10"><div className="mb-7 flex flex-col items-start gap-3 sm:mb-9 sm:flex-row sm:items-end sm:justify-between sm:gap-4"><h2 className="font-display text-[clamp(2.4rem,7vw,3.75rem)] leading-[0.9] tracking-[-0.05em]">{section.title}</h2><Link href={section.type === "sale" ? "/catalog?sale=true" : section.type === "category" ? `/catalog?category=${encodeURIComponent(section.categoryValue ?? "")}` : "/catalog"} className="font-mono-price mb-1 text-xs tracking-[0.08em] text-[color:var(--accent)]">В КАТАЛОГ →</Link></div><HomeProductMarquee products={products} /></section>)}
-
-    <section className="grid gap-0 py-16 sm:py-24 lg:grid-cols-2">
-      <Link href={categoryOne.linkUrl} className={`editorial-banner ${categoryOne.imageUrl ? "bg-[color:var(--ink)]" : "lookbook-media"} flex min-h-[35svh] cursor-pointer items-end border border-[color:var(--ink)]/15 px-6 py-7 text-[color:var(--white)] sm:px-9 sm:py-10`}><BannerBackground imageUrl={categoryOne.imageUrl} /><div>{categoryOne.subtitle ? <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--gold)]">{categoryOne.subtitle}</p> : null}<h2 className="font-display mt-3 text-[clamp(2.5rem,9vw,4.5rem)] leading-[0.9] tracking-[-0.05em]">{categoryOne.title}</h2></div></Link>
-      <Link href={categoryTwo.linkUrl} className={`editorial-banner ${categoryTwo.imageUrl ? "bg-[color:var(--ink)]" : "lookbook-media lookbook-media--gold"} flex min-h-[35svh] cursor-pointer items-end border border-[color:var(--ink)]/15 px-6 py-7 text-[color:var(--white)] sm:px-9 sm:py-10`}><BannerBackground imageUrl={categoryTwo.imageUrl} /><div>{categoryTwo.subtitle ? <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--gold)]">{categoryTwo.subtitle}</p> : null}<h2 className="font-display mt-3 text-[clamp(2.5rem,9vw,4.5rem)] leading-[0.9] tracking-[-0.05em]">{categoryTwo.title}</h2></div></Link>
+  return <main className="w-full overflow-x-clip">
+    <section className="home-editorial-hero">
+      <div className="home-hero-intro"><p className="font-mono-price text-[0.62rem] tracking-[0.16em] text-[color:var(--accent)]">КОЛЛЕКЦИЯ / 2026</p><p className="home-hero-index">01 — 01</p><div className="mt-auto"><p className="font-display max-w-xs text-[clamp(2rem,5vw,3.6rem)] leading-[0.9]">Гардероб для города, который движется в своём темпе.</p><p className="mt-5 max-w-xs text-xs leading-5 text-[color:var(--ink)]/60">Выверенные силуэты, тактильные ткани и вещи, которые остаются с вами дольше одного сезона.</p></div></div>
+      <Link href={hero.linkUrl} className={`editorial-banner home-hero-frame ${hero.imageUrl ? "bg-[color:var(--paper)]" : "lookbook-media"} cursor-pointer text-[color:var(--ink)]`}>
+        <BannerBackground imageUrl={hero.imageUrl} />
+        <div className="home-hero-title"><p className="font-mono-price text-[0.62rem] tracking-[0.16em] text-[color:var(--accent)]">НОВАЯ ГЛАВА</p><h1 className="font-brand mt-5 max-w-4xl text-[clamp(3.8rem,10vw,9.5rem)] leading-[0.8]">{hero.title}</h1>{hero.subtitle ? <p className="mt-6 max-w-sm text-sm leading-6 text-[color:var(--ink)]/70">{hero.subtitle}</p> : null}<span className="home-hero-link">СМОТРЕТЬ КОЛЛЕКЦИЮ <span aria-hidden="true">↗</span></span></div>
+      </Link>
     </section>
 
-    {resolvedSections.slice(1).map(({ section, products }) => <section key={section.id} className="mx-auto max-w-[90rem] px-4 pb-10 pt-16 sm:px-6 sm:pb-16 sm:pt-24 lg:px-10"><div className="mb-7 flex flex-col items-start gap-3 sm:mb-9 sm:flex-row sm:items-end sm:justify-between sm:gap-4"><h2 className="font-display text-[clamp(2.4rem,7vw,3.75rem)] leading-[0.9] tracking-[-0.05em]">{section.title}</h2><Link href={section.type === "sale" ? "/catalog?sale=true" : section.type === "category" ? `/catalog?category=${encodeURIComponent(section.categoryValue ?? "")}` : "/catalog"} className="font-mono-price mb-1 text-xs tracking-[0.08em] text-[color:var(--accent)]">В КАТАЛОГ →</Link></div><HomeProductMarquee products={products} /></section>)}
+    {resolvedSections.slice(0, 1).map(({ section, products }) => <section key={section.id} className="home-collection-section"><div className="home-section-heading"><div><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">ОТБОР СТУДИИ / 01</p><h2 className="font-display mt-3 text-[clamp(2.9rem,7vw,5.5rem)] leading-[0.82]">{section.title}</h2></div><Link href={section.type === "sale" ? "/catalog?sale=true" : section.type === "category" ? `/catalog?category=${encodeURIComponent(section.categoryValue ?? "")}` : "/catalog"} className="home-section-link">ВСЯ ВЫБОРКА <span aria-hidden="true">→</span></Link></div><HomeProductMarquee products={products} /></section>)}
+
+    <section className="home-category-composition">
+      <div className="home-category-copy"><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">ГАРДЕРОБ / ПО ЧАСТЯМ</p><h2 className="font-display mt-5 text-[clamp(3.2rem,8vw,6.4rem)] leading-[0.8]">Форма следует за вашим днём.</h2><p className="mt-7 max-w-sm text-sm leading-6 text-[color:var(--ink)]/65">Собирайте гардероб постепенно: начните с слоя, который нужен сейчас, и соедините его с привычными вещами.</p></div>
+      <div className="home-category-frames">
+        <Link href={categoryOne.linkUrl} className={`editorial-banner home-category-frame home-category-frame--tall ${categoryOne.imageUrl ? "bg-[color:var(--paper)]" : "lookbook-media"} cursor-pointer text-[color:var(--ink)]`}><BannerBackground imageUrl={categoryOne.imageUrl} /><div><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">{categoryOne.subtitle ?? "ВЫБОРКА / 01"}</p><h3 className="font-display mt-3 text-[clamp(2.7rem,6vw,5rem)] leading-[0.85]">{categoryOne.title}</h3></div></Link>
+        <Link href={categoryTwo.linkUrl} className={`editorial-banner home-category-frame home-category-frame--short ${categoryTwo.imageUrl ? "bg-[color:var(--paper)]" : "lookbook-media lookbook-media--gold"} cursor-pointer text-[color:var(--ink)]`}><BannerBackground imageUrl={categoryTwo.imageUrl} /><div><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">{categoryTwo.subtitle ?? "ВЫБОРКА / 02"}</p><h3 className="font-display mt-3 text-[clamp(2.5rem,5vw,4.4rem)] leading-[0.85]">{categoryTwo.title}</h3></div></Link>
+      </div>
+    </section>
+
+    {resolvedSections.slice(1).map(({ section, products }, index) => <section key={section.id} className="home-collection-section home-collection-section--secondary"><div className="home-section-heading"><div><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">ОТБОР СТУДИИ / {String(index + 2).padStart(2, "0")}</p><h2 className="font-display mt-3 text-[clamp(2.9rem,7vw,5.5rem)] leading-[0.82]">{section.title}</h2></div><Link href={section.type === "sale" ? "/catalog?sale=true" : section.type === "category" ? `/catalog?category=${encodeURIComponent(section.categoryValue ?? "")}` : "/catalog"} className="home-section-link">ВСЯ ВЫБОРКА <span aria-hidden="true">→</span></Link></div><HomeProductMarquee products={products} /></section>)}
     <RecentlyViewed allProducts={products} />
   </main>;
 }

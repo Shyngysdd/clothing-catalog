@@ -10,7 +10,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const { categories, isCustomerLoggedIn, savedAddresses } = useSession();
   if (pathname.startsWith("/admin")) return <>{children}</>;
 
-  return <div className="pb-[4.75rem] sm:pb-0">
+  return <div className="pb-[4.5rem] sm:pb-0">
     <SiteHeader categories={categories} isCustomerLoggedIn={isCustomerLoggedIn} savedAddresses={savedAddresses} />
     <main className="flex-1">{children}</main>
     <SiteFooter />

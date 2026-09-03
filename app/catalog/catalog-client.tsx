@@ -171,18 +171,19 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
   }
 
   return (
-    <section className="mx-auto max-w-[90rem] px-4 py-10 sm:px-6 sm:py-16 lg:px-10">
-      <div className="mb-10 flex items-end justify-between gap-4 border-b border-[color:var(--ink)]/15 pb-8 sm:mb-14">
+    <section className="catalog-page px-4 py-10 sm:px-6 sm:py-16 lg:px-10">
+      <div className="catalog-page-header mb-10 border-b border-[color:var(--ink)]/20 pb-8 sm:mb-14 sm:pb-10">
         <div>
           <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ВЫБОРКА / 2026</p>
-          <h1 className="font-display mt-3 text-[clamp(2.6rem,8vw,4.5rem)] leading-[0.9] tracking-[-0.04em]">Каталог</h1>
+          <h1 className="font-display mt-3 text-[clamp(3.2rem,9vw,6.5rem)] leading-[0.8]">Каталог</h1>
           <p className="mt-4 text-sm text-[color:var(--ink)]/60">
             Найдено: {filteredProducts.length}
           </p>
         </div>
+        <p className="catalog-page-note">Собранная выборка вещей для повседневного города. Открывайте карточку, чтобы увидеть материалы, размеры и все кадры.</p>
         <button
           type="button"
-          className="inline-flex min-h-11 items-center border border-[color:var(--ink)]/45 px-4 text-sm font-medium hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] md:hidden"
+          className="catalog-filter-trigger inline-flex min-h-11 items-center border border-[color:var(--ink)]/45 px-4 text-sm font-medium hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] md:hidden"
           aria-expanded={filtersOpen}
           aria-controls="catalog-filters"
           onClick={() => setFiltersOpen((isOpen) => !isOpen)}
@@ -191,10 +192,10 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
         </button>
       </div>
 
-      <div className="flex flex-col gap-8 md:flex-row">
+      <div className="catalog-page-layout flex flex-col gap-8 md:flex-row">
         <aside
           id="catalog-filters"
-          className={`${filtersOpen ? "block" : "hidden"} shrink-0 border-b border-[color:var(--ink)]/15 pb-8 md:block md:w-60 md:border-b-0 md:border-r md:pb-0 md:pr-8`}
+          className={`${filtersOpen ? "block" : "hidden"} catalog-filter-panel shrink-0 border-b border-[color:var(--ink)]/15 pb-8 md:block md:w-60 md:border-b-0 md:border-r md:pb-0 md:pr-8`}
         >
           <div className="flex items-center justify-between">
             <h2 className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--ink)]/70">ФИЛЬТРЫ</h2>
@@ -298,7 +299,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
           </fieldset>
         </aside>
 
-        <div className="min-w-0 flex-1">
+        <div className="catalog-results min-w-0 flex-1">
           {debouncedSearch ? <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-[color:var(--ink)]/15 pb-4 text-sm"><p>Результаты по запросу «{debouncedSearch}»: {filteredProducts.length} {filteredProducts.length === 1 ? "товар" : "товаров"}</p><button type="button" onClick={() => { setSearch(""); setDebouncedSearch(""); }} className="text-sm text-[color:var(--accent)] underline underline-offset-4">Сбросить поиск</button></div> : null}
           <div className="mb-5 flex items-center justify-end gap-1 md:hidden" aria-label="Плотность сетки">
             <span className="mr-2 font-mono-price text-[0.65rem] tracking-[0.08em] text-[color:var(--ink)]/55">СЕТКА</span>

@@ -20,10 +20,10 @@ const navigation = [
 
 function AdminNavigation({ newOrdersCount, onNavigate }: { newOrdersCount: number; onNavigate?: () => void }) {
   const pathname = usePathname();
-  return <nav aria-label="Навигация админки" className="space-y-1">
+  return <nav aria-label="Навигация админки" className="space-y-0">
     {navigation.map((item) => {
       const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
-      return <Link key={item.href} href={item.href} onClick={onNavigate} className={`relative flex min-h-11 items-center justify-between px-5 text-sm font-medium transition before:absolute before:bottom-2 before:left-0 before:top-2 before:w-0.5 ${active ? "bg-[color:var(--paper)]/10 text-[color:var(--white)] before:bg-[color:var(--accent)]" : "text-[color:var(--paper)]/60 hover:bg-[color:var(--paper)]/8 hover:text-[color:var(--paper)]"}`}><span>{item.label}</span>{item.href === "/admin/orders" && newOrdersCount > 0 ? <span className="grid size-5 place-items-center rounded-full bg-[color:var(--accent)] font-mono-price text-[10px] text-[color:var(--white)]">{newOrdersCount}</span> : null}</Link>;
+      return <Link key={item.href} href={item.href} onClick={onNavigate} className={`relative flex min-h-11 items-center justify-between border-l px-5 text-sm font-medium transition ${active ? "border-[color:var(--accent)] text-[color:var(--white)]" : "border-transparent text-[color:var(--paper)]/60 hover:border-[color:var(--paper)]/35 hover:text-[color:var(--paper)]"}`}><span>{item.label}</span>{item.href === "/admin/orders" && newOrdersCount > 0 ? <span className="grid size-5 place-items-center bg-[color:var(--accent)] font-mono-price text-[10px] text-[color:var(--white)]">{newOrdersCount}</span> : null}</Link>;
     })}
   </nav>;
 }
@@ -44,7 +44,7 @@ export function AdminShell({ children, newOrdersCount }: AdminShellProps) {
         <button type="button" onClick={() => setIsMenuOpen((current) => !current)} aria-label="Открыть меню админки" aria-expanded={isMenuOpen} className="grid size-10 place-items-center border border-[color:var(--paper)]/25"><span className="grid gap-1"><i className="block h-px w-4 bg-current" /><i className="block h-px w-4 bg-current" /><i className="block h-px w-4 bg-current" /></span></button>
         {isMenuOpen ? <div className="absolute left-0 right-0 top-full border-t border-[color:var(--paper)]/15 bg-[color:var(--ink)] py-3 shadow-xl"><AdminNavigation newOrdersCount={newOrdersCount} onNavigate={() => setIsMenuOpen(false)} /><div className="mt-3 border-t border-[color:var(--paper)]/15 pt-3"><LogoutButton /></div></div> : null}
       </header>
-      <aside className="hidden w-60 shrink-0 flex-col bg-[color:var(--ink)] text-[color:var(--paper)] md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-[color:var(--ink)]/20 bg-[color:var(--ink)] text-[color:var(--paper)] md:flex">
         <div className="border-b border-[color:var(--paper)]/15 px-5 py-7"><Link href="/admin" className="font-display text-2xl tracking-[-0.05em]">{BRAND_CONFIG.name}</Link><p className="mt-2 font-mono-price text-[10px] tracking-[0.16em] text-[color:var(--paper)]/60">АДМИНКА</p></div>
         <div className="pt-5"><AdminNavigation newOrdersCount={newOrdersCount} /></div>
         <div className="mt-auto border-t border-[color:var(--paper)]/15 py-4"><LogoutButton /></div>

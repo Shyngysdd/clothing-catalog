@@ -24,9 +24,11 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16">
-      <Link href="/looks" className="font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← ВСЕ ОБРАЗЫ</Link>
-      <div className="mt-6 look-preview aspect-[3/4] max-h-[70svh]">
+    <section className="look-detail-page mx-auto max-w-[100rem] px-4 py-10 sm:px-6 sm:py-16">
+      <Link href="/looks" className="product-back-link font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← ВСЕ ОБРАЗЫ</Link>
+      <div className="look-detail-layout mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.12fr)_minmax(18rem,0.88fr)] lg:gap-0">
+      <section className="look-detail-gallery">
+      <div className="look-preview aspect-[3/4] max-h-[70svh]">
         {look.photoUrls.length > 0
           ? look.photoUrls.map((photoUrl, index) => <div key={photoUrl} className={`look-gallery-frame ${index === activeFrame ? "is-active" : ""}`}><Image src={photoUrl} alt={`${look.title}, кадр ${index + 1}`} fill sizes="(max-width: 1024px) 100vw, 64rem" className="product-detail-photo" /></div>)
           : look.photoTones.map((placeholder, index) => <div key={`${placeholder}-${index}`} className={`look-gallery-frame look-gallery-frame--${placeholder} ${index === activeFrame ? "is-active" : ""}`} />)}
@@ -36,7 +38,9 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
           <button key={index} type="button" onClick={() => setActiveFrame(index)} aria-label={`Показать кадр ${index + 1}`} aria-current={activeFrame === index} className={`size-2 rounded-full transition-colors ${activeFrame === index ? "bg-[color:var(--accent)]" : "bg-[color:var(--ink)]/25 hover:bg-[color:var(--ink)]/55"}`} />
         ))}
       </div>
-      <div className="mt-10 border-b border-[color:var(--ink)]/15 pb-7">
+      </section>
+      <section className="look-detail-content">
+      <div className="border-b border-[color:var(--ink)]/15 pb-7">
         <p className="look-number text-4xl leading-none text-[color:var(--accent)]">ОБРАЗ {String(lookNumber).padStart(2, "0")}</p>
         <h1 className="font-section mt-4 text-[clamp(2.35rem,7vw,3.75rem)] leading-[0.95]">{look.title}</h1>
         <p className="mt-5 max-w-2xl leading-7 text-[color:var(--ink)]/70">{look.description}</p>
@@ -59,6 +63,8 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
           <button type="button" onClick={() => toggleLookFavorite(look.id)} aria-pressed={isLookFavorite(look.id)} className={`min-h-12 border px-5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] ${isLookFavorite(look.id) ? "border-[color:var(--accent)] text-[color:var(--accent)]" : "border-[color:var(--ink)]/25 hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{isLookFavorite(look.id) ? "В избранном" : "В избранное"}</button>
           <button type="button" onClick={addLookToCart} className="min-h-12 bg-[color:var(--ink)] px-6 text-sm font-medium text-[color:var(--paper)] hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Добавить весь образ в корзину</button>
         </div>
+      </div>
+      </section>
       </div>
     </section>
   );

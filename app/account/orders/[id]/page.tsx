@@ -33,14 +33,14 @@ export default async function AccountOrderPage({ params }: { params: Promise<{ i
   const destination = order.fulfillment === "delivery" ? order.address || "Адрес не указан" : order.branchName ? `Филиал: ${order.branchName}` : "Филиал уточнит менеджер";
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-16">
-      <Link href="/account/orders" className="inline-flex min-h-11 items-center font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← К ЗАКАЗАМ</Link>
-      <header className="mt-4 border-b border-[color:var(--ink)]/15 pb-7 sm:mt-5">
+    <main className="order-detail-page mx-auto max-w-[100rem] px-4 py-10 sm:px-6 sm:py-16">
+      <Link href="/account/orders" className="product-back-link inline-flex min-h-11 items-center font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← К ЗАКАЗАМ</Link>
+      <header className="order-detail-header mt-4 border-b border-[color:var(--ink)]/20 pb-8 sm:mt-5 sm:pb-10">
         <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ЗАКАЗ</p>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-5"><div><h1 className="font-display text-[clamp(2.6rem,8vw,4.5rem)] leading-[0.9] tracking-[-0.04em]">№ {order.id.slice(-8).toUpperCase()}</h1><p className="mt-4 text-sm text-[color:var(--ink)]/60">{formatDate.format(order.createdAt)}</p></div><span className={`order-status ${status.className}`}>{status.label}</span></div>
       </header>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <div className="order-detail-layout mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <section>
           <h2 className="font-section text-xl">Состав заказа</h2>
           <ul className="mt-4 divide-y divide-[color:var(--ink)]/12 border-y border-[color:var(--ink)]/15">
@@ -52,7 +52,7 @@ export default async function AccountOrderPage({ params }: { params: Promise<{ i
           <div className="mt-5 flex items-center justify-between gap-4 border-t-2 border-[color:var(--ink)] pt-4"><span className="font-section text-xl">Итого</span><span className="font-mono-price text-xl">{formatPrice.format(order.totalPrice)} ₸</span></div>
         </section>
 
-        <aside className="space-y-5"><section className="border border-[color:var(--ink)]/20 p-5"><p className="font-mono-price text-[10px] tracking-[0.12em] text-[color:var(--accent)]">ПОЛУЧЕНИЕ</p><p className="mt-3 font-medium">{fulfillment}</p><p className="mt-1 text-sm leading-6 text-[color:var(--ink)]/65">{destination}</p></section><BuyAgainButton items={repeatItems} unavailableItemCount={unavailableItemCount} /></aside>
+        <aside className="order-detail-aside space-y-5"><section className="border border-[color:var(--ink)]/20 p-5"><p className="font-mono-price text-[10px] tracking-[0.12em] text-[color:var(--accent)]">ПОЛУЧЕНИЕ</p><p className="mt-3 font-medium">{fulfillment}</p><p className="mt-1 text-sm leading-6 text-[color:var(--ink)]/65">{destination}</p></section><BuyAgainButton items={repeatItems} unavailableItemCount={unavailableItemCount} /></aside>
       </div>
     </main>
   );

@@ -56,19 +56,21 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
   }
 
   return (
-    <section className="mx-auto max-w-[90rem] px-4 py-10 sm:px-6 sm:py-16 lg:px-10">
-      <div className="max-w-2xl">
-        <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ГАРДЕРОБ / СОЧЕТАНИЯ</p>
-        <h1 className="font-section mt-3 text-[clamp(2.6rem,8vw,4.5rem)] leading-[0.9]">Образы</h1>
-        <p className="mt-5 leading-7 text-[color:var(--ink)]/70">Готовые сочетания из каталога — выбирайте целиком или открывайте отдельные вещи.</p>
+    <section className="looks-page px-4 py-10 sm:px-6 sm:py-16 lg:px-10">
+      <div className="looks-page-header border-b border-[color:var(--ink)]/20 pb-8 sm:pb-10">
+        <div>
+          <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ГАРДЕРОБ / СОЧЕТАНИЯ</p>
+          <h1 className="font-section mt-3 text-[clamp(3.4rem,9vw,6.8rem)] leading-[0.8]">Образы</h1>
+        </div>
+        <p className="looks-page-manifest">Готовые сочетания, собранные вокруг пропорции и цвета. Выберите образ целиком или начните с одной вещи.</p>
       </div>
 
-      <div className="mt-7 border-y border-[color:var(--ink)]/15 py-4 sm:mt-9">
+      <div className="looks-size-filter mt-7 border-b border-[color:var(--ink)]/15 pb-5 sm:mt-9">
         <p className="font-mono-price text-[10px] tracking-[0.12em] text-[color:var(--ink)]/60">РАЗМЕР В СОСТАВЕ ОБРАЗА</p>
         <div className="mt-3 flex flex-wrap gap-2">{sizes.map((size) => <button key={size} type="button" onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} className={`min-h-9 border px-3 text-xs font-medium transition ${selectedSize === size ? "border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)]" : "border-[color:var(--ink)]/25 hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{size}</button>)}</div>
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-6 lg:grid-cols-3">
+      <div className="looks-editorial-grid mt-8 grid grid-cols-2 gap-x-3 gap-y-10 sm:mt-12 sm:gap-x-7 sm:gap-y-16 lg:grid-cols-2">
         {filteredLooks.map((look, index) => {
           const lookProducts = look.items;
           const previewPhotoUrls =
@@ -79,7 +81,7 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
                 );
 
           return (
-            <article key={look.id} className="relative flex h-full flex-col border border-[color:var(--ink)]/15 bg-[color:var(--white)] p-2 sm:p-4">
+            <article key={look.id} className={`look-editorial-card relative flex h-full flex-col border border-[color:var(--ink)]/20 p-2 sm:p-4 ${index === 0 ? "look-editorial-card--lead" : ""}`}>
               <button
                 type="button"
                 onClick={() => toggleLookFavorite(look.id)}
@@ -91,9 +93,9 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
               </button>
               <Link href={`/looks/${look.id}`} className="group flex flex-1 flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]">
                 <LookPreview photoUrls={previewPhotoUrls} placeholders={look.photoTones} />
-                <div className="flex flex-1 flex-col pt-3 sm:pt-5">
-                  <p className="look-number text-base leading-none text-[color:var(--accent)] sm:text-2xl">ОБРАЗ {String(index + 1).padStart(2, "0")}</p>
-                  <h2 className="font-section mt-2 text-lg leading-tight sm:mt-3 sm:text-3xl">{look.title}</h2>
+                <div className="look-editorial-copy flex flex-1 flex-col pt-3 sm:pt-5">
+                  <p className="look-number text-base leading-none text-[color:var(--accent)] sm:text-xl">ОБРАЗ {String(index + 1).padStart(2, "0")}</p>
+                  <h2 className="font-section mt-2 text-lg leading-tight sm:mt-3 sm:text-4xl">{look.title}</h2>
                   <p className="mt-2 line-clamp-2 text-xs leading-5 text-[color:var(--ink)]/65 sm:mt-3 sm:text-sm sm:leading-6">{lookProducts.map((product) => product.name).join(" · ")}</p>
                   <p className="font-mono-price mt-auto pt-3 text-xs sm:pt-4 sm:text-lg">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
                 </div>

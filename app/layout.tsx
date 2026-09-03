@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo_Black, IBM_Plex_Mono, Montserrat } from "next/font/google";
+import { Cormorant_Garamond, IBM_Plex_Mono, Inter } from "next/font/google";
 import { SiteChrome } from "@/components/site-chrome";
 import { MobileTabbar } from "@/components/mobile-tabbar";
 import { SessionGate } from "@/components/session-gate";
@@ -9,10 +9,10 @@ import { ThemeProvider } from "@/context/theme-context";
 import { BRAND_CONFIG } from "@/lib/brand-config";
 import "./globals.css";
 
-const archivoBlack = Archivo_Black({
-  subsets: ["latin"],
-  variable: "--font-archivo-black",
-  weight: "400",
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-cormorant-garamond",
+  weight: ["400", "500", "600"],
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -21,10 +21,10 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-const montserrat = Montserrat({
+const inter = Inter({
   subsets: ["latin", "cyrillic"],
-  variable: "--font-montserrat",
-  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-inter",
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ru" suppressHydrationWarning className={`${archivoBlack.variable} ${ibmPlexMono.variable} ${montserrat.variable} h-full`}>
+    <html lang="ru" suppressHydrationWarning className={`${cormorantGaramond.variable} ${ibmPlexMono.variable} ${inter.variable} h-full`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: "try { const savedTheme = localStorage.getItem('theme'); const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', theme === 'dark'); } catch {}" }} />
       </head>

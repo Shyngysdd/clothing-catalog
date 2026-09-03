@@ -97,10 +97,10 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { on
 
   return (
     <OverlayPanel labelledBy="cart-drawer-title" onClose={onClose} position="right">
-      <div className="flex items-center justify-between border-b border-[color:var(--ink)]/15 px-5 py-5 sm:px-6">
-        <h2 id="cart-drawer-title" className="font-display text-4xl leading-none tracking-[-0.04em]">
+      <div className="cart-drawer-header flex items-center justify-between border-b border-[color:var(--ink)]/15 px-5 py-5 sm:px-6">
+        <div><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">{orderFormed ? "ПОДТВЕРЖДЕНИЕ" : "ВАШ ВЫБОР"}</p><h2 id="cart-drawer-title" className="font-display mt-2 text-4xl leading-none tracking-[-0.04em]">
           {orderFormed ? "Заказ" : "Корзина"}
-        </h2>
+        </h2></div>
         <div className="flex items-center gap-1"><button type="button" onClick={handleClearCart} disabled={orderFormed || items.length === 0} className="min-h-11 px-2 text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-0" aria-label="Очистить корзину">Очистить всё</button><button type="button" onClick={onClose} className="grid size-11 place-items-center rounded-lg text-xl text-[color:var(--ink)]/60 hover:bg-[color:var(--ink)]/5 hover:text-[color:var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]" aria-label="Закрыть корзину">×</button></div>
       </div>
 
@@ -123,7 +123,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { on
       ) : items.length > 0 ? (
         <div className="min-h-0 flex-1 overflow-y-auto">
           <CartItemsList className="px-5 sm:px-6" />
-          <form noValidate onSubmit={handleSubmit} className="border-t border-[color:var(--ink)]/15 px-5 py-5 sm:px-6">
+          <form noValidate onSubmit={handleSubmit} className="cart-drawer-form border-t border-[color:var(--ink)]/15 px-5 py-6 sm:px-6">
             <CartSummary items={items} />
 
             <div className="mt-6 space-y-4">

@@ -6,7 +6,7 @@ export default async function CustomerRegisterPage({ searchParams }: { searchPar
   const errorText = error === "exists" ? "Аккаунт с таким email уже существует." : error === "terms" ? "Необходимо согласие с офертой." : error === "invalid" ? "Заполните все обязательные поля. Пароль — не менее 8 символов." : null;
   return (
     <main className="mx-auto grid min-h-[calc(100svh-73px)] max-w-md place-items-center px-4 py-12">
-      <form action={registerCustomer} className="w-full border border-[color:var(--ink)]/20 bg-[color:var(--white)] p-6 sm:p-8">
+      <form action={registerCustomer} className="w-full border-y border-[color:var(--ink)]/20 py-8 sm:py-10">
         <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ЛИЧНЫЙ КАБИНЕТ</p>
         <h1 className="font-display mt-3 text-5xl leading-none tracking-[-0.04em]">Регистрация</h1>
         <label htmlFor="name" className="mt-8 block text-sm font-medium">Имя</label>
@@ -20,7 +20,7 @@ export default async function CustomerRegisterPage({ searchParams }: { searchPar
         <label className="mt-5 flex items-start gap-3 text-sm leading-5"><input name="agreeToTerms" type="checkbox" required className="mt-0.5 size-4 accent-[color:var(--accent)]" />Я согласен(на) с <Link href="/legal/offer" className="underline">условиями публичной оферты</Link> и обработкой персональных данных</label>
         <label className="mt-3 flex items-start gap-3 text-sm leading-5"><input name="newsletter" type="checkbox" className="mt-0.5 size-4 accent-[color:var(--accent)]" />Получать новости, скидки и акции на email</label>
         {errorText ? <p className="mt-3 text-sm text-[color:var(--accent)]">{errorText}</p> : null}
-        <button type="submit" className="mt-6 flex min-h-12 w-full items-center justify-center bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)]">Создать аккаунт</button>
+        <button type="submit" className="mt-6 flex min-h-12 w-full items-center justify-center bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--paper)] hover:bg-[color:var(--accent)]">Создать аккаунт</button>
         <p className="mt-5 text-sm text-[color:var(--ink)]/65">Уже есть аккаунт? <Link href="/account/login" className="text-[color:var(--accent)] underline underline-offset-4">Войти</Link></p>
       </form>
     </main>

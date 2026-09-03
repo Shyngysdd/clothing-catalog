@@ -99,18 +99,18 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b-2 border-[color:var(--ink)]/35 bg-[color:var(--paper)]/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[90rem] items-center justify-between gap-4 px-3 py-3 sm:px-6 sm:py-4 lg:px-10">
+      <header className="sticky top-0 z-40 border-b border-[color:var(--ink)]/20 bg-[color:var(--paper)]/95 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-[90rem] items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
           <div className="flex shrink-0 items-center gap-4 sm:gap-6">
-            <Link href="/" className="font-brand text-[0.95rem] sm:text-xl">
+            <Link href="/" className="font-brand text-xl leading-none sm:text-3xl">
               {BRAND_CONFIG.name}
             </Link>
-            <span className="hidden border-l border-[color:var(--ink)]/25 pl-4 font-mono-price text-[0.65rem] tracking-[0.14em] text-[color:var(--ink)]/55 sm:inline">
+            <span className="hidden border-l border-[color:var(--ink)]/20 pl-4 font-mono-price text-[0.6rem] tracking-[0.12em] text-[color:var(--ink)]/55 md:inline">
               КАТАЛОГ / 2026
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1 sm:gap-3 lg:gap-4">
-            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="hidden shrink-0 whitespace-nowrap min-h-10 items-center px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:inline-flex sm:min-h-11 sm:px-0 sm:text-sm">
+            <button type="button" onClick={() => setIsNavigatorOpen(true)} className="hidden shrink-0 whitespace-nowrap min-h-10 items-center px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] md:inline-flex md:min-h-11 md:px-0 md:text-sm">
               Каталог
             </button>
             <Link href="/looks" className="inline-flex shrink-0 whitespace-nowrap min-h-10 items-center px-1.5 text-[0.7rem] font-medium text-[color:var(--ink)]/70 hover:text-[color:var(--accent)] sm:min-h-11 sm:px-0 sm:text-sm">
@@ -122,7 +122,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
               href={BRAND_CONFIG.instagramUrl}
               target="_blank"
               rel="noreferrer"
-              className="ml-1 hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:grid sm:size-11"
+              className="ml-1 hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] lg:grid lg:size-11"
               aria-label="Instagram магазина"
             >
               <InstagramIcon />
@@ -131,14 +131,14 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
               href={whatsappHref}
               target="_blank"
               rel="noreferrer"
-              className="hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:grid sm:size-11"
+              className="hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] lg:grid lg:size-11"
               aria-label="Поддержка в WhatsApp"
             >
               <WhatsAppIcon />
             </a>
             <Link
               href={accountHref}
-              className="hidden h-10 items-center gap-1 px-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:flex sm:h-11 sm:gap-1.5"
+              className="hidden h-10 items-center gap-1 px-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] md:flex md:h-11 md:gap-1.5"
               aria-label={isCustomerLoggedIn ? "Личный кабинет" : "Войти в личный кабинет"}
             >
               <AccountIcon />
@@ -146,7 +146,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
             </Link>
             <Link
               href="/favorites"
-              className="relative hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:grid sm:size-11"
+              className="relative hidden size-10 place-items-center text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] md:grid md:size-11"
               aria-label={`Избранное, товаров: ${favoriteIds.length}`}
             >
               <FavoritesIcon />
@@ -156,7 +156,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L20 7H6.2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="10" cy="20" r="1" fill="currentColor" stroke="none" /><circle cx="17" cy="20" r="1" fill="currentColor" stroke="none" /></svg>
               {itemCount > 0 ? <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-xs leading-5 text-white">{itemCount}</span> : null}
             </Link>
-            <button type="button" onClick={openDrawer} className="relative ml-2 hidden size-11 place-items-center border-l border-[color:var(--ink)]/25 pl-2 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] sm:grid" aria-label={`Корзина, товаров: ${itemCount}`}>
+            <button type="button" onClick={openDrawer} className="relative ml-2 hidden size-11 place-items-center border-l border-[color:var(--ink)]/25 pl-2 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] md:grid" aria-label={`Корзина, товаров: ${itemCount}`}>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5">
                 <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L20 7H6.2" strokeLinecap="round" strokeLinejoin="round" />
                 <circle cx="10" cy="20" r="1" fill="currentColor" stroke="none" />
@@ -179,7 +179,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
       </div>
       <div className={`fixed inset-0 z-50 transition-opacity duration-300 ${isNavigatorOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={!isNavigatorOpen}>
         <button type="button" onClick={() => setIsNavigatorOpen(false)} className="absolute inset-0 bg-[color:var(--ink)]/45" aria-label="Закрыть навигатор каталога" />
-        <aside role="dialog" aria-modal="true" aria-label="Навигатор каталога" className={`absolute right-0 top-0 flex h-full w-[78vw] max-w-[420px] flex-col bg-[color:var(--paper)] shadow-2xl transition-transform duration-300 ease-out ${isNavigatorOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <aside role="dialog" aria-modal="true" aria-label="Навигатор каталога" className={`absolute right-0 top-0 flex h-full w-[78vw] max-w-[420px] flex-col border-l border-[color:var(--ink)]/20 bg-[color:var(--paper)] transition-transform duration-300 ease-out ${isNavigatorOpen ? "translate-x-0" : "translate-x-full"}`}>
           <div className="flex items-center justify-between border-b border-[color:var(--ink)]/15 px-5 py-5 sm:px-7">
             <div><p className="font-mono-price text-xs tracking-[0.14em] text-[color:var(--accent)]">НАВИГАЦИЯ</p><h2 className="font-section mt-2 text-2xl leading-none">Каталог</h2></div>
             <button type="button" onClick={() => setIsNavigatorOpen(false)} className="grid size-11 place-items-center text-xl text-[color:var(--ink)]/60 hover:text-[color:var(--accent)]" aria-label="Закрыть">×</button>
