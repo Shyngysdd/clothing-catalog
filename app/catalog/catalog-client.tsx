@@ -3,8 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import type { CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties, PointerEvent } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
 import { useFavorites } from "@/context/favorites-context";
@@ -75,6 +75,8 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
   const [gridDensity, setGridDensity] = useState<GridDensity>("2");
   const [search, setSearch] = useState(initialSearch);
   const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
+  const priceSliderRef = useRef<HTMLDivElement>(null);
+  const activePriceHandleRef = useRef<"min" | "max" | null>(null);
 
   useEffect(() => {
     const savedDensity = window.localStorage.getItem("catalog-grid-density");
@@ -155,6 +157,8 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
   const priceSliderStyle = {
     "--price-fill-start": `${priceFillStart}%`,
     "--price-fill-end": `${priceFillEnd}%`,
+    "--price-min-position": `${priceFillStart}%`,
+    "--price-max-position": `${priceFillEnd}%`,
   } as CSSProperties;
 
   function resetFilters() {
@@ -178,6 +182,41 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
     const boundedMaxPrice = Math.max(nextMaxPrice, minPrice);
     setMaxPrice(boundedMaxPrice);
     setMaxPriceInput(String(boundedMaxPrice));
+  }
+
+  function getPriceFromPointer(clientX: number) {
+    const slider = priceSliderRef.current;
+    if (!slider) return null;
+    const bounds = slider.getBoundingClientRect();
+    const percent = Math.min(1, Math.max(0, (clientX - bounds.left) / bounds.width));
+    return Math.round(productPriceRange.min + percent * (productPriceRange.max - productPriceRange.min));
+  }
+
+  function updatePriceFromPointer(clientX: number, handle: "min" | "max") {
+    const nextValue = getPriceFromPointer(clientX);
+    if (nextValue === null) return;
+    if (handle === "min") handleMinSliderChange(nextValue);
+    else handleMaxSliderChange(nextValue);
+  }
+
+  function handlePricePointerDown(event: PointerEvent<HTMLDivElement>) {
+    event.preventDefault();
+    const nextValue = getPriceFromPointer(event.clientX);
+    if (nextValue === null) return;
+    activePriceHandleRef.current = Math.abs(nextValue - minPrice) <= Math.abs(nextValue - maxPrice) ? "min" : "max";
+    event.currentTarget.setPointerCapture(event.pointerId);
+    updatePriceFromPointer(event.clientX, activePriceHandleRef.current);
+  }
+
+  function handlePricePointerMove(event: PointerEvent<HTMLDivElement>) {
+    const handle = activePriceHandleRef.current;
+    if (!handle || !event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    updatePriceFromPointer(event.clientX, handle);
+  }
+
+  function handlePricePointerEnd(event: PointerEvent<HTMLDivElement>) {
+    activePriceHandleRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   }
 
   return (
@@ -254,29 +293,15 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
 
           <fieldset className="mt-7">
             <legend className="text-sm font-medium">Цена</legend>
-            <div className="mt-4">
-              <div className="price-slider" style={priceSliderStyle}>
-                <div className="price-slider-track" aria-hidden="true" />
-                <input
-                  aria-label="Минимальная цена"
-                  type="range"
-                  min={productPriceRange.min}
-                  max={productPriceRange.max}
-                  value={minPrice}
-                  onChange={(event) => handleMinSliderChange(Number(event.target.value))}
-                />
-                <input
-                  aria-label="Максимальная цена"
-                  type="range"
-                  min={productPriceRange.min}
-                  max={productPriceRange.max}
-                  value={maxPrice}
-                  onChange={(event) => handleMaxSliderChange(Number(event.target.value))}
-                />
-              </div>
-              <div className="price-slider-summary mt-3 grid grid-cols-2 gap-3" aria-live="polite">
+            <div className="price-range-panel mt-5">
+              <div className="price-slider-summary grid grid-cols-2 gap-3" aria-live="polite">
                 <p><span>ОТ</span><strong>{formatPrice.format(minPrice)} ₸</strong></p>
                 <p><span>ДО</span><strong>{formatPrice.format(maxPrice)} ₸</strong></p>
+              </div>
+              <div ref={priceSliderRef} className="price-slider" style={priceSliderStyle} onPointerDown={handlePricePointerDown} onPointerMove={handlePricePointerMove} onPointerUp={handlePricePointerEnd} onPointerCancel={handlePricePointerEnd}>
+                <div className="price-slider-track" aria-hidden="true" />
+                <span className="price-slider-handle price-slider-handle--min" aria-hidden="true" />
+                <span className="price-slider-handle price-slider-handle--max" aria-hidden="true" />
               </div>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <label className="min-w-0">

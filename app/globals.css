@@ -228,6 +228,12 @@ html.dark .price-slider input[type="range"]::-moz-range-thumb {
   box-shadow: 0 0 0 1px var(--paper);
 }
 
+html.dark .price-slider-handle {
+  border-color: var(--gold);
+  background: var(--surface-raised);
+  box-shadow: 0 0 0 1px var(--paper);
+}
+
 html.dark .st-new {
   background: var(--surface-raised);
   color: var(--white);
@@ -502,13 +508,16 @@ html.dark .editorial-banner-image-overlay {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 5%, transparent);
 }
 
+.price-range-panel {
+  padding: 0.875rem 0 0.75rem;
+  border-block: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
 .price-slider-summary p {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
   min-width: 0;
-  padding-bottom: 0.55rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
 }
 
 .price-slider-summary p:last-child {
@@ -931,7 +940,11 @@ html.dark .look-editorial-card {
 .price-slider {
   position: relative;
   height: 1.25rem;
+  margin-top: 1rem;
   overflow: visible;
+  cursor: ew-resize;
+  touch-action: none;
+  user-select: none;
 }
 
 .price-slider-track {
@@ -1004,6 +1017,37 @@ html.dark .look-editorial-card {
   box-shadow: 0 0 0 1px var(--paper);
   cursor: grab;
   pointer-events: auto;
+}
+
+.price-slider-handle {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  border: 1px solid var(--white);
+  border-radius: 999px;
+  background: var(--ink);
+  box-shadow: 0 0 0 1px var(--paper);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: border-color 180ms ease-out, box-shadow 180ms ease-out, transform 180ms ease-out;
+}
+
+.price-slider-handle--min {
+  left: var(--price-min-position);
+}
+
+.price-slider-handle--max {
+  left: var(--price-max-position);
+}
+
+.price-slider-handle:hover,
+.price-slider-handle:focus-visible {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 35%, transparent);
+  outline: 0;
 }
 
 @media (max-width: 767px) {
