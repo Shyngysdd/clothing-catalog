@@ -53,6 +53,15 @@ html.dark [class*="bg-[color:var(--white)]"] {
   background-color: var(--surface) !important;
 }
 
+/* --ink остаётся цветом текста в тёмной теме; основным действиям нужен отдельный тёмный фон. */
+html.dark [class~="bg-[color:var(--ink)]"] {
+  background-color: var(--surface-raised) !important;
+}
+
+html.dark .peer:checked ~ [class~="peer-checked:bg-[color:var(--ink)]"] {
+  background-color: var(--surface-raised) !important;
+}
+
 .rounded-lg,
 .rounded-md,
 .rounded-full {
@@ -212,6 +221,18 @@ html.dark .look-product-media {
     linear-gradient(140deg, color-mix(in srgb, var(--look-tone) 52%, var(--paper)), color-mix(in srgb, var(--look-tone) 18%, var(--paper)) 70%);
 }
 
+html.dark .price-slider input[type="range"]::-webkit-slider-thumb,
+html.dark .price-slider input[type="range"]::-moz-range-thumb {
+  border-color: var(--gold);
+  background: var(--surface-raised);
+  box-shadow: 0 0 0 1px var(--paper);
+}
+
+html.dark .st-new {
+  background: var(--surface-raised);
+  color: var(--white);
+}
+
 .look-product-photo-layer {
   position: absolute;
   inset: 0;
@@ -252,6 +273,9 @@ html.dark .look-product-media {
   font-family: var(--font-ibm-plex-mono), monospace;
   font-size: 0.6875rem;
   letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   opacity: 0;
   transform: translateY(0.35rem);
   transition: opacity 220ms ease-out, transform 220ms ease-out;
@@ -266,6 +290,10 @@ html.dark .look-product-media {
 .look-product-card:focus-within .look-product-sizes {
   opacity: 1;
   transform: translateY(0);
+}
+
+.look-gallery-dots {
+  bottom: 3.75rem;
 }
 
 @media (max-width: 767px) {
@@ -456,18 +484,70 @@ html.dark .editorial-banner-image-overlay {
 }
 
 .catalog-page-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(14rem, 0.55fr) auto;
+  display: flex;
   align-items: end;
+  justify-content: space-between;
   gap: clamp(1.5rem, 5vw, 5rem);
 }
 
 .catalog-page-note {
   max-width: 18rem;
-  padding-bottom: 0.2rem;
+  margin-top: 1.25rem;
   font-size: 0.75rem;
   line-height: 1.55;
   color: color-mix(in srgb, var(--ink) 60%, transparent);
+}
+
+.catalog-sort-control [role="listbox"] {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.price-slider-summary p {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.price-slider-summary p:last-child {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.price-slider-summary span {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.11em;
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+
+.price-slider-summary strong {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.category-filter-radio {
+  appearance: none;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--ink) 48%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.category-filter-radio:checked {
+  border-color: var(--accent);
+  background: radial-gradient(circle, var(--accent) 0 42%, transparent 46%);
+}
+
+.category-filter-radio:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .catalog-page-layout {
@@ -893,6 +973,7 @@ html.dark .look-editorial-card {
   background: var(--ink);
   box-shadow: 0 0 0 1px var(--paper);
   cursor: grab;
+  margin-top: -0.40625rem;
   pointer-events: auto;
   transition: border-color 180ms ease-out, box-shadow 180ms ease-out, transform 180ms ease-out;
 }

@@ -20,6 +20,15 @@ function parsePrice(value: string) {
 type SortOption = "default" | "price-asc" | "price-desc" | "newest" | "alphabetical" | "sale";
 type GridDensity = "1" | "2";
 
+const sortOptions: Array<{ value: SortOption; label: string }> = [
+  { value: "default", label: "По умолчанию" },
+  { value: "price-asc", label: "Сначала дешёвые" },
+  { value: "price-desc", label: "Сначала дорогие" },
+  { value: "newest", label: "Сначала новинки" },
+  { value: "alphabetical", label: "По алфавиту (А–Я)" },
+  { value: "sale", label: "Сначала со скидкой" },
+];
+
 function CatalogProductPreview({ product, index, isSoldOut }: { product: CatalogProduct; index: number; isSoldOut: boolean }) {
   const frames = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
   const [activeFrame, setActiveFrame] = useState(0);
@@ -40,7 +49,7 @@ function CatalogProductPreview({ product, index, isSoldOut }: { product: Catalog
       <p className="look-product-sizes">РАЗМЕРЫ: {product.sizes.map((size) => size.size).join(" · ")}</p>
       {isSoldOut ? <span className="absolute right-3 top-3 border border-[color:var(--paper)]/50 bg-[color:var(--ink)]/80 px-2 py-1 font-mono-price text-[0.65rem] text-[color:var(--white)]">НЕТ В НАЛИЧИИ</span> : null}
       {discountPercent ? <span className="discount-stamp">−{discountPercent}%</span> : null}
-      {frames.length > 1 ? <span className="absolute bottom-[3.25rem] left-1/2 z-[3] flex -translate-x-1/2 gap-1" aria-hidden="true">{frames.map((_, frameIndex) => <i key={frameIndex} className={`block size-1.5 rounded-full border border-[color:var(--paper)]/70 ${activeFrame === frameIndex ? "bg-[color:var(--paper)]" : "bg-transparent"}`} />)}</span> : null}
+      {frames.length > 1 ? <span className="look-gallery-dots absolute left-1/2 z-[3] flex -translate-x-1/2 gap-1" aria-hidden="true">{frames.map((_, frameIndex) => <i key={frameIndex} className={`block size-1.5 rounded-full border border-[color:var(--paper)]/70 ${activeFrame === frameIndex ? "bg-[color:var(--paper)]" : "bg-transparent"}`} />)}</span> : null}
     </div>
   );
 }
@@ -62,6 +71,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
   const [maxPriceInput, setMaxPriceInput] = useState(String(productPriceRange.max));
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [sort, setSort] = useState<SortOption>("default");
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [gridDensity, setGridDensity] = useState<GridDensity>("2");
   const [search, setSearch] = useState(initialSearch);
   const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
@@ -179,8 +189,8 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
           <p className="mt-4 text-sm text-[color:var(--ink)]/60">
             Найдено: {filteredProducts.length}
           </p>
+          <p className="catalog-page-note">Собранная выборка вещей для повседневного города. Открывайте карточку, чтобы увидеть материалы, размеры и все кадры.</p>
         </div>
-        <p className="catalog-page-note">Собранная выборка вещей для повседневного города. Открывайте карточку, чтобы увидеть материалы, размеры и все кадры.</p>
         <button
           type="button"
           className="catalog-filter-trigger inline-flex min-h-11 items-center border border-[color:var(--ink)]/45 px-4 text-sm font-medium hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] md:hidden"
@@ -215,17 +225,13 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
             <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Найти товар..." className="mt-2 min-h-11 w-full border border-[color:var(--ink)]/25 bg-[color:var(--paper)] px-3 text-sm outline-none placeholder:text-[color:var(--ink)]/45 focus:border-[color:var(--accent)]" />
           </label>
 
-          <label className="mt-6 block">
-            <span className="text-sm font-medium">Сортировка</span>
-            <select value={sort} onChange={(event) => setSort(event.target.value as SortOption)} className="mt-2 min-h-11 w-full border border-[color:var(--ink)]/25 bg-[color:var(--paper)] px-3 text-sm outline-none focus:border-[color:var(--accent)]">
-              <option value="default">По умолчанию</option>
-              <option value="price-asc">Сначала дешёвые</option>
-              <option value="price-desc">Сначала дорогие</option>
-              <option value="newest">Сначала новинки</option>
-              <option value="alphabetical">По алфавиту (А-Я)</option>
-              <option value="sale">Сначала со скидкой</option>
-            </select>
-          </label>
+          <div className="mt-6">
+            <p className="text-sm font-medium">Сортировка</p>
+            <div className="catalog-sort-control relative mt-2">
+              <button type="button" onClick={() => setIsSortOpen((isOpen) => !isOpen)} aria-haspopup="listbox" aria-expanded={isSortOpen} className="flex min-h-11 w-full items-center justify-between border border-[color:var(--ink)]/25 bg-transparent px-3 text-left text-sm transition-colors hover:border-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]"><span>{sortOptions.find((option) => option.value === sort)?.label}</span><svg aria-hidden="true" viewBox="0 0 16 16" className={`size-4 transition-transform ${isSortOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.6"><path d="m3 5.5 5 5 5-5" /></svg></button>
+              {isSortOpen ? <div role="listbox" aria-label="Сортировка товаров" className="absolute left-0 right-0 top-[calc(100%+0.35rem)] z-20 border border-[color:var(--ink)]/25 bg-[color:var(--paper)] p-1">{sortOptions.map((option) => <button key={option.value} type="button" role="option" aria-selected={sort === option.value} onClick={() => { setSort(option.value); setIsSortOpen(false); }} className={`flex min-h-10 w-full items-center px-3 text-left text-sm transition-colors ${sort === option.value ? "bg-[color:var(--ink)] text-[color:var(--white)]" : "hover:bg-[color:var(--ink)]/8 hover:text-[color:var(--accent)]"}`}>{option.label}</button>)}</div> : null}
+            </div>
+          </div>
 
           <fieldset className="mt-6">
             <legend className="text-sm font-medium">Категория</legend>
@@ -238,7 +244,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
                     value={item}
                     checked={category === item}
                     onChange={() => setCategory(item)}
-                    className="size-4 accent-[color:var(--accent)]"
+                    className="category-filter-radio size-4"
                   />
                   {item}
                 </label>
@@ -268,9 +274,13 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
                   onChange={(event) => handleMaxSliderChange(Number(event.target.value))}
                 />
               </div>
+              <div className="price-slider-summary mt-3 grid grid-cols-2 gap-3" aria-live="polite">
+                <p><span>ОТ</span><strong>{formatPrice.format(minPrice)} ₸</strong></p>
+                <p><span>ДО</span><strong>{formatPrice.format(maxPrice)} ₸</strong></p>
+              </div>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <label className="min-w-0">
-                  <span className="text-xs text-zinc-500">от</span>
+                  <span className="font-mono-price text-[0.6rem] tracking-[0.1em] text-[color:var(--ink)]/55">МИНИМУМ</span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -281,7 +291,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
                   />
                 </label>
                 <label className="min-w-0">
-                  <span className="text-xs text-zinc-500">до</span>
+                  <span className="font-mono-price text-[0.6rem] tracking-[0.1em] text-[color:var(--ink)]/55">МАКСИМУМ</span>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -292,9 +302,6 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
                   />
                 </label>
               </div>
-              <p className="price-range-readout mt-3 text-xs text-[color:var(--ink)]/55">
-                {formatPrice.format(minPrice)} ₸ — {formatPrice.format(maxPrice)} ₸
-              </p>
             </div>
           </fieldset>
         </aside>
@@ -323,7 +330,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
             </button>
           </div>
           {sortedProducts.length > 0 ? (
-            <div data-density={gridDensity === "2" ? "compact" : "comfortable"} className={`catalog-product-grid grid items-stretch ${gridDensity === "2" ? "grid-cols-2" : "grid-cols-1"} gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`}>
+            <div data-density={gridDensity === "2" ? "compact" : "comfortable"} className={`catalog-product-grid grid items-stretch ${gridDensity === "2" ? "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"} gap-x-6 gap-y-12`}>
               {sortedProducts.map((product, index) => {
                 const isSoldOut = product.sizes.length > 0 && product.sizes.every((size) => !size.inStock);
                 return (
@@ -333,7 +340,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
                     className="flex h-full w-full flex-col text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]"
                     aria-label={`Открыть ${product.name}`}
                   >
-                    <p className="font-display mb-3 text-3xl leading-none tracking-[-0.04em] text-[color:var(--accent)]">LOOK {String(index + 1).padStart(2, "0")}</p>
+                    <p className="product-card-kicker font-mono-price mb-3 text-[0.62rem] tracking-[0.13em] text-[color:var(--accent)]">АРТИКУЛ / {product.sku}</p>
                     <CatalogProductPreview product={product} index={index} isSoldOut={isSoldOut} />
                     <div className="catalog-product-info mt-4 flex min-h-[5.45rem] flex-1 flex-col sm:min-h-[6.4rem]">
                       <p className="font-mono-price text-[0.65rem] tracking-[0.12em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p>

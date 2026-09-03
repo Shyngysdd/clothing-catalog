@@ -19,12 +19,12 @@ function RecommendationCard({ product, index }: { product: CatalogProduct; index
 
   return <article className={`look-product-card group flex h-full w-[clamp(7.75rem,35vw,10rem)] shrink-0 snap-start flex-col sm:w-[17rem] lg:w-[18rem] ${isSoldOut ? "opacity-60" : ""}`}>
     <Link href={`/catalog/${product.id}`} className="flex h-full flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]" aria-label={`Открыть ${product.name}`}>
-      <p className="font-display mb-3 text-3xl leading-none tracking-[-0.04em] text-[color:var(--accent)]">LOOK {String(index + 1).padStart(2, "0")}</p>
+      <p className="product-card-kicker font-mono-price mb-3 text-[0.62rem] tracking-[0.13em] text-[color:var(--accent)]">АРТИКУЛ / {product.sku}</p>
       <div className="look-product-media aspect-[4/5]" style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor } as CSSProperties} onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)} onMouseLeave={() => setActiveFrame(0)} {...swipeGallery}>
         {frames.length > 0 ? <div className="look-product-photo-layer">{frames.map((imageUrl, frameIndex) => <div key={imageUrl} className={`look-gallery-frame ${frameIndex === activeFrame ? "is-active" : ""}`}><Image src={imageUrl} alt="" fill sizes="(max-width: 639px) 35vw, (max-width: 1024px) 50vw, 25vw" className={`product-card-photo ${isSoldOut ? "grayscale" : ""}`} /></div>)}</div> : product.galleryTones.map((tone, frameIndex) => <div key={`${tone}-${frameIndex}`} className={`look-gallery-frame look-gallery-frame--${tone} ${frameIndex === activeFrame ? "is-active" : ""}`} />)}
         <p className="look-product-sizes">{isSoldOut ? "НЕТ В НАЛИЧИИ" : `РАЗМЕРЫ: ${product.sizes.filter((size) => size.inStock).map((size) => size.size).join(" · ")}`}</p>
         {discountPercent ? <span className="discount-stamp">−{discountPercent}%</span> : null}
-        {frames.length > 1 ? <span className="absolute bottom-[3.25rem] left-1/2 z-[3] flex -translate-x-1/2 gap-1" aria-hidden="true">{frames.map((_, frameIndex) => <i key={frameIndex} className={`block size-1.5 rounded-full border border-[color:var(--paper)]/70 ${activeFrame === frameIndex ? "bg-[color:var(--paper)]" : "bg-transparent"}`} />)}</span> : null}
+        {frames.length > 1 ? <span className="look-gallery-dots absolute left-1/2 z-[3] flex -translate-x-1/2 gap-1" aria-hidden="true">{frames.map((_, frameIndex) => <i key={frameIndex} className={`block size-1.5 rounded-full border border-[color:var(--paper)]/70 ${activeFrame === frameIndex ? "bg-[color:var(--paper)]" : "bg-transparent"}`} />)}</span> : null}
       </div>
       <div className="mt-4 flex min-h-[6.4rem] flex-1 flex-col">
         <p className="font-mono-price text-[0.65rem] tracking-[0.12em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p>
