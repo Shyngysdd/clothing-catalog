@@ -34,7 +34,7 @@ export async function changePassword(formData: FormData) {
   const requestHeaders = await headers();
   const attemptKey = createLoginAttemptKey("customer", getClientIp(requestHeaders), `password-change:${customerId}`);
 
-  if (isLoginBlocked(attemptKey)) redirect("/account/edit?password=blocked");
+  if (await isLoginBlocked(attemptKey)) redirect("/account/edit?password=blocked");
   if (typeof currentPassword !== "string" || typeof newPassword !== "string" || typeof passwordConfirmation !== "string") redirect("/account/edit?password=invalid");
   if (newPassword.length < 8) redirect("/account/edit?password=short");
   if (newPassword !== passwordConfirmation) redirect("/account/edit?password=mismatch");
@@ -42,11 +42,11 @@ export async function changePassword(formData: FormData) {
   const customer = await prisma.customer.findUnique({ where: { id: customerId }, select: { passwordHash: true } });
   if (!customer) redirect("/account/login");
   if (!(await bcrypt.compare(currentPassword, customer.passwordHash))) {
-    const blocked = recordFailedLogin(attemptKey);
+    const blocked = await recordFailedLogin(attemptKey);
     redirect(`/account/edit?password=${blocked ? "blocked" : "current"}`);
   }
 
-  clearLoginAttempts(attemptKey);
+  await clearLoginAttempts(attemptKey);
   await prisma.customer.update({ where: { id: customerId }, data: { passwordHash: await bcrypt.hash(newPassword, 12) } });
   redirect("/account/edit?password=success");
 }

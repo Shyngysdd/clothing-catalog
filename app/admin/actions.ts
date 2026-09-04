@@ -13,14 +13,14 @@ export async function loginAdmin(formData: FormData) {
   const requestHeaders = await headers();
   const attemptKey = createLoginAttemptKey("admin", getClientIp(requestHeaders), "admin");
 
-  if (isLoginBlocked(attemptKey)) redirect("/admin/login?error=blocked");
+  if (await isLoginBlocked(attemptKey)) redirect("/admin/login?error=blocked");
 
   if (typeof password !== "string" || !passwordHash || !(await bcrypt.compare(password, passwordHash))) {
-    const blocked = recordFailedLogin(attemptKey);
+    const blocked = await recordFailedLogin(attemptKey);
     redirect(`/admin/login?error=${blocked ? "blocked" : "invalid"}`);
   }
 
-  clearLoginAttempts(attemptKey);
+  await clearLoginAttempts(attemptKey);
 
   const cookieStore = await cookies();
   cookieStore.set(ADMIN_SESSION_COOKIE, await createAdminSessionToken(), {

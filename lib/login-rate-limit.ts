@@ -1,21 +1,11 @@
+import { Redis } from "@upstash/redis";
+
 const MAX_ATTEMPTS = 5;
-const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
-const BLOCK_DURATION_MS = 15 * 60 * 1000;
+const ATTEMPT_WINDOW_SECONDS = 15 * 60;
+const redis = Redis.fromEnv();
 
-type LoginAttempt = { attempts: number[]; blockedUntil: number | null };
-
-const attempts = new Map<string, LoginAttempt>();
-
-function cleanEntry(entry: LoginAttempt, now: number) {
-  entry.attempts = entry.attempts.filter((timestamp) => now - timestamp < ATTEMPT_WINDOW_MS);
-  if (entry.blockedUntil && entry.blockedUntil <= now) entry.blockedUntil = null;
-}
-
-function cleanup(now: number) {
-  for (const [key, entry] of attempts) {
-    cleanEntry(entry, now);
-    if (!entry.blockedUntil && entry.attempts.length === 0) attempts.delete(key);
-  }
+function getRedisKey(identifier: string) {
+  return `login-attempts:${identifier}`;
 }
 
 export function getClientIp(requestHeaders: Headers) {
@@ -27,26 +17,26 @@ export function createLoginAttemptKey(scope: "admin" | "customer", ip: string, i
   return `${scope}:${ip}:${identifier.trim().toLowerCase()}`;
 }
 
-export function isLoginBlocked(key: string) {
-  const now = Date.now();
-  cleanup(now);
-  const entry = attempts.get(key);
-  return Boolean(entry?.blockedUntil && entry.blockedUntil > now);
+export async function isLoginBlocked(identifier: string) {
+  const key = getRedisKey(identifier);
+  const attempts = await redis.get<number>(key);
+  if ((attempts ?? 0) < MAX_ATTEMPTS) return false;
+
+  return (await redis.ttl(key)) > 0;
 }
 
-export function recordFailedLogin(key: string) {
-  const now = Date.now();
-  cleanup(now);
-  const entry = attempts.get(key) ?? { attempts: [], blockedUntil: null };
-  entry.attempts.push(now);
-  if (entry.attempts.length >= MAX_ATTEMPTS) {
-    entry.blockedUntil = now + BLOCK_DURATION_MS;
-    entry.attempts = [];
+export async function recordFailedLogin(identifier: string) {
+  const key = getRedisKey(identifier);
+  const attempts = await redis.incr(key);
+
+  if (attempts === 1) {
+    await redis.expire(key, ATTEMPT_WINDOW_SECONDS);
   }
-  attempts.set(key, entry);
-  return Boolean(entry.blockedUntil);
+
+  if (attempts < MAX_ATTEMPTS) return false;
+  return (await redis.ttl(key)) > 0;
 }
 
-export function clearLoginAttempts(key: string) {
-  attempts.delete(key);
+export async function clearLoginAttempts(identifier: string) {
+  await redis.del(getRedisKey(identifier));
 }

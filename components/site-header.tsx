@@ -60,7 +60,7 @@ function ThemeIcon({ theme }: { theme: "light" | "dark" }) {
   );
 }
 
-export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: { categories: CategoryNavItem[]; isCustomerLoggedIn: boolean; savedAddresses: SavedAddress[] }) {
+export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses, customerName, customerPhone }: { categories: CategoryNavItem[]; isCustomerLoggedIn: boolean; savedAddresses: SavedAddress[]; customerName?: string; customerPhone?: string }) {
   const [isNavigatorOpen, setIsNavigatorOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -222,7 +222,7 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses }: {
           </nav>
         </aside>
       </div>
-      {isDrawerOpen ? <CartDrawer onClose={closeDrawer} isCustomerLoggedIn={isCustomerLoggedIn} savedAddresses={savedAddresses} /> : null}
+      {isDrawerOpen ? <CartDrawer onClose={closeDrawer} isCustomerLoggedIn={isCustomerLoggedIn} savedAddresses={savedAddresses} customerName={customerName} customerPhone={customerPhone} /> : null}
       {cartNotice ? <div className="pointer-events-none fixed bottom-5 left-1/2 z-[70] -translate-x-1/2 border border-[color:var(--gold)] bg-[color:var(--ink)] px-4 py-3 text-sm text-[color:var(--white)] shadow-sm sm:hidden" role="status">{cartNotice}</div> : null}
     </>
   );

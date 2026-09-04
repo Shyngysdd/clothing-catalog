@@ -114,19 +114,19 @@ export async function loginCustomer(formData: FormData) {
   const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "unknown";
   const requestHeaders = await headers();
   const attemptKey = createLoginAttemptKey("customer", getClientIp(requestHeaders), normalizedEmail);
-  if (isLoginBlocked(attemptKey)) redirect("/account/login?error=blocked");
+  if (await isLoginBlocked(attemptKey)) redirect("/account/login?error=blocked");
   if (typeof email !== "string" || typeof password !== "string") {
-    const blocked = recordFailedLogin(attemptKey);
+    const blocked = await recordFailedLogin(attemptKey);
     redirect(`/account/login?error=${blocked ? "blocked" : "invalid"}`);
   }
 
   const customer = await prisma.customer.findUnique({ where: { email: normalizedEmail } });
   if (!customer || !(await bcrypt.compare(password, customer.passwordHash))) {
-    const blocked = recordFailedLogin(attemptKey);
+    const blocked = await recordFailedLogin(attemptKey);
     redirect(`/account/login?error=${blocked ? "blocked" : "invalid"}`);
   }
 
-  clearLoginAttempts(attemptKey);
+  await clearLoginAttempts(attemptKey);
   await setCustomerSession(customer.id);
   redirect("/account");
 }

@@ -16,10 +16,10 @@ const formatPrice = new Intl.NumberFormat("ru-KZ");
 type DeliveryMethod = "pickup" | "delivery";
 type FormErrors = Partial<Record<"name" | "phone" | "address", string>>;
 
-export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses }: { onClose: () => void; isCustomerLoggedIn: boolean; savedAddresses: SavedAddress[] }) {
+export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses, customerName, customerPhone }: { onClose: () => void; isCustomerLoggedIn: boolean; savedAddresses: SavedAddress[]; customerName?: string; customerPhone?: string }) {
   const { items, totalPrice, clearCart } = useCart();
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [name, setName] = useState(customerName ?? "");
+  const [phone, setPhone] = useState(customerPhone ?? "");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
   const [address, setAddress] = useState(() => {
     const defaultAddress = savedAddresses.find((savedAddress) => savedAddress.isDefault);

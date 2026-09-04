@@ -9,6 +9,8 @@ import type { SavedAddress } from "@/lib/address-format";
 type SessionState = {
   isCustomerLoggedIn: boolean;
   savedAddresses: SavedAddress[];
+  customerName?: string;
+  customerPhone?: string;
   categories: { name: string; count: number }[];
 };
 
@@ -26,6 +28,8 @@ function isSessionResponse(value: unknown): value is SessionResponse {
     && "favorites" in value && Array.isArray(value.favorites)
     && "lookFavoriteIds" in value && Array.isArray(value.lookFavoriteIds)
     && "savedAddresses" in value && Array.isArray(value.savedAddresses)
+    && (!("customerName" in value) || typeof value.customerName === "string")
+    && (!("customerPhone" in value) || typeof value.customerPhone === "string")
     && "categories" in value && Array.isArray(value.categories);
 }
 
@@ -46,6 +50,8 @@ export function SessionGate({ children }: { children: ReactNode }) {
         setSessionState({
           isCustomerLoggedIn: payload.isCustomerLoggedIn,
           savedAddresses: payload.savedAddresses,
+          customerName: payload.customerName,
+          customerPhone: payload.customerPhone,
           categories: payload.categories,
         });
       } catch (error) {
