@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
-import { SiteChrome } from "@/components/site-chrome";
-import { MobileTabbar } from "@/components/mobile-tabbar";
+import Script from "next/script";
 import { SessionGate } from "@/components/session-gate";
 import { CartProvider } from "@/context/cart-context";
 import { FavoritesProvider } from "@/context/favorites-context";
 import { ThemeProvider } from "@/context/theme-context";
 import { BRAND_CONFIG } from "@/lib/brand-config";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -34,19 +34,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
   return (
-    <html lang="ru" suppressHydrationWarning className={`${instrumentSerif.variable} ${geist.variable} ${geistMono.variable} h-full`}>
+    <html lang={locale} suppressHydrationWarning className={`${instrumentSerif.variable} ${geist.variable} ${geistMono.variable} h-full`}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: "try { const savedTheme = localStorage.getItem('theme'); const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', theme === 'dark'); } catch {}" }} />
+        <Script id="theme-init" strategy="beforeInteractive">{`try { const savedTheme = localStorage.getItem('theme'); const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', theme === 'dark'); } catch {}`}</Script>
       </head>
       <body className="flex min-h-full flex-col antialiased">
         <ThemeProvider>
           <FavoritesProvider>
             <CartProvider>
               <SessionGate>
-                <SiteChrome>{children}</SiteChrome>
-                <MobileTabbar />
+                {children}
               </SessionGate>
             </CartProvider>
           </FavoritesProvider>

@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { looks } from "../data/looks";
 import { products } from "../data/products";
 import { BRAND_CONFIG } from "../lib/brand-config";
+import { slugifyCategory } from "../lib/category-slug";
 
 const prisma = new PrismaClient();
 
@@ -13,12 +14,22 @@ const originalPrices: Record<string, number> = {
 
 async function main() {
   const productIdsByLegacyId = new Map<number, string>();
+  const categoryIds = new Map<string, string>();
+
+  for (const name of [...new Set(products.map((product) => product.category))]) {
+    const category = await prisma.category.upsert({
+      where: { slug: slugifyCategory(name) },
+      update: { nameRu: name },
+      create: { slug: slugifyCategory(name), nameRu: name, nameEn: name, nameKz: name },
+    });
+    categoryIds.set(name, category.id);
+  }
 
   for (const product of products) {
     const data = {
       name: product.name,
       brand: BRAND_CONFIG.name,
-      category: product.category,
+      categoryId: categoryIds.get(product.category)!,
       price: product.price,
       originalPrice: originalPrices[product.sku] ?? null,
       description: product.description,
@@ -62,7 +73,7 @@ async function main() {
         slot: "hero",
         title: BRAND_CONFIG.name,
         subtitle: "Новая глава городского гардероба — строгая, тактильная, личная.",
-        linkUrl: "/catalog?category=новинки",
+        linkUrl: "/catalog?category=novinki",
         imageUrl: null,
       },
     }),

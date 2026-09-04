@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { CatalogProduct } from "@/lib/catalog-types";
 
-const recommendationInclude = { sizes: true } as const;
+const recommendationInclude = { sizes: true, category: true } as const;
 
 function isInStock(product: CatalogProduct) {
   return product.sizes.some((size) => size.inStock);
@@ -17,14 +17,14 @@ function sortAvailableAndRecent(products: CatalogProduct[]) {
 
 export async function getSimilarProducts(product: CatalogProduct): Promise<CatalogProduct[]> {
   const sameCategory = await prisma.product.findMany({
-    where: { category: product.category, id: { not: product.id } },
+    where: { categoryId: product.categoryId, id: { not: product.id } },
     include: recommendationInclude,
   });
 
   if (sameCategory.length >= 4) return sortAvailableAndRecent(sameCategory).slice(0, 8);
 
   const additionalProducts = await prisma.product.findMany({
-    where: { category: { not: product.category }, id: { not: product.id } },
+    where: { categoryId: { not: product.categoryId }, id: { not: product.id } },
     include: recommendationInclude,
   });
 

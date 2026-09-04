@@ -1,11 +1,13 @@
 export type CatalogSize = { size: string; inStock: boolean };
+export type CatalogCategory = { id: string; slug: string; nameRu: string; nameEn: string; nameKz: string };
 
 export type CatalogProduct = {
   id: string;
   sku: string;
   name: string;
   brand: string;
-  category: string;
+  categoryId: string;
+  category: CatalogCategory;
   department: string;
   price: number;
   originalPrice: number | null;

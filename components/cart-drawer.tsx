@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useState } from "react";
-import { createOrderFromCart } from "@/app/account/order-actions";
+import { createOrderFromCart } from "@/app/[locale]/account/order-actions";
 import { useCart } from "@/context/cart-context";
 import { BRAND_CONFIG } from "@/lib/brand-config";
 import { formatSavedAddress } from "@/lib/address-format";

@@ -1,7 +1,12 @@
+import createMiddleware from "next-intl/middleware";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { routing } from "@/i18n/routing";
 import { ADMIN_SESSION_COOKIE, isValidAdminSession } from "@/lib/admin-auth";
 import { CUSTOMER_SESSION_COOKIE, isValidCustomerSession } from "@/lib/customer-auth";
+
+const handleI18nRouting = createMiddleware(routing);
+const localePattern = new RegExp(`^/(${routing.locales.join("|")})(?=/|$)`);
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -17,18 +22,24 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (pathname.startsWith("/account")) {
-    if (pathname === "/account/login" || pathname === "/account/register" || pathname === "/account/verify" || pathname === "/account/forgot-password" || pathname === "/account/reset-password") return NextResponse.next();
+  const localeMatch = pathname.match(localePattern);
+  const locale = localeMatch?.[1] ?? routing.defaultLocale;
+  const localizedPathname = localeMatch ? pathname.slice(localeMatch[0].length) || "/" : pathname;
+
+  if (localizedPathname.startsWith("/account")) {
+    if (["/account/login", "/account/register", "/account/verify", "/account/forgot-password", "/account/reset-password"].includes(localizedPathname)) return handleI18nRouting(request);
 
     const token = request.cookies.get(CUSTOMER_SESSION_COOKIE)?.value;
-    if (await isValidCustomerSession(token)) return NextResponse.next();
+    if (await isValidCustomerSession(token)) return handleI18nRouting(request);
 
-    const loginUrl = new URL("/account/login", request.url);
+    const loginUrl = new URL(`/${locale}/account/login`, request.url);
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  return handleI18nRouting(request);
 }
 
-export const config = { matcher: ["/admin/:path*", "/account/:path*"] };
+export const config = {
+  matcher: ["/((?!api|admin|icon|robots\\.txt|sitemap\\.xml|_next|_vercel|.*\\..*).*)", "/admin/:path*"]
+};

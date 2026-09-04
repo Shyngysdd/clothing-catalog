@@ -11,7 +11,7 @@ type SessionState = {
   savedAddresses: SavedAddress[];
   customerName?: string;
   customerPhone?: string;
-  categories: { name: string; count: number }[];
+  categories: { slug: string; nameRu: string; nameEn: string; nameKz: string; count: number }[];
 };
 
 type SessionResponse = SessionState & { favorites: FavoriteEntry[]; lookFavoriteIds: string[] };

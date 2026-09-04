@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
+    "db:migrate-categories": "tsx scripts/migrate-categories.ts",
     "hash-password": "tsx scripts/hash-password.ts",
     "postinstall": "prisma skills sync || exit 0"
   },
@@ -19,6 +20,7 @@
     "jose": "^6.2.10",
     "jszip": "^3.10.1",
     "next": "16.3.3",
+    "next-intl": "^4.14.2",
     "prisma": "^6.19.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",

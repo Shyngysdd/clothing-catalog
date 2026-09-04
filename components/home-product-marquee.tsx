@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
@@ -22,6 +23,8 @@ function HomeProductPreview({ product, tone }: { product: CatalogProduct; tone: 
 }
 
 export function HomeProductMarquee({ products: selection, manual = false }: { products: CatalogProduct[]; manual?: boolean }) {
+  const recent = useTranslations("RecentlyViewed");
+  const catalog = useTranslations("Catalog");
   const shouldLoop = !manual && selection.length >= 6;
   const loopedProducts = shouldLoop ? [...selection, ...selection] : selection;
   const [isUserScrolling, setIsUserScrolling] = useState(false);
@@ -47,7 +50,7 @@ export function HomeProductMarquee({ products: selection, manual = false }: { pr
   }
 
   return <div className={`home-product-marquee relative ${manual ? "home-product-marquee--manual" : ""}`} onTouchStart={pauseForTouch} onTouchEnd={resumeAfterTouch} onTouchCancel={resumeAfterTouch}>
-    {manual && selection.length > 1 ? <><button type="button" onClick={() => scrollProducts("previous")} aria-label="Прокрутить просмотренные товары влево" className="home-product-marquee-arrow home-product-marquee-arrow--previous">←</button><button type="button" onClick={() => scrollProducts("next")} aria-label="Прокрутить просмотренные товары вправо" className="home-product-marquee-arrow home-product-marquee-arrow--next">→</button></> : null}
-    <div ref={trackRef} className={`home-product-track ${shouldLoop ? "" : "home-product-track--static"}`} style={{ animationPlayState: isUserScrolling ? "paused" : "running" }}>{loopedProducts.map((product, index) => <Link key={`${product.id}-${index}`} href={`/catalog/${product.id}`} className="home-look-card look-product-card group flex h-full flex-col" aria-label={`Открыть товар: ${product.name}`}><p className="product-card-kicker font-mono-price mb-3 text-[0.62rem] tracking-[0.13em] text-[color:var(--accent)]">АРТИКУЛ / {product.sku}</p><HomeProductPreview product={product} tone={index % 2 === 0 ? "var(--accent)" : "var(--gold)"} /><div className="mt-4 flex min-h-[5.75rem] flex-1 flex-col md:min-h-0 md:flex-row md:items-start md:justify-between md:gap-3"><div><p className="font-mono-price text-[0.6rem] tracking-[0.12em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p><h3 className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 sm:text-base md:min-h-0">{product.name}</h3></div><div className="mt-auto min-h-[2.25rem] pt-2 text-left md:mt-0 md:min-h-0 md:shrink-0 md:pt-0 md:text-right"><p className="font-mono-price text-sm">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price mt-0.5 text-[0.65rem] text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div></div></Link>)}</div>
+    {manual && selection.length > 1 ? <><button type="button" onClick={() => scrollProducts("previous")} aria-label={recent("previous")} className="home-product-marquee-arrow home-product-marquee-arrow--previous">←</button><button type="button" onClick={() => scrollProducts("next")} aria-label={recent("next")} className="home-product-marquee-arrow home-product-marquee-arrow--next">→</button></> : null}
+    <div ref={trackRef} className={`home-product-track ${shouldLoop ? "" : "home-product-track--static"}`} style={{ animationPlayState: isUserScrolling ? "paused" : "running" }}>{loopedProducts.map((product, index) => <Link key={`${product.id}-${index}`} href={`/catalog/${product.id}`} className="home-look-card look-product-card group flex h-full flex-col" aria-label={`${catalog("title")}: ${product.name}`}><p className="product-card-kicker font-mono-price mb-3 text-[0.62rem] tracking-[0.13em] text-[color:var(--accent)]">{catalog("sku", {sku: product.sku})}</p><HomeProductPreview product={product} tone={index % 2 === 0 ? "var(--accent)" : "var(--gold)"} /><div className="mt-4 flex min-h-[5.75rem] flex-1 flex-col md:min-h-0 md:flex-row md:items-start md:justify-between md:gap-3"><div><p className="font-mono-price text-[0.6rem] tracking-[0.12em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p><h3 className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 sm:text-base md:min-h-0">{product.name}</h3></div><div className="mt-auto min-h-[2.25rem] pt-2 text-left md:mt-0 md:min-h-0 md:shrink-0 md:pt-0 md:text-right"><p className="font-mono-price text-sm">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price mt-0.5 text-[0.65rem] text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div></div></Link>)}</div>
   </div>;
 }

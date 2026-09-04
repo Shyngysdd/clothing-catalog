@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { mergeGuestFavorites, mergeGuestLookFavorites, toggleCustomerFavorite, toggleCustomerLookFavorite } from "@/app/favorites/actions";
+import { mergeGuestFavorites, mergeGuestLookFavorites, toggleCustomerFavorite, toggleCustomerLookFavorite } from "@/app/[locale]/favorites/actions";
 
 const FAVORITES_STORAGE_KEY = "favorite-product-ids";
 const LOOK_FAVORITES_STORAGE_KEY = "favorite-look-ids";

@@ -7,12 +7,13 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { deleteProductImage, isBlobUrl, saveProductImage } from "@/lib/product-images";
 import { BRAND_CONFIG } from "@/lib/brand-config";
+import { slugifyCategory } from "@/lib/category-slug";
 
 type ProductInput = {
   name: string;
   brand: string;
   sku: string;
-  category: string;
+  categoryId: string;
   department: string;
   price: number;
   originalPrice: number | null;
@@ -32,6 +33,40 @@ function getText(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
 }
 
+async function getUniqueCategorySlug(name: string) {
+  const baseSlug = slugifyCategory(name);
+  let slug = baseSlug;
+  let suffix = 2;
+  while (await prisma.category.findUnique({ where: { slug }, select: { id: true } })) slug = `${baseSlug}-${suffix++}`;
+  return slug;
+}
+
+async function getOrCreateImportedCategory(name: string) {
+  const existing = await prisma.category.findFirst({
+    where: { nameRu: { equals: name, mode: "insensitive" } },
+    select: { id: true },
+  });
+  if (existing) return existing;
+  const slug = await getUniqueCategorySlug(name);
+  return prisma.category.create({ data: { slug, nameRu: name, nameEn: name, nameKz: name }, select: { id: true } });
+}
+
+export async function createCategoryFromAdmin(input: { nameRu: string; nameEn: string; nameKz: string }) {
+  const nameRu = input.nameRu.trim();
+  const nameEn = input.nameEn.trim();
+  const nameKz = input.nameKz.trim();
+  if (!nameRu || !nameEn || !nameKz) return { error: "Заполните названия на всех трёх языках." } as const;
+
+  try {
+    const slug = await getUniqueCategorySlug(nameRu);
+    const category = await prisma.category.create({ data: { slug, nameRu, nameEn, nameKz } });
+    revalidatePath("/admin/products/new");
+    return { category } as const;
+  } catch {
+    return { error: "Не удалось создать категорию." } as const;
+  }
+}
+
 function redirectWithError(path: string, message: string): never {
   redirect(`${path}?error=${encodeURIComponent(message)}`);
 }
@@ -40,14 +75,14 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
   const name = getText(formData, "name");
   const brand = getText(formData, "brand") || BRAND_CONFIG.name;
   const sku = getText(formData, "sku");
-  const category = getText(formData, "category");
+  const categoryId = getText(formData, "categoryId");
   const department = getText(formData, "department") || "unisex";
   const priceRaw = getText(formData, "price");
   const originalPriceRaw = getText(formData, "originalPrice");
   const price = Number(priceRaw);
   const originalPrice = originalPriceRaw ? Number(originalPriceRaw) : null;
 
-  if (!name || !sku || !category) redirectWithError(returnPath, "Заполните название, артикул и категорию.");
+  if (!name || !sku || !categoryId) redirectWithError(returnPath, "Заполните название, артикул и категорию.");
   if (!Number.isInteger(price) || price <= 0) redirectWithError(returnPath, "Цена должна быть положительным целым числом.");
   if (originalPrice !== null && (!Number.isInteger(originalPrice) || originalPrice <= price)) {
     redirectWithError(returnPath, "Старая цена должна быть больше текущей.");
@@ -68,7 +103,7 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
   }
 
   return {
-    name, brand, sku, category, department, price, originalPrice,
+    name, brand, sku, categoryId, department, price, originalPrice,
     description: getText(formData, "description") || null,
     composition: getText(formData, "composition") || null,
     fit: getText(formData, "fit") || null,
@@ -84,7 +119,7 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
 
 function productData(input: ProductInput) {
   return {
-    name: input.name, brand: input.brand, sku: input.sku, category: input.category, department: input.department, price: input.price,
+    name: input.name, brand: input.brand, sku: input.sku, categoryId: input.categoryId, department: input.department, price: input.price,
     originalPrice: input.originalPrice, description: input.description, composition: input.composition,
     care: input.care, fit: input.fit, imageColor: input.imageColor, colorGroup: input.colorGroup,
     color: input.color, colorSwatch: input.colorSwatch, galleryTones: input.galleryTones,
@@ -413,9 +448,10 @@ export async function importProductsCsv(_: CsvImportReport | null, formData: For
     if ("error" in checked) { report.skipped.push({ line, reason: checked.error ?? "Некорректные данные." }); continue; }
     const input = checked.value;
     try {
+      const category = await getOrCreateImportedCategory(input.category);
       const existing = await prisma.product.findUnique({ where: { sku: input.sku }, select: { id: true } });
       const data = {
-        sku: input.sku, name: input.name, category: input.category, price: input.price,
+        sku: input.sku, name: input.name, categoryId: category.id, price: input.price,
         originalPrice: input.originalPrice, description: input.description, composition: input.composition,
         fit: input.fit, care: input.care, imageColor: input.imageColor,
         colorGroup: input.colorGroup, color: input.color, colorSwatch: input.colorSwatch,

@@ -4,9 +4,12 @@ import { upload } from "@vercel/blob/client";
 import { FormEvent, useState } from "react";
 import Image from "next/image";
 import { BRAND_CONFIG } from "@/lib/brand-config";
+import { createCategoryFromAdmin } from "./actions";
+
+type CategoryOption = { id: string; slug: string; nameRu: string; nameEn: string; nameKz: string };
 
 type EditableProduct = {
-  name: string; brand: string; sku: string; category: string; department: string; price: number; originalPrice: number | null;
+  name: string; brand: string; sku: string; categoryId: string; category: CategoryOption; department: string; price: number; originalPrice: number | null;
   description: string | null; composition: string | null; fit: string | null; care: string[];
   imageColor: string; colorGroup: string | null; color: string | null; colorSwatch: string | null; imageUrl: string | null; galleryTones: string[]; galleryUrls: string[]; sizes: { size: string; inStock: boolean }[];
 };
@@ -16,7 +19,7 @@ const inputClass = "mt-1 min-h-11 w-full border border-[color:var(--border)] bg-
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-export function ProductForm({ product, action, colorGroupOptions }: { product?: EditableProduct; action: (formData: FormData) => void | Promise<void>; colorGroupOptions: string[] }) {
+export function ProductForm({ product, action, colorGroupOptions, categories: initialCategories }: { product?: EditableProduct; action: (formData: FormData) => void | Promise<void>; colorGroupOptions: string[]; categories: CategoryOption[] }) {
   const [care, setCare] = useState(product?.care.length ? product.care : [""]);
   const [sizes, setSizes] = useState(product?.sizes.length ? product.sizes : [{ size: "", inStock: true }]);
   const [imageColor, setImageColor] = useState(product?.imageColor ?? "#17181C");
@@ -27,6 +30,27 @@ export function ProductForm({ product, action, colorGroupOptions }: { product?: 
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState("");
+  const [categories, setCategories] = useState(initialCategories);
+  const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
+  const [categoryDraft, setCategoryDraft] = useState({ nameRu: "", nameEn: "", nameKz: "" });
+  const [selectedCategoryId, setSelectedCategoryId] = useState(product?.categoryId ?? initialCategories[0]?.id ?? "");
+  const [categoryError, setCategoryError] = useState("");
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+
+  async function addCategory() {
+    setIsCreatingCategory(true);
+    setCategoryError("");
+    const result = await createCategoryFromAdmin(categoryDraft);
+    setIsCreatingCategory(false);
+    if ("error" in result) {
+      setCategoryError(result.error ?? "Не удалось создать категорию.");
+      return;
+    }
+    setCategories((current) => [...current, result.category].sort((first, second) => first.nameRu.localeCompare(second.nameRu, "ru")));
+    setSelectedCategoryId(result.category.id);
+    setCategoryDraft({ nameRu: "", nameEn: "", nameKz: "" });
+    setIsCategoryFormOpen(false);
+  }
 
   function toggleTone(tone: string) {
     setTones((current) => current.includes(tone) ? current.filter((item) => item !== tone) : [...current, tone]);
@@ -98,7 +122,8 @@ export function ProductForm({ product, action, colorGroupOptions }: { product?: 
         <label className="sm:col-span-2">Название<input name="name" required defaultValue={product?.name} className={inputClass} /></label>
         <label>Бренд <span className="text-[color:var(--ink)]/50">(необязательно)</span><input name="brand" defaultValue={product?.brand ?? BRAND_CONFIG.name} className={inputClass} /></label>
         <label>Артикул<input name="sku" required defaultValue={product?.sku} className={inputClass} /></label>
-        <label>Категория<input name="category" required defaultValue={product?.category} className={inputClass} /></label>
+        <div><label>Категория<select name="categoryId" required value={selectedCategoryId} onChange={(event) => setSelectedCategoryId(event.target.value)} className={inputClass}><option value="" disabled>Выберите категорию</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.nameRu}</option>)}</select></label><button type="button" onClick={() => setIsCategoryFormOpen((open) => !open)} className="mt-2 text-sm text-[color:var(--accent)] underline underline-offset-4">Добавить новую категорию</button></div>
+        {isCategoryFormOpen ? <div className="grid gap-3 border border-[color:var(--border)] p-4 sm:col-span-2 sm:grid-cols-3"><label className="text-sm">Название RU<input value={categoryDraft.nameRu} onChange={(event) => setCategoryDraft((current) => ({ ...current, nameRu: event.target.value }))} className={inputClass} /></label><label className="text-sm">Название EN<input value={categoryDraft.nameEn} onChange={(event) => setCategoryDraft((current) => ({ ...current, nameEn: event.target.value }))} className={inputClass} /></label><label className="text-sm">Название KZ<input value={categoryDraft.nameKz} onChange={(event) => setCategoryDraft((current) => ({ ...current, nameKz: event.target.value }))} className={inputClass} /></label>{categoryError ? <p className="text-sm text-[color:var(--accent)] sm:col-span-3">{categoryError}</p> : null}<div className="flex gap-3 sm:col-span-3"><button type="button" disabled={isCreatingCategory} onClick={addCategory} className="min-h-10 bg-[color:var(--ink)] px-4 text-sm text-[color:var(--white)] disabled:opacity-50">{isCreatingCategory ? "Добавляем…" : "Сохранить категорию"}</button><button type="button" onClick={() => setIsCategoryFormOpen(false)} className="min-h-10 px-4 text-sm underline">Отмена</button></div></div> : null}
         <label>Отдел<select name="department" defaultValue={product?.department ?? "unisex"} className={inputClass}><option value="unisex">Унисекс</option><option value="men">Мужское</option><option value="women">Женское</option></select></label>
         <label>Цена, ₸<input name="price" required min="1" step="1" type="number" defaultValue={product?.price} className={inputClass} /></label>
         <label>Старая цена, ₸<input name="originalPrice" min="1" step="1" type="number" defaultValue={product?.originalPrice ?? ""} className={inputClass} /></label>

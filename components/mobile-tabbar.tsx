@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
 import { useSession } from "@/components/session-gate";
@@ -15,6 +15,8 @@ function CartIcon() { return <svg aria-hidden="true" viewBox="0 0 24 24" fill="n
 function AccountIcon() { return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><circle cx="12" cy="8" r="3.5" /><path d="M4.5 20c.7-3.5 3.3-5.5 7.5-5.5s6.8 2 7.5 5.5" strokeLinecap="round" /></svg>; }
 
 export function MobileTabbar() {
+  const t = useTranslations("MobileNav");
+  const common = useTranslations("Common");
   const pathname = usePathname();
   const { itemCount } = useCart();
   const { favoriteIds } = useFavorites();
@@ -22,12 +24,12 @@ export function MobileTabbar() {
   if (pathname.startsWith("/admin")) return null;
 
   const tabs: Tab[] = [
-    { href: "/", label: "Главная", icon: <HomeIcon />, matches: (path) => path === "/" },
-    { href: "/catalog", label: "Каталог", icon: <CatalogIcon />, matches: (path) => path.startsWith("/catalog") || path.startsWith("/looks") },
-    { href: "/favorites", label: "Избранное", icon: <FavoritesIcon />, matches: (path) => path === "/favorites" },
-    { href: "/cart", label: "Корзина", icon: <CartIcon />, matches: (path) => path === "/cart" },
-    { href: isCustomerLoggedIn ? "/account" : "/account/login", label: "Профиль", icon: <AccountIcon />, matches: (path) => path.startsWith("/account") },
+    { href: "/", label: t("home"), icon: <HomeIcon />, matches: (path) => path === "/" },
+    { href: "/catalog", label: common("catalog"), icon: <CatalogIcon />, matches: (path) => path.startsWith("/catalog") || path.startsWith("/looks") },
+    { href: "/favorites", label: common("favorites"), icon: <FavoritesIcon />, matches: (path) => path === "/favorites" },
+    { href: "/cart", label: common("cart"), icon: <CartIcon />, matches: (path) => path === "/cart" },
+    { href: isCustomerLoggedIn ? "/account" : "/account/login", label: common("profile"), icon: <AccountIcon />, matches: (path) => path.startsWith("/account") },
   ];
 
-  return <nav aria-label="Мобильная навигация" className="fixed inset-x-0 bottom-0 z-50 flex h-[4.5rem] border-t border-[color:var(--border)] bg-[color:var(--paper)] px-1 pb-[env(safe-area-inset-bottom)] sm:hidden">{tabs.map((tab) => { const isActive = tab.matches(pathname); const badgeCount = tab.href === "/cart" ? itemCount : tab.href === "/favorites" ? favoriteIds.length : 0; return <Link key={tab.href} href={tab.href} className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 font-mono-price text-[0.55rem] tracking-[0.02em] ${isActive ? "text-[color:var(--accent)]" : "text-[color:var(--ink)]/55"}`} aria-current={isActive ? "page" : undefined}><span className="relative">{tab.icon}{badgeCount > 0 ? <span className="absolute -right-3 -top-2 grid min-w-4 place-items-center border border-[color:var(--paper)] bg-[color:var(--accent)] px-1 text-[0.55rem] leading-4 text-[color:var(--white)]">{badgeCount}</span> : null}</span><span>{tab.label}</span></Link>; })}</nav>;
+  return <nav aria-label={t("label")} className="fixed inset-x-0 bottom-0 z-50 flex h-[4.5rem] border-t border-[color:var(--border)] bg-[color:var(--paper)] px-1 pb-[env(safe-area-inset-bottom)] sm:hidden">{tabs.map((tab) => { const isActive = tab.matches(pathname); const badgeCount = tab.href === "/cart" ? itemCount : tab.href === "/favorites" ? favoriteIds.length : 0; return <Link key={tab.href} href={tab.href} className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 font-mono-price text-[0.55rem] tracking-[0.02em] ${isActive ? "text-[color:var(--accent)]" : "text-[color:var(--ink)]/55"}`} aria-current={isActive ? "page" : undefined}><span className="relative">{tab.icon}{badgeCount > 0 ? <span className="absolute -right-3 -top-2 grid min-w-4 place-items-center border border-[color:var(--paper)] bg-[color:var(--accent)] px-1 text-[0.55rem] leading-4 text-[color:var(--white)]">{badgeCount}</span> : null}</span><span>{tab.label}</span></Link>; })}</nav>;
 }

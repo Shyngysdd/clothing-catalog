@@ -12,7 +12,8 @@ model Product {
   sku           String        @unique
   name          String
   brand         String        @default("AKSHYN")
-  category      String
+  categoryId    String
+  category      Category      @relation(fields: [categoryId], references: [id])
   department    String        @default("unisex")
   price         Int
   originalPrice Int?
@@ -31,6 +32,17 @@ model Product {
   lookItems     LookItem[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
+  @@index([categoryId])
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  nameRu   String
+  nameEn   String
+  nameKz   String
+  products Product[]
 }
 
 model ProductSize {
