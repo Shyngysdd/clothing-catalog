@@ -3,7 +3,7 @@ import Link from "next/link";
 import { HomeProductMarquee } from "@/components/home-product-marquee";
 import { RecentlyViewed } from "@/components/recently-viewed";
 import { prisma } from "@/lib/prisma";
-import { resolveSectionProducts } from "@/lib/home-sections";
+import { getHomeBestsellers, resolveSectionProducts } from "@/lib/home-sections";
 import { BRAND_CONFIG } from "@/lib/brand-config";
 
 export const revalidate = 60;
@@ -24,7 +24,7 @@ export default async function Home() {
     prisma.product.findMany({ include: { sizes: true }, orderBy: { createdAt: "desc" } }),
     prisma.banner.findMany({ where: { slot: { in: ["hero", "category-1", "category-2"] } } }),
     prisma.homeSection.findMany({ where: { isActive: true }, orderBy: { position: "asc" } }),
-    prisma.orderItem.groupBy({ by: ["productId"], _sum: { quantity: true } }),
+    getHomeBestsellers(),
   ]);
   const banners = new Map(dbBanners.map((banner) => [banner.slot, banner]));
   const hero = banners.get("hero") ?? bannerFallbacks.hero;

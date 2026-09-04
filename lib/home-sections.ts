@@ -1,6 +1,15 @@
+import { getOrSetCache } from "@/lib/cache";
+import { prisma } from "@/lib/prisma";
+
 type Section = { type: string; categoryValue: string | null; productIds: string[] };
 type Product = { id: string; category: string; originalPrice: number | null; createdAt: Date; };
 type GroupedOrderItem = { productId: string; _sum: { quantity: number | null } };
+
+export function getHomeBestsellers() {
+  return getOrSetCache("home-bestsellers", 300, () =>
+    prisma.orderItem.groupBy({ by: ["productId"], _sum: { quantity: true } }),
+  );
+}
 
 export function resolveSectionProducts<T extends Product>(section: Section, allProducts: T[], allOrderItems: GroupedOrderItem[]) {
   switch (section.type) {
