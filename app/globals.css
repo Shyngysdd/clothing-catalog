@@ -229,9 +229,18 @@ html.dark .price-slider input[type="range"]::-moz-range-thumb {
 }
 
 html.dark .price-slider-handle {
-  border-color: var(--gold);
-  background: var(--surface-raised);
-  box-shadow: 0 0 0 1px var(--paper);
+  background: var(--paper);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+html.dark .price-slider-track {
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--ink) 28%, var(--paper)) 0 var(--price-fill-start),
+    var(--accent) var(--price-fill-start) var(--price-fill-end),
+    color-mix(in srgb, var(--ink) 28%, var(--paper)) var(--price-fill-end) 100%
+  );
 }
 
 html.dark .st-new {

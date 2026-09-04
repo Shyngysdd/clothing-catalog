@@ -152,8 +152,13 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
     Boolean(debouncedSearch) ||
     minPrice !== productPriceRange.min ||
     maxPrice !== productPriceRange.max;
-  const priceFillStart = ((minPrice - productPriceRange.min) / (productPriceRange.max - productPriceRange.min)) * 100;
-  const priceFillEnd = ((maxPrice - productPriceRange.min) / (productPriceRange.max - productPriceRange.min)) * 100;
+  const hasSinglePrice = productPriceRange.max === productPriceRange.min;
+  const priceFillStart = hasSinglePrice
+    ? 0
+    : ((minPrice - productPriceRange.min) / (productPriceRange.max - productPriceRange.min)) * 100;
+  const priceFillEnd = hasSinglePrice
+    ? 100
+    : ((maxPrice - productPriceRange.min) / (productPriceRange.max - productPriceRange.min)) * 100;
   const priceSliderStyle = {
     "--price-fill-start": `${priceFillStart}%`,
     "--price-fill-end": `${priceFillEnd}%`,
