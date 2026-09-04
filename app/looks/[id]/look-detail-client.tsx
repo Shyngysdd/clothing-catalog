@@ -40,7 +40,7 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
       </div>
       </section>
       <section className="look-detail-content">
-      <div className="border-b border-[color:var(--ink)]/15 pb-7">
+      <div className="border-b border-[color:var(--border)] pb-7">
         <p className="look-number text-4xl leading-none text-[color:var(--accent)]">ОБРАЗ {String(lookNumber).padStart(2, "0")}</p>
         <h1 className="font-section mt-4 text-[clamp(2.35rem,7vw,3.75rem)] leading-[0.95]">{look.title}</h1>
         <p className="mt-5 max-w-2xl leading-7 text-[color:var(--ink)]/70">{look.description}</p>
@@ -48,7 +48,7 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
       <div className="divide-y divide-[color:var(--ink)]/15">
         {lookProducts.map((product) => (
           <div key={product.id} className="flex items-center gap-4 py-4 sm:gap-6">
-            {product.imageUrl ? <div className="relative size-16 shrink-0 overflow-hidden border border-[color:var(--ink)]/10"><Image src={product.imageUrl} alt="" fill sizes="64px" className="object-cover" /></div> : <div className="size-16 shrink-0 border border-[color:var(--ink)]/10" style={{ backgroundColor: product.imageColor }} />}
+            {product.imageUrl ? <div className="relative size-16 shrink-0 overflow-hidden border border-[color:var(--border)]"><Image src={product.imageUrl} alt="" fill sizes="64px" className="object-cover" /></div> : <div className="size-16 shrink-0 border border-[color:var(--border)]" style={{ backgroundColor: product.imageColor }} />}
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">{product.name}</p>
               <p className="font-mono-price mt-1 text-sm text-[color:var(--ink)]/70">{formatPrice.format(product.price)} ₸</p>
@@ -57,10 +57,10 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
           </div>
         ))}
       </div>
-      <div className="mt-8 flex flex-col gap-5 border-t border-[color:var(--ink)]/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-8 flex flex-col gap-5 border-t border-[color:var(--border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="font-mono-price text-2xl">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
         <div className="grid gap-3 sm:flex">
-          <button type="button" onClick={() => toggleLookFavorite(look.id)} aria-pressed={isLookFavorite(look.id)} className={`min-h-12 border px-5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] ${isLookFavorite(look.id) ? "border-[color:var(--accent)] text-[color:var(--accent)]" : "border-[color:var(--ink)]/25 hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{isLookFavorite(look.id) ? "В избранном" : "В избранное"}</button>
+          <button type="button" onClick={() => toggleLookFavorite(look.id)} aria-pressed={isLookFavorite(look.id)} className={`min-h-12 border px-5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] ${isLookFavorite(look.id) ? "border-[color:var(--accent)] text-[color:var(--accent)]" : "border-[color:var(--border)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{isLookFavorite(look.id) ? "В избранном" : "В избранное"}</button>
           <button type="button" onClick={addLookToCart} className="min-h-12 bg-[color:var(--ink)] px-6 text-sm font-medium text-[color:var(--paper)] hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Добавить весь образ в корзину</button>
         </div>
       </div>

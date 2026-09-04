@@ -57,7 +57,7 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
 
   return (
     <section className="looks-page px-4 py-10 sm:px-6 sm:py-16 lg:px-10">
-      <div className="looks-page-header border-b border-[color:var(--ink)]/20 pb-8 sm:pb-10">
+      <div className="looks-page-header border-b border-[color:var(--border)] pb-8 sm:pb-10">
         <div>
           <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ГАРДЕРОБ / СОЧЕТАНИЯ</p>
           <h1 className="font-section mt-3 text-[clamp(3.4rem,9vw,6.8rem)] leading-[0.8]">Образы</h1>
@@ -65,9 +65,9 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
         <p className="looks-page-manifest">Готовые сочетания, собранные вокруг пропорции и цвета. Выберите образ целиком или начните с одной вещи.</p>
       </div>
 
-      <div className="looks-size-filter mt-7 border-b border-[color:var(--ink)]/15 pb-5 sm:mt-9">
+      <div className="looks-size-filter mt-7 border-b border-[color:var(--border)] pb-5 sm:mt-9">
         <p className="font-mono-price text-[10px] tracking-[0.12em] text-[color:var(--ink)]/60">РАЗМЕР В СОСТАВЕ ОБРАЗА</p>
-        <div className="mt-3 flex flex-wrap gap-2">{sizes.map((size) => <button key={size} type="button" onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} className={`min-h-9 border px-3 text-xs font-medium transition ${selectedSize === size ? "border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)]" : "border-[color:var(--ink)]/25 hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{size}</button>)}</div>
+        <div className="mt-3 flex flex-wrap gap-2">{sizes.map((size) => <button key={size} type="button" onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} className={`min-h-9 border px-3 text-xs font-medium transition ${selectedSize === size ? "border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--paper)]" : "border-[color:var(--border)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{size}</button>)}</div>
       </div>
 
       <div className="looks-editorial-grid mt-8 grid grid-cols-2 gap-x-3 gap-y-10 sm:mt-12 sm:gap-x-7 sm:gap-y-16 lg:grid-cols-2">
@@ -81,7 +81,7 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
                 );
 
           return (
-            <article key={look.id} className={`look-editorial-card relative flex h-full flex-col border border-[color:var(--ink)]/20 p-2 sm:p-4 ${index === 0 ? "look-editorial-card--lead" : ""}`}>
+            <article key={look.id} className={`look-editorial-card relative flex h-full flex-col border border-[color:var(--border)] p-2 sm:p-4 ${index === 0 ? "look-editorial-card--lead" : ""}`}>
               <button
                 type="button"
                 onClick={() => toggleLookFavorite(look.id)}
@@ -107,7 +107,7 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
           );
         })}
       </div>
-      {filteredLooks.length === 0 ? <div className="mt-8 border border-dashed border-[color:var(--ink)]/30 px-6 py-10 text-center text-sm text-[color:var(--ink)]/65">Нет образов с товарами в размере {selectedSize}.</div> : null}
+      {filteredLooks.length === 0 ? <div className="mt-8 border border-dashed border-[color:var(--border)] px-6 py-10 text-center text-sm text-[color:var(--ink)]/65">Нет образов с товарами в размере {selectedSize}.</div> : null}
     </section>
   );
 }

@@ -50,7 +50,7 @@ export function OverlayPanel({ children, labelledBy, onClose, position = "center
 
   const panelClass =
     position === "right"
-      ? "ml-auto flex h-full w-full max-w-[34rem] flex-col border-l border-[color:var(--ink)]/20 bg-[color:var(--paper)]"
+      ? "ml-auto flex h-full w-full max-w-[34rem] flex-col border-l border-[color:var(--border)] bg-[color:var(--paper)]"
       : "my-6 w-full max-w-lg bg-[color:var(--paper)] p-6 sm:p-8";
 
   return (

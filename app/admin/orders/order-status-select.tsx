@@ -21,7 +21,7 @@ export function OrderStatusSelect({ orderId, status }: { orderId: string; status
         value={status}
         disabled={isPending}
         onChange={(event) => startTransition(() => updateOrderStatus(orderId, event.target.value))}
-        className="mt-2 min-h-11 w-full border border-[color:var(--ink)]/25 bg-transparent px-3 text-sm outline-none transition focus:border-[color:var(--accent)] disabled:cursor-wait disabled:opacity-60"
+        className="mt-2 min-h-11 w-full border border-[color:var(--border)] bg-transparent px-3 text-sm outline-none transition focus:border-[color:var(--accent)] disabled:cursor-wait disabled:opacity-60"
       >
         {statuses.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
       </select>

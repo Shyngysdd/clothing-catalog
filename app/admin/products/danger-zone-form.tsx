@@ -27,14 +27,14 @@ export function DangerZoneForm({ action, productCount, title, description, butto
           name="confirmation"
           value={confirmation}
           onChange={(event) => setConfirmation(event.target.value)}
-          className="mt-2 min-h-11 w-full border border-[color:var(--ink)]/25 bg-[color:var(--white)] px-3 text-sm outline-none focus:border-[color:var(--accent)]"
+          className="mt-2 min-h-11 w-full border border-[color:var(--border)] bg-[color:var(--white)] px-3 text-sm outline-none focus:border-[color:var(--accent)]"
           aria-label={`Подтверждение: ${title}`}
         />
       </label>
       <button
         type="submit"
         disabled={!isConfirmed}
-        className="mt-4 min-h-11 border border-[color:var(--accent)] bg-[color:var(--accent)] px-4 text-sm font-medium text-[color:var(--white)] disabled:cursor-not-allowed disabled:border-[color:var(--ink)]/15 disabled:bg-transparent disabled:text-[color:var(--ink)]/40"
+        className="mt-4 min-h-11 border border-[color:var(--accent)] bg-[color:var(--accent)] px-4 text-sm font-medium text-[color:var(--white)] disabled:cursor-not-allowed disabled:border-[color:var(--border)] disabled:bg-transparent disabled:text-[color:var(--ink)]/40"
       >
         {buttonLabel}
       </button>

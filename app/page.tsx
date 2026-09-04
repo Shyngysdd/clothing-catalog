@@ -31,6 +31,9 @@ export default async function Home() {
   const categoryOne = banners.get("category-1") ?? bannerFallbacks["category-1"];
   const categoryTwo = banners.get("category-2") ?? bannerFallbacks["category-2"];
   const resolvedSections = homeSections.map((section) => ({ section, products: resolveSectionProducts(section, products, groupedOrderItems) })).filter((item) => item.products.length > 0);
+  const arrivalsIndex = resolvedSections.findIndex(({ section }) => section.type === "newest");
+  const arrivalsSection = resolvedSections[arrivalsIndex >= 0 ? arrivalsIndex : 0];
+  const supportingSections = resolvedSections.filter((_, index) => index !== (arrivalsIndex >= 0 ? arrivalsIndex : 0));
 
   return <main className="w-full overflow-x-clip">
     <section className="home-editorial-hero">
@@ -41,17 +44,19 @@ export default async function Home() {
       </Link>
     </section>
 
-    {resolvedSections.slice(0, 1).map(({ section, products }) => <section key={section.id} className="home-collection-section"><div className="home-section-heading"><div><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">ОТБОР СТУДИИ / 01</p><h2 className="font-display mt-3 text-[clamp(2.9rem,7vw,5.5rem)] leading-[0.82]">{section.title}</h2></div><Link href={section.type === "sale" ? "/catalog?sale=true" : section.type === "category" ? `/catalog?category=${encodeURIComponent(section.categoryValue ?? "")}` : "/catalog"} className="home-section-link">ВСЯ ВЫБОРКА <span aria-hidden="true">→</span></Link></div><HomeProductMarquee products={products} /></section>)}
-
-    <section className="home-category-composition">
-      <div className="home-category-copy"><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">ГАРДЕРОБ / ПО ЧАСТЯМ</p><h2 className="font-display mt-5 text-[clamp(3.2rem,8vw,6.4rem)] leading-[0.8]">Форма следует за вашим днём.</h2><p className="mt-7 max-w-sm text-sm leading-6 text-[color:var(--ink)]/65">Собирайте гардероб постепенно: начните с слоя, который нужен сейчас, и соедините его с привычными вещами.</p></div>
-      <div className="home-category-frames">
-        <Link href={categoryOne.linkUrl} className={`editorial-banner home-category-frame home-category-frame--tall ${categoryOne.imageUrl ? "bg-[color:var(--paper)]" : "lookbook-media"} cursor-pointer ${categoryOne.imageUrl ? "text-[color:var(--paper)]" : "text-[color:var(--ink)]"}`}><BannerBackground imageUrl={categoryOne.imageUrl} /><div><p className={`font-mono-price text-[0.6rem] tracking-[0.14em] ${categoryOne.imageUrl ? "text-[color:var(--paper)]/80" : "text-[color:var(--accent)]"}`}>{categoryOne.subtitle ?? "ВЫБОРКА / 01"}</p><h3 className="font-display mt-3 text-[clamp(2.7rem,6vw,5rem)] leading-[0.85]">{categoryOne.title}</h3></div></Link>
-        <Link href={categoryTwo.linkUrl} className={`editorial-banner home-category-frame home-category-frame--short ${categoryTwo.imageUrl ? "bg-[color:var(--paper)]" : "lookbook-media lookbook-media--gold"} cursor-pointer ${categoryTwo.imageUrl ? "text-[color:var(--paper)]" : "text-[color:var(--ink)]"}`}><BannerBackground imageUrl={categoryTwo.imageUrl} /><div><p className={`font-mono-price text-[0.6rem] tracking-[0.14em] ${categoryTwo.imageUrl ? "text-[color:var(--paper)]/80" : "text-[color:var(--accent)]"}`}>{categoryTwo.subtitle ?? "ВЫБОРКА / 02"}</p><h3 className="font-display mt-3 text-[clamp(2.5rem,5vw,4.4rem)] leading-[0.85]">{categoryTwo.title}</h3></div></Link>
-      </div>
+    <section className="home-look-rows" aria-label="Образы сезона">
+      <article className="home-look-row">
+        <Link href={categoryOne.linkUrl} aria-label={`Открыть образ ${categoryOne.title}`} className={`editorial-banner home-look-media ${categoryOne.imageUrl ? "bg-[color:var(--surface)]" : "lookbook-media"}`}><BannerBackground imageUrl={categoryOne.imageUrl} /></Link>
+        <div className="home-look-copy"><p className="font-mono-price text-[0.65rem] tracking-[0.16em] text-[color:var(--accent)]">LOOK 01</p><h2 className="font-display mt-5 text-[clamp(3.2rem,7vw,6rem)] leading-[0.82]">{categoryOne.title}</h2><p className="mt-7 text-sm leading-6 text-[color:var(--ink)]/65">Собранный образ для переменчивого городского дня: точный силуэт, лёгкие слои и свобода движения.</p><Link href={categoryOne.linkUrl} className="home-section-link">СМОТРЕТЬ ОБРАЗ <span aria-hidden="true">↗</span></Link></div>
+      </article>
+      <article className="home-look-row home-look-row--reverse">
+        <Link href={categoryTwo.linkUrl} aria-label={`Открыть образ ${categoryTwo.title}`} className={`editorial-banner home-look-media ${categoryTwo.imageUrl ? "bg-[color:var(--surface)]" : "lookbook-media lookbook-media--gold"}`}><BannerBackground imageUrl={categoryTwo.imageUrl} /></Link>
+        <div className="home-look-copy"><p className="font-mono-price text-[0.65rem] tracking-[0.16em] text-[color:var(--accent)]">LOOK 02</p><h2 className="font-display mt-5 text-[clamp(3.2rem,7vw,6rem)] leading-[0.82]">{categoryTwo.title}</h2><p className="mt-7 text-sm leading-6 text-[color:var(--ink)]/65">Второй ритм коллекции — выразительная основа, спокойная палитра и детали, рассчитанные на каждый день.</p><Link href={categoryTwo.linkUrl} className="home-section-link">СМОТРЕТЬ ОБРАЗ <span aria-hidden="true">↗</span></Link></div>
+      </article>
     </section>
 
-    {resolvedSections.slice(1).map(({ section, products }, index) => <section key={section.id} className="home-collection-section home-collection-section--secondary"><div className="home-section-heading"><div><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">ОТБОР СТУДИИ / {String(index + 2).padStart(2, "0")}</p><h2 className="font-display mt-3 text-[clamp(2.9rem,7vw,5.5rem)] leading-[0.82]">{section.title}</h2></div><Link href={section.type === "sale" ? "/catalog?sale=true" : section.type === "category" ? `/catalog?category=${encodeURIComponent(section.categoryValue ?? "")}` : "/catalog"} className="home-section-link">ВСЯ ВЫБОРКА <span aria-hidden="true">→</span></Link></div><HomeProductMarquee products={products} /></section>)}
+    {supportingSections.map(({ section, products }, index) => <section key={section.id} className="home-collection-section"><div className="home-section-heading"><div><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">ОТБОР СТУДИИ / {String(index + 1).padStart(2, "0")}</p><h2 className="font-display mt-3 text-[clamp(2.9rem,7vw,5.5rem)] leading-[0.82]">{section.title}</h2></div><Link href={section.type === "sale" ? "/catalog?sale=true" : section.type === "category" ? `/catalog?category=${encodeURIComponent(section.categoryValue ?? "")}` : "/catalog"} className="home-section-link">ВСЯ ВЫБОРКА <span aria-hidden="true">→</span></Link></div><HomeProductMarquee products={products} /></section>)}
+    {arrivalsSection ? <section className="home-collection-section home-arrivals-feed"><div className="home-section-heading"><div><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">LES NOUVEAUTÉS / НОВИНКИ</p><h2 className="font-display mt-3 text-[clamp(2.9rem,7vw,5.5rem)] leading-[0.82]">{arrivalsSection.section.title}</h2></div><Link href="/catalog" className="home-section-link">ВСЕ НОВИНКИ <span aria-hidden="true">→</span></Link></div><HomeProductMarquee products={arrivalsSection.products} /></section> : null}
     <RecentlyViewed allProducts={products} />
   </main>;
 }

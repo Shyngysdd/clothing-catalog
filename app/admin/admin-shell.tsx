@@ -44,7 +44,7 @@ export function AdminShell({ children, newOrdersCount }: AdminShellProps) {
         <button type="button" onClick={() => setIsMenuOpen((current) => !current)} aria-label="Открыть меню админки" aria-expanded={isMenuOpen} className="grid size-10 place-items-center border border-[color:var(--paper)]/25"><span className="grid gap-1"><i className="block h-px w-4 bg-current" /><i className="block h-px w-4 bg-current" /><i className="block h-px w-4 bg-current" /></span></button>
         {isMenuOpen ? <div className="absolute left-0 right-0 top-full border-t border-[color:var(--paper)]/15 bg-[color:var(--ink)] py-3 shadow-xl"><AdminNavigation newOrdersCount={newOrdersCount} onNavigate={() => setIsMenuOpen(false)} /><div className="mt-3 border-t border-[color:var(--paper)]/15 pt-3"><LogoutButton /></div></div> : null}
       </header>
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-[color:var(--ink)]/20 bg-[color:var(--ink)] text-[color:var(--paper)] md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-[color:var(--border)] bg-[color:var(--ink)] text-[color:var(--paper)] md:flex">
         <div className="border-b border-[color:var(--paper)]/15 px-5 py-7"><Link href="/admin" className="font-display text-2xl tracking-[-0.05em]">{BRAND_CONFIG.name}</Link><p className="mt-2 font-mono-price text-[10px] tracking-[0.16em] text-[color:var(--paper)]/60">АДМИНКА</p></div>
         <div className="pt-5"><AdminNavigation newOrdersCount={newOrdersCount} /></div>
         <div className="mt-auto border-t border-[color:var(--paper)]/15 py-4"><LogoutButton /></div>

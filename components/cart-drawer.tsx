@@ -97,7 +97,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses, custom
 
   return (
     <OverlayPanel labelledBy="cart-drawer-title" onClose={onClose} position="right">
-      <div className="cart-drawer-header flex items-center justify-between border-b border-[color:var(--ink)]/15 px-5 py-5 sm:px-6">
+      <div className="cart-drawer-header flex items-center justify-between border-b border-[color:var(--border)] px-5 py-5 sm:px-6">
         <div><p className="font-mono-price text-[0.6rem] tracking-[0.14em] text-[color:var(--accent)]">{orderFormed ? "ПОДТВЕРЖДЕНИЕ" : "ВАШ ВЫБОР"}</p><h2 id="cart-drawer-title" className="font-display mt-2 text-4xl leading-none tracking-[-0.04em]">
           {orderFormed ? "Заказ" : "Корзина"}
         </h2></div>
@@ -114,7 +114,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses, custom
             <button
               type="button"
               onClick={onClose}
-              className="mt-7 min-h-11 rounded-lg border border-[color:var(--ink)]/25 px-4 text-sm font-medium hover:border-[color:var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]"
+              className="mt-7 min-h-11 rounded-lg border border-[color:var(--border)] px-4 text-sm font-medium hover:border-[color:var(--ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ink)]"
             >
               Вернуться к каталогу
             </button>
@@ -123,7 +123,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses, custom
       ) : items.length > 0 ? (
         <div className="min-h-0 flex-1 overflow-y-auto">
           <CartItemsList className="px-5 sm:px-6" />
-          <form noValidate onSubmit={handleSubmit} className="cart-drawer-form border-t border-[color:var(--ink)]/15 px-5 py-6 sm:px-6">
+          <form noValidate onSubmit={handleSubmit} className="cart-drawer-form border-t border-[color:var(--border)] px-5 py-6 sm:px-6">
             <CartSummary items={items} />
 
             <div className="mt-6 space-y-4">
@@ -139,7 +139,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses, custom
                   }}
                   aria-invalid={Boolean(errors.name)}
                   aria-describedby={errors.name ? "customer-name-error" : undefined}
-                  className="mt-2 min-h-11 w-full rounded-lg border border-[color:var(--ink)]/25 px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-[color:var(--border)] px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
                 />
                 {errors.name ? <p id="customer-name-error" className="mt-1 text-sm text-[color:var(--accent)]">{errors.name}</p> : null}
               </div>
@@ -158,7 +158,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses, custom
                   }}
                   aria-invalid={Boolean(errors.phone)}
                   aria-describedby={errors.phone ? "customer-phone-error" : undefined}
-                  className="mt-2 min-h-11 w-full rounded-lg border border-[color:var(--ink)]/25 px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-[color:var(--border)] px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
                 />
                 {errors.phone ? <p id="customer-phone-error" className="mt-1 text-sm text-[color:var(--accent)]">{errors.phone}</p> : null}
               </div>
@@ -175,7 +175,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses, custom
                       onChange={() => setDeliveryMethod("pickup")}
                       className="peer sr-only"
                     />
-                    <span className="flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--ink)]/25 px-3 text-center text-sm font-medium peer-checked:border-[color:var(--ink)] peer-checked:bg-[color:var(--ink)] peer-checked:text-[color:var(--white)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[color:var(--ink)]">
+                    <span className="flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--border)] px-3 text-center text-sm font-medium peer-checked:border-[color:var(--ink)] peer-checked:bg-[color:var(--ink)] peer-checked:text-[color:var(--white)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[color:var(--ink)]">
                       Самовывоз
                     </span>
                   </label>
@@ -188,7 +188,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses, custom
                       onChange={() => setDeliveryMethod("delivery")}
                       className="peer sr-only"
                     />
-                    <span className="flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--ink)]/25 px-3 text-center text-sm font-medium peer-checked:border-[color:var(--ink)] peer-checked:bg-[color:var(--ink)] peer-checked:text-[color:var(--white)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[color:var(--ink)]">
+                    <span className="flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--border)] px-3 text-center text-sm font-medium peer-checked:border-[color:var(--ink)] peer-checked:bg-[color:var(--ink)] peer-checked:text-[color:var(--white)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[color:var(--ink)]">
                       Доставка
                     </span>
                   </label>
@@ -198,7 +198,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses, custom
               {deliveryMethod === "delivery" ? (
                 <div>
                   <label htmlFor="delivery-address" className="text-sm font-medium">Адрес доставки</label>
-                  {savedAddresses.length > 0 ? <div className="mt-3"><p className="font-mono-price text-[10px] tracking-[0.1em] text-[color:var(--ink)]/55">СОХРАНЁННЫЕ АДРЕСА</p><div className="mt-2 grid gap-2">{savedAddresses.map((savedAddress) => { const formattedAddress = formatSavedAddress(savedAddress); return <button key={savedAddress.id} type="button" onClick={() => { setAddress(formattedAddress); clearError("address"); }} aria-pressed={address === formattedAddress} className={`min-h-11 border px-3 py-2 text-left text-sm transition-colors ${address === formattedAddress ? "border-[color:var(--accent)] bg-[color:var(--accent)]/8" : "border-[color:var(--ink)]/20 hover:border-[color:var(--accent)]"}`}><span className="font-medium">{savedAddress.label || "Адрес доставки"}{savedAddress.isDefault ? " · основной" : ""}</span><span className="mt-1 block text-xs leading-5 text-[color:var(--ink)]/65">{formattedAddress}</span></button>; })}</div></div> : null}
+                  {savedAddresses.length > 0 ? <div className="mt-3"><p className="font-mono-price text-[10px] tracking-[0.1em] text-[color:var(--ink)]/55">СОХРАНЁННЫЕ АДРЕСА</p><div className="mt-2 grid gap-2">{savedAddresses.map((savedAddress) => { const formattedAddress = formatSavedAddress(savedAddress); return <button key={savedAddress.id} type="button" onClick={() => { setAddress(formattedAddress); clearError("address"); }} aria-pressed={address === formattedAddress} className={`min-h-11 border px-3 py-2 text-left text-sm transition-colors ${address === formattedAddress ? "border-[color:var(--accent)] bg-[color:var(--accent)]/8" : "border-[color:var(--border)] hover:border-[color:var(--accent)]"}`}><span className="font-medium">{savedAddress.label || "Адрес доставки"}{savedAddress.isDefault ? " · основной" : ""}</span><span className="mt-1 block text-xs leading-5 text-[color:var(--ink)]/65">{formattedAddress}</span></button>; })}</div></div> : null}
                   <input
                     id="delivery-address"
                     type="text"
@@ -210,7 +210,7 @@ export function CartDrawer({ onClose, isCustomerLoggedIn, savedAddresses, custom
                     }}
                     aria-invalid={Boolean(errors.address)}
                     aria-describedby={errors.address ? "delivery-address-error" : undefined}
-                  className="mt-3 min-h-11 w-full rounded-lg border border-[color:var(--ink)]/25 px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
+                  className="mt-3 min-h-11 w-full rounded-lg border border-[color:var(--border)] px-3 text-sm outline-none transition-colors focus:border-[color:var(--ink)]"
                   />
                   {errors.address ? <p id="delivery-address-error" className="mt-1 text-sm text-[color:var(--accent)]">{errors.address}</p> : null}
                 </div>

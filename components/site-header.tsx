@@ -99,13 +99,13 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses, cus
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-[color:var(--ink)]/20 bg-[color:var(--paper)]/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:var(--paper)]/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-[90rem] items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
           <div className="flex shrink-0 items-center gap-4 sm:gap-6">
             <Link href="/" className="font-brand text-xl leading-none sm:text-3xl">
               {BRAND_CONFIG.name}
             </Link>
-            <span className="hidden border-l border-[color:var(--ink)]/20 pl-4 font-mono-price text-[0.6rem] tracking-[0.12em] text-[color:var(--ink)]/55 md:inline">
+            <span className="hidden border-l border-[color:var(--border)] pl-4 font-mono-price text-[0.6rem] tracking-[0.12em] text-[color:var(--ink)]/55 md:inline">
               КАТАЛОГ / 2026
             </span>
           </div>
@@ -152,11 +152,11 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses, cus
               <FavoritesIcon />
               {favoriteIds.length > 0 ? <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-xs leading-5 text-white">{favoriteIds.length}</span> : null}
             </Link>
-            <Link href="/cart" className="relative ml-1 hidden size-10 place-items-center border-l border-[color:var(--ink)]/25 pl-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label={`Корзина, товаров: ${itemCount}`}>
+            <Link href="/cart" className="relative ml-1 hidden size-10 place-items-center border-l border-[color:var(--border)] pl-1 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]" aria-label={`Корзина, товаров: ${itemCount}`}>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L20 7H6.2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="10" cy="20" r="1" fill="currentColor" stroke="none" /><circle cx="17" cy="20" r="1" fill="currentColor" stroke="none" /></svg>
               {itemCount > 0 ? <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[color:var(--accent)] px-1 text-xs leading-5 text-white">{itemCount}</span> : null}
             </Link>
-            <button type="button" onClick={openDrawer} className="relative ml-2 hidden size-11 place-items-center border-l border-[color:var(--ink)]/25 pl-2 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] md:grid" aria-label={`Корзина, товаров: ${itemCount}`}>
+            <button type="button" onClick={openDrawer} className="relative ml-2 hidden size-11 place-items-center border-l border-[color:var(--border)] pl-2 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] md:grid" aria-label={`Корзина, товаров: ${itemCount}`}>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="size-5">
                 <path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L20 7H6.2" strokeLinecap="round" strokeLinejoin="round" />
                 <circle cx="10" cy="20" r="1" fill="currentColor" stroke="none" />
@@ -173,23 +173,23 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses, cus
       </header>
       <div className={`fixed inset-0 z-[60] transition-opacity duration-200 ${isSearchOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={!isSearchOpen}>
         <button type="button" onClick={() => setIsSearchOpen(false)} className="absolute inset-0 bg-[color:var(--ink)]/55" aria-label="Закрыть поиск" />
-        <form onSubmit={(event) => { event.preventDefault(); submitSearch(); }} className={`absolute left-0 right-0 top-0 border-b-2 border-[color:var(--ink)]/35 bg-[color:var(--paper)] px-4 py-5 transition-transform duration-200 sm:px-6 lg:px-10 ${isSearchOpen ? "translate-y-0" : "-translate-y-full"}`}>
+        <form onSubmit={(event) => { event.preventDefault(); submitSearch(); }} className={`absolute left-0 right-0 top-0 border-b-2 border-[color:var(--border)] bg-[color:var(--paper)] px-4 py-5 transition-transform duration-200 sm:px-6 lg:px-10 ${isSearchOpen ? "translate-y-0" : "-translate-y-full"}`}>
           <div className="mx-auto flex max-w-[90rem] items-center gap-3"><SearchIcon /><input autoFocus value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Найти товар..." className="min-h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-[color:var(--ink)]/45" aria-label="Поиск товаров" /><button type="submit" className="min-h-11 px-3 text-sm font-medium hover:text-[color:var(--accent)]">Найти</button><button type="button" onClick={() => setIsSearchOpen(false)} className="grid size-11 place-items-center text-2xl text-[color:var(--ink)]/65 hover:text-[color:var(--accent)]" aria-label="Закрыть поиск">×</button></div>
         </form>
       </div>
       <div className={`fixed inset-0 z-50 transition-opacity duration-300 ${isNavigatorOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={!isNavigatorOpen}>
         <button type="button" onClick={() => setIsNavigatorOpen(false)} className="absolute inset-0 bg-[color:var(--ink)]/45" aria-label="Закрыть навигатор каталога" />
-        <aside role="dialog" aria-modal="true" aria-label="Навигатор каталога" className={`absolute right-0 top-0 flex h-full w-[78vw] max-w-[420px] flex-col border-l border-[color:var(--ink)]/20 bg-[color:var(--paper)] transition-transform duration-300 ease-out ${isNavigatorOpen ? "translate-x-0" : "translate-x-full"}`}>
-          <div className="flex items-center justify-between border-b border-[color:var(--ink)]/15 px-5 py-5 sm:px-7">
+        <aside role="dialog" aria-modal="true" aria-label="Навигатор каталога" className={`absolute right-0 top-0 flex h-full w-[78vw] max-w-[420px] flex-col border-l border-[color:var(--border)] bg-[color:var(--paper)] transition-transform duration-300 ease-out ${isNavigatorOpen ? "translate-x-0" : "translate-x-full"}`}>
+          <div className="flex items-center justify-between border-b border-[color:var(--border)] px-5 py-5 sm:px-7">
             <div><p className="font-mono-price text-xs tracking-[0.14em] text-[color:var(--accent)]">НАВИГАЦИЯ</p><h2 className="font-section mt-2 text-2xl leading-none">Каталог</h2></div>
             <button type="button" onClick={() => setIsNavigatorOpen(false)} className="grid size-11 place-items-center text-xl text-[color:var(--ink)]/60 hover:text-[color:var(--accent)]" aria-label="Закрыть">×</button>
           </div>
           <nav className="flex-1 overflow-y-auto px-5 py-5 sm:px-7">
-            <Link href="/catalog" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-section text-lg leading-none">Все товары</span></Link>
-            <Link href="/catalog?sale=true" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4"><span className="font-section text-lg leading-none">Со скидкой</span></Link>
-            <div className="pt-3">{categories.map((category) => <Link key={category.name} href={`/catalog?category=${encodeURIComponent(category.name)}`} onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--ink)]/15 py-4 hover:text-[color:var(--accent)]"><span className="font-section block text-lg leading-none">{category.name}</span><span className="font-mono-price mt-2 block text-xs text-[color:var(--ink)]/55">{category.count} {category.count === 1 ? "товар" : "товаров"}</span></Link>)}</div>
+            <Link href="/catalog" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--border)] py-4"><span className="font-section text-lg leading-none">Все товары</span></Link>
+            <Link href="/catalog?sale=true" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--border)] py-4"><span className="font-section text-lg leading-none">Со скидкой</span></Link>
+            <div className="pt-3">{categories.map((category) => <Link key={category.name} href={`/catalog?category=${encodeURIComponent(category.name)}`} onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--border)] py-4 hover:text-[color:var(--accent)]"><span className="font-section block text-lg leading-none">{category.name}</span><span className="font-mono-price mt-2 block text-xs text-[color:var(--ink)]/55">{category.count} {category.count === 1 ? "товар" : "товаров"}</span></Link>)}</div>
           </nav>
-          <nav aria-label="Контакты и избранное" className="border-t border-[color:var(--ink)]/15 px-5 py-3 sm:px-7">
+          <nav aria-label="Контакты и избранное" className="border-t border-[color:var(--border)] px-5 py-3 sm:px-7">
             <Link
               href="/favorites"
               onClick={() => setIsNavigatorOpen(false)}

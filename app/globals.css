@@ -1,21 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #191817;
-  --paper: #f7f5ef;
+  --paper: #fdfcf9;
+  --ink: #1c1c19;
   --white: #ffffff;
-  --accent: #9a6259;
-  --gold: #b79779;
+  --accent: #6b6b5f;
+  --gold: #b89d7a;
+  --surface: #f7f5ee;
+  --border: #e3dfd5;
 }
 
 html.dark {
-  --ink: #eee9e1;
-  --paper: #151514;
+  --paper: #121210;
+  --ink: #fdfcf9;
   --white: #ffffff;
-  --surface: #201f1d;
-  --surface-raised: #282623;
-  --accent: #d59a90;
-  --gold: #d1b087;
+  --accent: #a3a395;
+  --gold: #d6b894;
+  --surface: #1c1c1a;
+  --surface-raised: #383530;
+  --border: #33332d;
 }
 
 html {
@@ -29,7 +32,7 @@ body {
   overflow-x: clip;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-inter), "Inter", Arial, sans-serif;
+  font-family: var(--font-geist), Arial, sans-serif;
   font-weight: 400;
   letter-spacing: -0.01em;
 }
@@ -56,6 +59,16 @@ html.dark [class*="bg-[color:var(--white)]"] {
 /* --ink остаётся цветом текста в тёмной теме; основным действиям нужен отдельный тёмный фон. */
 html.dark [class~="bg-[color:var(--ink)]"] {
   background-color: var(--surface-raised) !important;
+  border: 1px solid var(--border);
+}
+
+html.dark [class~="text-[color:var(--paper)]"] {
+  color: var(--ink) !important;
+}
+
+html.dark button[class~="border-[color:var(--border)]"],
+html.dark a[class~="border-[color:var(--border)]"] {
+  border-color: color-mix(in srgb, var(--ink) 40%, transparent) !important;
 }
 
 html.dark .peer:checked ~ [class~="peer-checked:bg-[color:var(--ink)]"] {
@@ -98,30 +111,30 @@ html.dark .peer:checked ~ [class~="peer-checked:bg-[color:var(--ink)]"] {
 }
 
 .font-display {
-  font-family: var(--font-cormorant-garamond), "Cormorant Garamond", Georgia, serif;
-  font-weight: 500;
+  font-family: var(--font-instrument-serif), Georgia, serif;
+  font-weight: 400;
   letter-spacing: -0.045em;
 }
 
 .font-brand {
-  font-family: var(--font-cormorant-garamond), "Cormorant Garamond", Georgia, serif;
-  font-weight: 500;
+  font-family: var(--font-instrument-serif), Georgia, serif;
+  font-weight: 400;
   letter-spacing: -0.04em;
 }
 
 .font-section {
-  font-family: var(--font-cormorant-garamond), "Cormorant Garamond", Georgia, serif;
-  font-weight: 500;
+  font-family: var(--font-instrument-serif), Georgia, serif;
+  font-weight: 400;
   letter-spacing: -0.035em;
 }
 
 .font-mono-price,
 .price-range-readout {
-  font-family: var(--font-ibm-plex-mono), "IBM Plex Mono", "Courier New", monospace;
+  font-family: var(--font-geist-mono), "Courier New", monospace;
 }
 
 .look-number {
-  font-family: var(--font-inter), "Inter", Arial, sans-serif;
+  font-family: var(--font-geist), Arial, sans-serif;
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -151,7 +164,7 @@ html.dark .peer:checked ~ [class~="peer-checked:bg-[color:var(--ink)]"] {
   border-radius: 0;
   background: var(--paper);
   color: var(--accent);
-  font-family: var(--font-ibm-plex-mono), monospace;
+  font-family: var(--font-geist-mono), "Courier New", monospace;
   font-size: 0.65rem;
   letter-spacing: 0.04em;
   line-height: 1;
@@ -163,7 +176,7 @@ html.dark .peer:checked ~ [class~="peer-checked:bg-[color:var(--ink)]"] {
   align-items: center;
   min-height: 1.75rem;
   padding-inline: 0.625rem;
-  font-family: var(--font-ibm-plex-mono), monospace;
+  font-family: var(--font-geist-mono), "Courier New", monospace;
   font-size: 0.6875rem;
   letter-spacing: 0.04em;
 }
@@ -285,7 +298,7 @@ html.dark .st-new {
   border: 1px solid color-mix(in srgb, var(--paper) 65%, transparent);
   background: color-mix(in srgb, var(--ink) 88%, transparent);
   color: var(--paper);
-  font-family: var(--font-ibm-plex-mono), monospace;
+  font-family: var(--font-geist-mono), "Courier New", monospace;
   font-size: 0.6875rem;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -404,7 +417,7 @@ html.dark .editorial-banner-image-overlay {
 
 .home-hero-index {
   margin-top: 2.5rem;
-  font-family: var(--font-ibm-plex-mono), monospace;
+  font-family: var(--font-geist-mono), "Courier New", monospace;
   font-size: 0.625rem;
   letter-spacing: 0.08em;
   color: color-mix(in srgb, var(--ink) 55%, transparent);
@@ -429,7 +442,7 @@ html.dark .editorial-banner-image-overlay {
   align-items: center;
   gap: 0.75rem;
   margin-top: 2.25rem;
-  font-family: var(--font-ibm-plex-mono), monospace;
+  font-family: var(--font-geist-mono), "Courier New", monospace;
   font-size: 0.625rem;
   letter-spacing: 0.12em;
   color: var(--accent);
@@ -464,43 +477,53 @@ html.dark .editorial-banner-image-overlay {
   margin-bottom: 0.5rem;
 }
 
-.home-category-composition {
+.home-look-rows {
   display: grid;
-  grid-template-columns: minmax(14rem, 0.78fr) minmax(0, 1.22fr);
-  gap: clamp(1.5rem, 6vw, 7rem);
+  gap: clamp(4rem, 10vw, 9rem);
   max-width: 90rem;
-  margin: clamp(6rem, 12vw, 12rem) auto 0;
+  margin: clamp(5rem, 10vw, 9rem) auto 0;
   padding-inline: clamp(1rem, 5vw, 5rem);
 }
 
-.home-category-copy {
+.home-look-row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(17rem, 2fr);
+  min-height: clamp(30rem, 52vw, 46rem);
+}
+
+.home-look-row--reverse {
+  grid-template-columns: minmax(17rem, 2fr) minmax(0, 3fr);
+}
+
+.home-look-media {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.home-look-row--reverse .home-look-media {
+  grid-column: 2;
+}
+
+.home-look-copy {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding-bottom: clamp(2rem, 8vw, 7rem);
+  justify-content: center;
+  padding: clamp(2rem, 6vw, 6rem);
+  border: 1px solid var(--border);
 }
 
-.home-category-frames {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(10rem, 0.85fr);
-  align-items: start;
-  gap: clamp(0.75rem, 2.5vw, 2rem);
+.home-look-row--reverse .home-look-copy {
+  grid-column: 1;
+  grid-row: 1;
 }
 
-.home-category-frame {
-  display: flex;
-  align-items: flex-end;
-  padding: clamp(1.25rem, 3vw, 2.5rem);
-  border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent);
+.home-look-copy p:not(:first-child) {
+  max-width: 26rem;
 }
 
-.home-category-frame--tall {
-  min-height: clamp(26rem, 42vw, 38rem);
-}
-
-.home-category-frame--short {
-  min-height: clamp(22rem, 34vw, 32rem);
-  margin-top: clamp(2rem, 5vw, 4.5rem);
+.home-arrivals-feed {
+  padding-bottom: clamp(2rem, 5vw, 5rem);
 }
 
 .catalog-page {
@@ -546,14 +569,14 @@ html.dark .editorial-banner-image-overlay {
 }
 
 .price-slider-summary span {
-  font-family: var(--font-ibm-plex-mono), monospace;
+  font-family: var(--font-geist-mono), "Courier New", monospace;
   font-size: 0.6rem;
   letter-spacing: 0.11em;
   color: color-mix(in srgb, var(--ink) 55%, transparent);
 }
 
 .price-slider-summary strong {
-  font-family: var(--font-ibm-plex-mono), monospace;
+  font-family: var(--font-geist-mono), "Courier New", monospace;
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--ink);
@@ -752,9 +775,9 @@ html.dark .editorial-banner-image-overlay {
   display: flex;
   min-height: 8rem;
   align-items: flex-end;
-  font-family: var(--font-cormorant-garamond), Georgia, serif;
+  font-family: var(--font-instrument-serif), Georgia, serif;
   font-size: 2rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 0.85;
 }
 
@@ -1117,27 +1140,25 @@ html.dark .look-editorial-card {
     margin-bottom: 0;
   }
 
-  .home-category-composition {
-    display: block;
+  .home-look-rows {
     margin-top: 6rem;
     padding-inline: 1rem;
   }
 
-  .home-category-copy {
-    padding-bottom: 3rem;
+  .home-look-row,
+  .home-look-row--reverse {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
   }
 
-  .home-category-frames {
-    gap: 0.75rem;
+  .home-look-media,
+  .home-look-row--reverse .home-look-media {
+    min-height: 26rem;
   }
 
-  .home-category-frame--tall {
-    min-height: 25rem;
-  }
-
-  .home-category-frame--short {
-    min-height: 16rem;
-    margin-top: 0;
+  .home-look-copy {
+    padding: 2.5rem 1.5rem 3rem;
   }
 
   .catalog-page-header {
