@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState, type TouchEvent } from "react";
 import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
 import type { CatalogLook } from "@/lib/catalog-types";
@@ -15,6 +15,30 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
   const { isLookFavorite, toggleLookFavorite } = useFavorites();
   const lookProducts = look.items;
   const frames = look.photoUrls.length > 0 ? look.photoUrls : look.photoTones;
+  const touchStartX = useRef<number | null>(null);
+
+  function showPreviousFrame() {
+    if (frames.length > 1) setActiveFrame((previous) => (previous - 1 + frames.length) % frames.length);
+  }
+
+  function showNextFrame() {
+    if (frames.length > 1) setActiveFrame((previous) => (previous + 1) % frames.length);
+  }
+
+  function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+  }
+
+  function handleTouchEnd(event: TouchEvent<HTMLDivElement>) {
+    if (touchStartX.current === null) return;
+    const endX = event.changedTouches[0]?.clientX;
+    if (endX !== undefined) {
+      const deltaX = endX - touchStartX.current;
+      if (deltaX > 40) showPreviousFrame();
+      else if (deltaX < -40) showNextFrame();
+    }
+    touchStartX.current = null;
+  }
 
   function addLookToCart() {
     lookProducts.forEach((product) => {
@@ -28,10 +52,11 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
       <Link href="/looks" className="product-back-link font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← ВСЕ ОБРАЗЫ</Link>
       <div className="look-detail-layout mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.12fr)_minmax(18rem,0.88fr)] lg:gap-0">
       <section className="look-detail-gallery">
-      <div className="look-preview aspect-[3/4] max-h-[70svh]">
+      <div className="look-detail-preview look-preview group aspect-[4/5]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {look.photoUrls.length > 0
           ? look.photoUrls.map((photoUrl, index) => <div key={photoUrl} className={`look-gallery-frame ${index === activeFrame ? "is-active" : ""}`}><Image src={photoUrl} alt={`${look.title}, кадр ${index + 1}`} fill sizes="(max-width: 1024px) 100vw, 64rem" className="product-detail-photo" /></div>)
           : look.photoTones.map((placeholder, index) => <div key={`${placeholder}-${index}`} className={`look-gallery-frame look-gallery-frame--${placeholder} ${index === activeFrame ? "is-active" : ""}`} />)}
+        {frames.length > 1 ? <><button type="button" onClick={showPreviousFrame} aria-label="Предыдущий кадр" className="absolute left-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 place-items-center border border-[color:var(--paper)]/55 bg-[color:var(--ink)]/55 text-2xl leading-none text-[color:var(--white)] opacity-0 transition-opacity hover:bg-[color:var(--accent)] focus-visible:opacity-100 group-hover:opacity-100 md:grid">‹</button><button type="button" onClick={showNextFrame} aria-label="Следующий кадр" className="absolute right-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 place-items-center border border-[color:var(--paper)]/55 bg-[color:var(--ink)]/55 text-2xl leading-none text-[color:var(--white)] opacity-0 transition-opacity hover:bg-[color:var(--accent)] focus-visible:opacity-100 group-hover:opacity-100 md:grid">›</button></> : null}
       </div>
       <div className="mt-4 flex justify-center gap-2" aria-label="Кадры образа">
         {frames.map((_, index) => (
@@ -51,17 +76,17 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
             {product.imageUrl ? <div className="relative size-16 shrink-0 overflow-hidden border border-[color:var(--border)]"><Image src={product.imageUrl} alt="" fill sizes="64px" className="object-cover" /></div> : <div className="size-16 shrink-0 border border-[color:var(--border)]" style={{ backgroundColor: product.imageColor }} />}
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">{product.name}</p>
-              <p className="font-mono-price mt-1 text-sm text-[color:var(--ink)]/70">{formatPrice.format(product.price)} ₸</p>
+              <p className="font-mono-price mt-1 whitespace-nowrap text-sm text-[color:var(--ink)]/70">{formatPrice.format(product.price)} ₸</p>
             </div>
             <Link href={`/catalog/${product.id}`} className="shrink-0 text-sm underline decoration-[color:var(--gold)] underline-offset-4 hover:text-[color:var(--accent)]">Смотреть товар</Link>
           </div>
         ))}
       </div>
-      <div className="mt-8 flex flex-col gap-5 border-t border-[color:var(--border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="font-mono-price text-2xl">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
-        <div className="grid gap-3 sm:flex">
-          <button type="button" onClick={() => toggleLookFavorite(look.id)} aria-pressed={isLookFavorite(look.id)} className={`min-h-12 border px-5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] ${isLookFavorite(look.id) ? "border-[color:var(--accent)] text-[color:var(--accent)]" : "border-[color:var(--border)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{isLookFavorite(look.id) ? "В избранном" : "В избранное"}</button>
-          <button type="button" onClick={addLookToCart} className="min-h-12 bg-[color:var(--ink)] px-6 text-sm font-medium text-[color:var(--paper)] hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Добавить весь образ в корзину</button>
+      <div className="mt-4 flex flex-col gap-4 border-t border-[color:var(--border)] pt-4 xl:flex-row xl:items-center xl:justify-between">
+        <p className="font-mono-price shrink-0 whitespace-nowrap text-2xl">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button type="button" onClick={() => toggleLookFavorite(look.id)} aria-pressed={isLookFavorite(look.id)} className={`min-h-12 whitespace-nowrap border px-5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)] ${isLookFavorite(look.id) ? "border-[color:var(--accent)] text-[color:var(--accent)]" : "border-[color:var(--border)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"}`}>{isLookFavorite(look.id) ? "В избранном" : "В избранное"}</button>
+          <button type="button" onClick={addLookToCart} className="min-h-12 whitespace-nowrap bg-[color:var(--ink)] px-6 text-sm font-medium text-[color:var(--paper)] hover:bg-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]">Добавить весь образ в корзину</button>
         </div>
       </div>
       </section>

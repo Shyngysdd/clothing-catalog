@@ -863,6 +863,16 @@ html.dark .editorial-banner-image-overlay {
   padding-block: clamp(1rem, 2vw, 2rem);
 }
 
+.look-detail-preview .look-gallery-frame img {
+  transition: filter 200ms ease-out, transform 200ms ease-out;
+}
+
+.look-detail-preview:hover .look-gallery-frame.is-active img,
+.look-detail-preview:focus-within .look-gallery-frame.is-active img {
+  filter: brightness(0.75);
+  transform: scale(0.985);
+}
+
 .look-detail-content {
   display: flex;
   min-width: 0;
