@@ -334,6 +334,25 @@ html.dark .st-new {
 }
 
 @media (max-width: 767px) {
+  .catalog-results {
+    width: 100%;
+  }
+
+  .catalog-product-grid[data-density="comfortable"] {
+    display: block !important;
+    width: 100%;
+  }
+
+  .catalog-product-grid[data-density="comfortable"] .look-product-card,
+  .catalog-product-grid[data-density="comfortable"] .look-product-card > a {
+    width: 100%;
+    max-width: none;
+  }
+
+  .catalog-product-grid[data-density="comfortable"] .look-product-card + .look-product-card {
+    margin-top: 2rem;
+  }
+
   .catalog-product-grid[data-density="compact"] {
     column-gap: 0.75rem;
     row-gap: 2.25rem;
