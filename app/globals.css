@@ -978,6 +978,60 @@ html.dark .look-editorial-card {
   animation-play-state: paused;
 }
 
+.home-product-marquee--manual {
+  overflow: visible;
+}
+
+.home-product-marquee--manual .home-product-track {
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.home-product-marquee--manual .home-product-track::-webkit-scrollbar {
+  display: none;
+}
+
+.home-product-marquee--manual .home-look-card {
+  scroll-snap-align: start;
+}
+
+.home-product-marquee-arrow {
+  position: absolute;
+  top: 42%;
+  z-index: 12;
+  display: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid var(--border);
+  background: var(--paper);
+  color: var(--ink);
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.home-product-marquee-arrow:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--white);
+}
+
+.home-product-marquee-arrow--previous {
+  left: -1.375rem;
+}
+
+.home-product-marquee-arrow--next {
+  right: -1.375rem;
+}
+
+@media (min-width: 768px) {
+  .home-product-marquee-arrow {
+    display: grid;
+  }
+}
+
 .recommendations-track {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;

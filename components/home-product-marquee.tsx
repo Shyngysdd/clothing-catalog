@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
@@ -21,11 +21,20 @@ function HomeProductPreview({ product, tone }: { product: CatalogProduct; tone: 
   </div>;
 }
 
-export function HomeProductMarquee({ products: selection }: { products: CatalogProduct[] }) {
-  const shouldLoop = selection.length >= 6;
+export function HomeProductMarquee({ products: selection, manual = false }: { products: CatalogProduct[]; manual?: boolean }) {
+  const shouldLoop = !manual && selection.length >= 6;
   const loopedProducts = shouldLoop ? [...selection, ...selection] : selection;
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const [touchTimeout, setTouchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  function scrollProducts(direction: "previous" | "next") {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.querySelector<HTMLElement>(".home-look-card");
+    const distance = (card?.offsetWidth ?? 288) + 20;
+    track.scrollBy({ left: direction === "previous" ? -distance : distance, behavior: "smooth" });
+  }
 
   function pauseForTouch() {
     if (touchTimeout) window.clearTimeout(touchTimeout);
@@ -37,5 +46,8 @@ export function HomeProductMarquee({ products: selection }: { products: CatalogP
     setTouchTimeout(setTimeout(() => setIsUserScrolling(false), 1500));
   }
 
-  return <div className="home-product-marquee" onTouchStart={pauseForTouch} onTouchEnd={resumeAfterTouch} onTouchCancel={resumeAfterTouch}><div className={`home-product-track ${shouldLoop ? "" : "home-product-track--static"}`} style={{ animationPlayState: isUserScrolling ? "paused" : "running" }}>{loopedProducts.map((product, index) => <Link key={`${product.id}-${index}`} href={`/catalog/${product.id}`} className="home-look-card look-product-card group flex h-full flex-col" aria-label={`Открыть товар: ${product.name}`}><p className="product-card-kicker font-mono-price mb-3 text-[0.62rem] tracking-[0.13em] text-[color:var(--accent)]">АРТИКУЛ / {product.sku}</p><HomeProductPreview product={product} tone={index % 2 === 0 ? "var(--accent)" : "var(--gold)"} /><div className="mt-4 flex min-h-[5.75rem] flex-1 flex-col md:min-h-0 md:flex-row md:items-start md:justify-between md:gap-3"><div><p className="font-mono-price text-[0.6rem] tracking-[0.12em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p><h3 className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 sm:text-base md:min-h-0">{product.name}</h3></div><div className="mt-auto min-h-[2.25rem] pt-2 text-left md:mt-0 md:min-h-0 md:shrink-0 md:pt-0 md:text-right"><p className="font-mono-price text-sm">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price mt-0.5 text-[0.65rem] text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div></div></Link>)}</div></div>;
+  return <div className={`home-product-marquee relative ${manual ? "home-product-marquee--manual" : ""}`} onTouchStart={pauseForTouch} onTouchEnd={resumeAfterTouch} onTouchCancel={resumeAfterTouch}>
+    {manual && selection.length > 1 ? <><button type="button" onClick={() => scrollProducts("previous")} aria-label="Прокрутить просмотренные товары влево" className="home-product-marquee-arrow home-product-marquee-arrow--previous">←</button><button type="button" onClick={() => scrollProducts("next")} aria-label="Прокрутить просмотренные товары вправо" className="home-product-marquee-arrow home-product-marquee-arrow--next">→</button></> : null}
+    <div ref={trackRef} className={`home-product-track ${shouldLoop ? "" : "home-product-track--static"}`} style={{ animationPlayState: isUserScrolling ? "paused" : "running" }}>{loopedProducts.map((product, index) => <Link key={`${product.id}-${index}`} href={`/catalog/${product.id}`} className="home-look-card look-product-card group flex h-full flex-col" aria-label={`Открыть товар: ${product.name}`}><p className="product-card-kicker font-mono-price mb-3 text-[0.62rem] tracking-[0.13em] text-[color:var(--accent)]">АРТИКУЛ / {product.sku}</p><HomeProductPreview product={product} tone={index % 2 === 0 ? "var(--accent)" : "var(--gold)"} /><div className="mt-4 flex min-h-[5.75rem] flex-1 flex-col md:min-h-0 md:flex-row md:items-start md:justify-between md:gap-3"><div><p className="font-mono-price text-[0.6rem] tracking-[0.12em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p><h3 className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-5 sm:text-base md:min-h-0">{product.name}</h3></div><div className="mt-auto min-h-[2.25rem] pt-2 text-left md:mt-0 md:min-h-0 md:shrink-0 md:pt-0 md:text-right"><p className="font-mono-price text-sm">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price mt-0.5 text-[0.65rem] text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div></div></Link>)}</div>
+  </div>;
 }
