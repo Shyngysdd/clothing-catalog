@@ -3,8 +3,8 @@ import { CatalogClient } from "./catalog-client";
 
 export const revalidate = 60;
 
-export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ category?: string; sale?: string; search?: string }> }) {
-  const { category, sale, search } = await searchParams;
+export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ category?: string; department?: string; sale?: string; search?: string }> }) {
+  const { category, department, sale, search } = await searchParams;
   const products = await prisma.product.findMany({ include: { sizes: true }, orderBy: { createdAt: "desc" } });
-  return <CatalogClient key={`${category ?? "all"}-${sale ?? "regular"}-${search ?? ""}`} products={products} initialSearch={search ?? ""} />;
+  return <CatalogClient key={`${department ?? "all"}-${category ?? "all"}-${sale ?? "regular"}-${search ?? ""}`} products={products} initialSearch={search ?? ""} />;
 }

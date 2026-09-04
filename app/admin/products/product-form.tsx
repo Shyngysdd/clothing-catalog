@@ -6,7 +6,7 @@ import Image from "next/image";
 import { BRAND_CONFIG } from "@/lib/brand-config";
 
 type EditableProduct = {
-  name: string; brand: string; sku: string; category: string; price: number; originalPrice: number | null;
+  name: string; brand: string; sku: string; category: string; department: string; price: number; originalPrice: number | null;
   description: string | null; composition: string | null; fit: string | null; care: string[];
   imageColor: string; colorGroup: string | null; color: string | null; colorSwatch: string | null; imageUrl: string | null; galleryTones: string[]; galleryUrls: string[]; sizes: { size: string; inStock: boolean }[];
 };
@@ -99,6 +99,7 @@ export function ProductForm({ product, action, colorGroupOptions }: { product?: 
         <label>Бренд <span className="text-[color:var(--ink)]/50">(необязательно)</span><input name="brand" defaultValue={product?.brand ?? BRAND_CONFIG.name} className={inputClass} /></label>
         <label>Артикул<input name="sku" required defaultValue={product?.sku} className={inputClass} /></label>
         <label>Категория<input name="category" required defaultValue={product?.category} className={inputClass} /></label>
+        <label>Отдел<select name="department" defaultValue={product?.department ?? "unisex"} className={inputClass}><option value="unisex">Унисекс</option><option value="men">Мужское</option><option value="women">Женское</option></select></label>
         <label>Цена, ₸<input name="price" required min="1" step="1" type="number" defaultValue={product?.price} className={inputClass} /></label>
         <label>Старая цена, ₸<input name="originalPrice" min="1" step="1" type="number" defaultValue={product?.originalPrice ?? ""} className={inputClass} /></label>
         <label>Группа расцветок <span className="text-[color:var(--ink)]/50">(необязательно)</span><input name="colorGroup" list="color-group-options" defaultValue={product?.colorGroup ?? ""} placeholder="Например, storm-jacket" className={inputClass} /></label>

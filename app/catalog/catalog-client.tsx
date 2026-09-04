@@ -58,12 +58,14 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
   const { isFavorite, toggleFavorite } = useFavorites();
   const searchParams = useSearchParams();
   const requestedCategory = searchParams.get("category");
+  const requestedDepartment = searchParams.get("department");
   const requestedSale = searchParams.get("sale") === "true";
   const productPriceRange = useMemo(() => {
     const prices = products.map((product) => product.price);
     return { min: Math.min(...prices), max: Math.max(...prices) };
   }, [products]);
   const [category, setCategory] = useState(requestedCategory ?? "Все");
+  const [department, setDepartment] = useState(requestedDepartment ?? "all");
   const [saleOnly, setSaleOnly] = useState(requestedSale);
   const [minPrice, setMinPrice] = useState(productPriceRange.min);
   const [maxPrice, setMaxPrice] = useState(productPriceRange.max);
@@ -128,6 +130,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
   const categories = ["Все", ...new Set(products.map((product) => product.category))];
   const filteredProducts = products.filter(
     (product) =>
+      (department === "all" || (product.department ?? "unisex") === "unisex" || product.department === department) &&
       (category === "Все" || product.category === category) &&
       (!saleOnly || (product.originalPrice !== null && product.originalPrice > product.price)) &&
       product.price >= minPrice &&
@@ -147,6 +150,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
     return 0;
   });
   const filtersActive =
+    department !== "all" ||
     category !== "Все" ||
     saleOnly ||
     Boolean(debouncedSearch) ||
@@ -167,6 +171,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
   } as CSSProperties;
 
   function resetFilters() {
+    setDepartment("all");
     setCategory("Все");
     setSaleOnly(false);
     setMinPrice(productPriceRange.min);
@@ -229,7 +234,7 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
       <div className="catalog-page-header mb-10 border-b border-[color:var(--border)] pb-8 sm:mb-14 sm:pb-10">
         <div>
           <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">ВЫБОРКА / 2026</p>
-          <h1 className="font-display mt-3 text-[clamp(3.2rem,9vw,6.5rem)] leading-[0.8]">Каталог</h1>
+          <h1 className="font-display mt-3 text-[clamp(3.2rem,9vw,6.5rem)] leading-[0.8]">{department === "men" ? "Мужское" : department === "women" ? "Женское" : "Каталог"}</h1>
           <p className="mt-4 text-sm text-[color:var(--ink)]/60">
             Найдено: {filteredProducts.length}
           </p>
@@ -276,6 +281,11 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
               {isSortOpen ? <div role="listbox" aria-label="Сортировка товаров" className="absolute left-0 right-0 top-[calc(100%+0.35rem)] z-20 border border-[color:var(--border)] bg-[color:var(--paper)] p-1">{sortOptions.map((option) => <button key={option.value} type="button" role="option" aria-selected={sort === option.value} onClick={() => { setSort(option.value); setIsSortOpen(false); }} className={`flex min-h-10 w-full items-center px-3 text-left text-sm transition-colors ${sort === option.value ? "bg-[color:var(--ink)] text-[color:var(--white)]" : "hover:bg-[color:var(--ink)]/8 hover:text-[color:var(--accent)]"}`}>{option.label}</button>)}</div> : null}
             </div>
           </div>
+
+          <fieldset className="mt-6">
+            <legend className="text-sm font-medium">Отдел</legend>
+            <div className="mt-3 space-y-2">{[["all", "Все"], ["men", "Мужское"], ["women", "Женское"]].map(([value, label]) => <label key={value} className="flex cursor-pointer items-center gap-3 text-sm"><input type="radio" name="department" value={value} checked={department === value} onChange={() => setDepartment(value)} className="size-4 accent-[color:var(--ink)]" /><span>{label}</span></label>)}</div>
+          </fieldset>
 
           <fieldset className="mt-6">
             <legend className="text-sm font-medium">Категория</legend>

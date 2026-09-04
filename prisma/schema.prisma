@@ -13,6 +13,7 @@ model Product {
   name          String
   brand         String        @default("AKSHYN")
   category      String
+  department    String        @default("unisex")
   price         Int
   originalPrice Int?
   description   String?

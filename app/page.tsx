@@ -10,8 +10,8 @@ export const revalidate = 60;
 
 const bannerFallbacks = {
   hero: { title: BRAND_CONFIG.name, subtitle: "Новая глава городского гардероба — строгая, тактильная, личная.", linkUrl: "/catalog?category=новинки", imageUrl: null },
-  "category-1": { title: "Ветровки", subtitle: "ВЫБОРКА / 01", linkUrl: "/catalog?category=Ветровки", imageUrl: null },
-  "category-2": { title: "Обувь", subtitle: "ВЫБОРКА / 02", linkUrl: "/catalog?category=Обувь", imageUrl: null },
+  "category-1": { title: "Мужское", subtitle: "ОТДЕЛ / 01", linkUrl: "/catalog?department=men", imageUrl: null },
+  "category-2": { title: "Женское", subtitle: "ОТДЕЛ / 02", linkUrl: "/catalog?department=women", imageUrl: null },
 };
 
 function BannerBackground({ imageUrl }: { imageUrl: string | null }) {
@@ -28,8 +28,8 @@ export default async function Home() {
   ]);
   const banners = new Map(dbBanners.map((banner) => [banner.slot, banner]));
   const hero = banners.get("hero") ?? bannerFallbacks.hero;
-  const categoryOne = banners.get("category-1") ?? bannerFallbacks["category-1"];
-  const categoryTwo = banners.get("category-2") ?? bannerFallbacks["category-2"];
+  const categoryOne = { ...(banners.get("category-1") ?? bannerFallbacks["category-1"]), title: "Мужское", linkUrl: "/catalog?department=men" };
+  const categoryTwo = { ...(banners.get("category-2") ?? bannerFallbacks["category-2"]), title: "Женское", linkUrl: "/catalog?department=women" };
   const resolvedSections = homeSections.map((section) => ({ section, products: resolveSectionProducts(section, products, groupedOrderItems) })).filter((item) => item.products.length > 0);
   const arrivalsIndex = resolvedSections.findIndex(({ section }) => section.type === "newest");
   const arrivalsSection = resolvedSections[arrivalsIndex >= 0 ? arrivalsIndex : 0];
@@ -47,11 +47,11 @@ export default async function Home() {
     <section className="home-look-rows" aria-label="Образы сезона">
       <article className="home-look-row">
         <Link href={categoryOne.linkUrl} aria-label={`Открыть образ ${categoryOne.title}`} className={`editorial-banner home-look-media ${categoryOne.imageUrl ? "bg-[color:var(--surface)]" : "lookbook-media"}`}><BannerBackground imageUrl={categoryOne.imageUrl} /></Link>
-        <div className="home-look-copy"><p className="font-mono-price text-[0.65rem] tracking-[0.16em] text-[color:var(--accent)]">LOOK 01</p><h2 className="font-display mt-5 text-[clamp(3.2rem,7vw,6rem)] leading-[0.82]">{categoryOne.title}</h2><p className="mt-7 text-sm leading-6 text-[color:var(--ink)]/65">Собранный образ для переменчивого городского дня: точный силуэт, лёгкие слои и свобода движения.</p><Link href={categoryOne.linkUrl} className="home-section-link">СМОТРЕТЬ ОБРАЗ <span aria-hidden="true">↗</span></Link></div>
+        <div className="home-look-copy"><p className="font-mono-price text-[0.65rem] tracking-[0.16em] text-[color:var(--accent)]">ОТДЕЛ 01</p><h2 className="font-display mt-5 text-[clamp(3.2rem,7vw,6rem)] leading-[0.82]">{categoryOne.title}</h2><p className="mt-7 text-sm leading-6 text-[color:var(--ink)]/65">Одежда, обувь и аксессуары для мужского гардероба.</p><Link href={categoryOne.linkUrl} className="home-section-link">ПЕРЕЙТИ В РАЗДЕЛ <span aria-hidden="true">↗</span></Link></div>
       </article>
       <article className="home-look-row home-look-row--reverse">
         <Link href={categoryTwo.linkUrl} aria-label={`Открыть образ ${categoryTwo.title}`} className={`editorial-banner home-look-media ${categoryTwo.imageUrl ? "bg-[color:var(--surface)]" : "lookbook-media lookbook-media--gold"}`}><BannerBackground imageUrl={categoryTwo.imageUrl} /></Link>
-        <div className="home-look-copy"><p className="font-mono-price text-[0.65rem] tracking-[0.16em] text-[color:var(--accent)]">LOOK 02</p><h2 className="font-display mt-5 text-[clamp(3.2rem,7vw,6rem)] leading-[0.82]">{categoryTwo.title}</h2><p className="mt-7 text-sm leading-6 text-[color:var(--ink)]/65">Второй ритм коллекции — выразительная основа, спокойная палитра и детали, рассчитанные на каждый день.</p><Link href={categoryTwo.linkUrl} className="home-section-link">СМОТРЕТЬ ОБРАЗ <span aria-hidden="true">↗</span></Link></div>
+        <div className="home-look-copy"><p className="font-mono-price text-[0.65rem] tracking-[0.16em] text-[color:var(--accent)]">ОТДЕЛ 02</p><h2 className="font-display mt-5 text-[clamp(3.2rem,7vw,6rem)] leading-[0.82]">{categoryTwo.title}</h2><p className="mt-7 text-sm leading-6 text-[color:var(--ink)]/65">Одежда, обувь и аксессуары для женского гардероба.</p><Link href={categoryTwo.linkUrl} className="home-section-link">ПЕРЕЙТИ В РАЗДЕЛ <span aria-hidden="true">↗</span></Link></div>
       </article>
     </section>
 

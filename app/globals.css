@@ -71,6 +71,15 @@ html.dark a[class~="border-[color:var(--border)]"] {
   border-color: color-mix(in srgb, var(--ink) 40%, transparent) !important;
 }
 
+.admin-shell-chrome {
+  background: #1c1c19;
+  color: var(--white);
+}
+
+html.dark .admin-order-badge {
+  color: #1c1c19;
+}
+
 html.dark .peer:checked ~ [class~="peer-checked:bg-[color:var(--ink)]"] {
   background-color: var(--surface-raised) !important;
 }
@@ -876,7 +885,7 @@ html.dark .editorial-banner-image-overlay {
 
 html.dark .cart-drawer-form,
 html.dark .look-editorial-card {
-  background: var(--surface-raised);
+  background: var(--surface);
 }
 
 @media (min-width: 1024px) {

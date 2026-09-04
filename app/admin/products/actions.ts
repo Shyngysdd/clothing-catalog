@@ -13,6 +13,7 @@ type ProductInput = {
   brand: string;
   sku: string;
   category: string;
+  department: string;
   price: number;
   originalPrice: number | null;
   description: string | null;
@@ -40,6 +41,7 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
   const brand = getText(formData, "brand") || BRAND_CONFIG.name;
   const sku = getText(formData, "sku");
   const category = getText(formData, "category");
+  const department = getText(formData, "department") || "unisex";
   const priceRaw = getText(formData, "price");
   const originalPriceRaw = getText(formData, "originalPrice");
   const price = Number(priceRaw);
@@ -66,7 +68,7 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
   }
 
   return {
-    name, brand, sku, category, price, originalPrice,
+    name, brand, sku, category, department, price, originalPrice,
     description: getText(formData, "description") || null,
     composition: getText(formData, "composition") || null,
     fit: getText(formData, "fit") || null,
@@ -82,7 +84,7 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
 
 function productData(input: ProductInput) {
   return {
-    name: input.name, brand: input.brand, sku: input.sku, category: input.category, price: input.price,
+    name: input.name, brand: input.brand, sku: input.sku, category: input.category, department: input.department, price: input.price,
     originalPrice: input.originalPrice, description: input.description, composition: input.composition,
     care: input.care, fit: input.fit, imageColor: input.imageColor, colorGroup: input.colorGroup,
     color: input.color, colorSwatch: input.colorSwatch, galleryTones: input.galleryTones,
