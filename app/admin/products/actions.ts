@@ -10,16 +10,24 @@ import { BRAND_CONFIG } from "@/lib/brand-config";
 import { slugifyCategory } from "@/lib/category-slug";
 
 type ProductInput = {
-  name: string;
+  nameRu: string;
+  nameEn: string | null;
+  nameKz: string | null;
   brand: string;
   sku: string;
   categoryId: string;
   department: string;
   price: number;
   originalPrice: number | null;
-  description: string | null;
-  composition: string | null;
-  fit: string | null;
+  descriptionRu: string;
+  descriptionEn: string | null;
+  descriptionKz: string | null;
+  compositionRu: string;
+  compositionEn: string | null;
+  compositionKz: string | null;
+  fitRu: string;
+  fitEn: string | null;
+  fitKz: string | null;
   care: string[];
   imageColor: string;
   colorGroup: string | null;
@@ -72,7 +80,7 @@ function redirectWithError(path: string, message: string): never {
 }
 
 function parseProductInput(formData: FormData, returnPath: string): ProductInput {
-  const name = getText(formData, "name");
+  const nameRu = getText(formData, "nameRu");
   const brand = getText(formData, "brand") || BRAND_CONFIG.name;
   const sku = getText(formData, "sku");
   const categoryId = getText(formData, "categoryId");
@@ -82,7 +90,10 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
   const price = Number(priceRaw);
   const originalPrice = originalPriceRaw ? Number(originalPriceRaw) : null;
 
-  if (!name || !sku || !categoryId) redirectWithError(returnPath, "Заполните название, артикул и категорию.");
+  const descriptionRu = getText(formData, "descriptionRu");
+  const compositionRu = getText(formData, "compositionRu");
+  const fitRu = getText(formData, "fitRu");
+  if (!nameRu || !sku || !categoryId || !descriptionRu || !compositionRu || !fitRu) redirectWithError(returnPath, "Заполните русские тексты, артикул и категорию.");
   if (!Number.isInteger(price) || price <= 0) redirectWithError(returnPath, "Цена должна быть положительным целым числом.");
   if (originalPrice !== null && (!Number.isInteger(originalPrice) || originalPrice <= price)) {
     redirectWithError(returnPath, "Старая цена должна быть больше текущей.");
@@ -103,10 +114,11 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
   }
 
   return {
-    name, brand, sku, categoryId, department, price, originalPrice,
-    description: getText(formData, "description") || null,
-    composition: getText(formData, "composition") || null,
-    fit: getText(formData, "fit") || null,
+    nameRu, nameEn: getText(formData, "nameEn") || null, nameKz: getText(formData, "nameKz") || null,
+    brand, sku, categoryId, department, price, originalPrice,
+    descriptionRu, descriptionEn: getText(formData, "descriptionEn") || null, descriptionKz: getText(formData, "descriptionKz") || null,
+    compositionRu, compositionEn: getText(formData, "compositionEn") || null, compositionKz: getText(formData, "compositionKz") || null,
+    fitRu, fitEn: getText(formData, "fitEn") || null, fitKz: getText(formData, "fitKz") || null,
     care,
     imageColor: getText(formData, "imageColor"),
     colorGroup: getText(formData, "colorGroup") || null,
@@ -119,9 +131,10 @@ function parseProductInput(formData: FormData, returnPath: string): ProductInput
 
 function productData(input: ProductInput) {
   return {
-    name: input.name, brand: input.brand, sku: input.sku, categoryId: input.categoryId, department: input.department, price: input.price,
-    originalPrice: input.originalPrice, description: input.description, composition: input.composition,
-    care: input.care, fit: input.fit, imageColor: input.imageColor, colorGroup: input.colorGroup,
+    nameRu: input.nameRu, nameEn: input.nameEn, nameKz: input.nameKz, brand: input.brand, sku: input.sku, categoryId: input.categoryId, department: input.department, price: input.price,
+    originalPrice: input.originalPrice, descriptionRu: input.descriptionRu, descriptionEn: input.descriptionEn, descriptionKz: input.descriptionKz,
+    compositionRu: input.compositionRu, compositionEn: input.compositionEn, compositionKz: input.compositionKz,
+    care: input.care, fitRu: input.fitRu, fitEn: input.fitEn, fitKz: input.fitKz, imageColor: input.imageColor, colorGroup: input.colorGroup,
     color: input.color, colorSwatch: input.colorSwatch, galleryTones: input.galleryTones,
   };
 }
@@ -270,7 +283,7 @@ export type CsvImportReport = {
 
 type CsvRow = Record<string, string>;
 
-const requiredCsvColumns = ["sku", "name", "category", "price", "originalPrice", "description", "composition", "fit", "sizes", "care"];
+const requiredCsvColumns = ["sku", "nameRu", "category", "price", "originalPrice", "descriptionRu", "compositionRu", "fitRu", "sizes", "care"];
 
 function detectDelimiter(text: string) {
   const header = text.replace(/^\uFEFF/, "").split(/\r?\n/, 1)[0] ?? "";
@@ -312,11 +325,14 @@ function toCsvRows(text: string): { rows: CsvRow[]; error?: string } {
 
 function validateCsvRow(row: CsvRow) {
   const sku = row.sku.trim();
-  const name = row.name.trim();
+  const nameRu = row.nameRu.trim();
   const category = row.category.trim();
   const price = Number(row.price);
   const originalPrice = row.originalPrice.trim() ? Number(row.originalPrice) : null;
-  if (!sku || !name || !category) return { error: "Не заполнены артикул, название или категория." } as const;
+  const descriptionRu = row.descriptionRu.trim();
+  const compositionRu = row.compositionRu.trim();
+  const fitRu = row.fitRu.trim();
+  if (!sku || !nameRu || !category || !descriptionRu || !compositionRu || !fitRu) return { error: "Не заполнены обязательные русские поля, артикул или категория." } as const;
   if (!Number.isInteger(price) || price <= 0) return { error: "Цена должна быть положительным целым числом." } as const;
   if (originalPrice !== null && (!Number.isInteger(originalPrice) || originalPrice <= price)) return { error: "Старая цена должна быть целым числом больше текущей." } as const;
   const sizes = [...new Set(row.sizes.split(",").map((size) => size.trim()).filter(Boolean))];
@@ -325,10 +341,10 @@ function validateCsvRow(row: CsvRow) {
   if (!/^#[0-9a-fA-F]{6}$/.test(imageColor)) return { error: "Цвет заглушки должен быть в формате #RRGGBB." } as const;
   return {
     value: {
-      sku, name, category, price, originalPrice,
-      description: row.description.trim() || null,
-      composition: row.composition.trim() || null,
-      fit: row.fit.trim() || null,
+      sku, nameRu, nameEn: row.nameEn?.trim() || null, nameKz: row.nameKz?.trim() || null, category, price, originalPrice,
+      descriptionRu, descriptionEn: row.descriptionEn?.trim() || null, descriptionKz: row.descriptionKz?.trim() || null,
+      compositionRu, compositionEn: row.compositionEn?.trim() || null, compositionKz: row.compositionKz?.trim() || null,
+      fitRu, fitEn: row.fitEn?.trim() || null, fitKz: row.fitKz?.trim() || null,
       care, sizes, imageColor,
       colorGroup: row.colorGroup?.trim() || null,
       color: row.color?.trim() || null,
@@ -451,9 +467,10 @@ export async function importProductsCsv(_: CsvImportReport | null, formData: For
       const category = await getOrCreateImportedCategory(input.category);
       const existing = await prisma.product.findUnique({ where: { sku: input.sku }, select: { id: true } });
       const data = {
-        sku: input.sku, name: input.name, categoryId: category.id, price: input.price,
-        originalPrice: input.originalPrice, description: input.description, composition: input.composition,
-        fit: input.fit, care: input.care, imageColor: input.imageColor,
+        sku: input.sku, nameRu: input.nameRu, nameEn: input.nameEn, nameKz: input.nameKz, categoryId: category.id, price: input.price,
+        originalPrice: input.originalPrice, descriptionRu: input.descriptionRu, descriptionEn: input.descriptionEn, descriptionKz: input.descriptionKz,
+        compositionRu: input.compositionRu, compositionEn: input.compositionEn, compositionKz: input.compositionKz,
+        fitRu: input.fitRu, fitEn: input.fitEn, fitKz: input.fitKz, care: input.care, imageColor: input.imageColor,
         colorGroup: input.colorGroup, color: input.color, colorSwatch: input.colorSwatch,
       };
       const imageEntries = imageZip ? zipImageEntries(imageZip, input.sku) : null;

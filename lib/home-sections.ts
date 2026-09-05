@@ -2,7 +2,7 @@ import { getOrSetCache } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
 
 type Section = { type: string; categoryValue: string | null; productIds: string[] };
-type Product = { id: string; category: { slug: string }; originalPrice: number | null; createdAt: Date; };
+type Product = { id: string; category: { slug: string }; originalPrice: number | null; createdAt: Date | string; };
 type GroupedOrderItem = { productId: string; _sum: { quantity: number | null } };
 
 export function getHomeBestsellers() {
@@ -13,7 +13,7 @@ export function getHomeBestsellers() {
 
 export function resolveSectionProducts<T extends Product>(section: Section, allProducts: T[], allOrderItems: GroupedOrderItem[]) {
   switch (section.type) {
-    case "newest": return [...allProducts].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, 10);
+    case "newest": return [...allProducts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 10);
     case "sale": return allProducts.filter((product) => product.originalPrice !== null).slice(0, 10);
     case "category": return allProducts.filter((product) => product.category.slug === section.categoryValue).slice(0, 10);
     case "bestseller": {

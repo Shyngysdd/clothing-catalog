@@ -27,15 +27,15 @@ async function main() {
 
   for (const product of products) {
     const data = {
-      name: product.name,
+      nameRu: product.name,
       brand: BRAND_CONFIG.name,
       categoryId: categoryIds.get(product.category)!,
       price: product.price,
       originalPrice: originalPrices[product.sku] ?? null,
-      description: product.description,
-      composition: product.composition,
+      descriptionRu: product.description,
+      compositionRu: product.composition,
       care: product.care,
-      fit: product.fit,
+      fitRu: product.fit,
       imageColor: product.imageColor,
       imageUrl: null,
       galleryTones: product.galleryTones,
@@ -71,8 +71,8 @@ async function main() {
       update: {},
       create: {
         slot: "hero",
-        title: BRAND_CONFIG.name,
-        subtitle: "Новая глава городского гардероба — строгая, тактильная, личная.",
+        titleRu: BRAND_CONFIG.name,
+        subtitleRu: "Новая глава городского гардероба — строгая, тактильная, личная.",
         linkUrl: "/catalog?category=novinki",
         imageUrl: null,
       },
@@ -82,8 +82,8 @@ async function main() {
       update: {},
       create: {
         slot: "category-1",
-        title: "Мужское",
-        subtitle: "ОТДЕЛ / 01",
+        titleRu: "Мужское",
+        subtitleRu: "ОТДЕЛ / 01",
         linkUrl: "/catalog?department=men",
         imageUrl: null,
       },
@@ -93,32 +93,32 @@ async function main() {
       update: {},
       create: {
         slot: "category-2",
-        title: "Женское",
-        subtitle: "ОТДЕЛ / 02",
+        titleRu: "Женское",
+        subtitleRu: "ОТДЕЛ / 02",
         linkUrl: "/catalog?department=women",
         imageUrl: null,
       },
     }),
     prisma.homeSection.upsert({
       where: { id: "home-section-newest" },
-      update: { title: "Новинки", type: "newest", position: 0, isActive: true },
-      create: { id: "home-section-newest", title: "Новинки", type: "newest", productIds: [], position: 0, isActive: true },
+      update: { titleRu: "Новинки", type: "newest", position: 0, isActive: true },
+      create: { id: "home-section-newest", titleRu: "Новинки", type: "newest", productIds: [], position: 0, isActive: true },
     }),
     prisma.homeSection.upsert({
       where: { id: "home-section-sale" },
-      update: { title: "Со скидкой", type: "sale", position: 1, isActive: true },
-      create: { id: "home-section-sale", title: "Со скидкой", type: "sale", productIds: [], position: 1, isActive: true },
+      update: { titleRu: "Со скидкой", type: "sale", position: 1, isActive: true },
+      create: { id: "home-section-sale", titleRu: "Со скидкой", type: "sale", productIds: [], position: 1, isActive: true },
     }),
   ]);
 
   for (const look of looks) {
-    const existingLook = await prisma.look.findFirst({ where: { title: look.title } });
+    const existingLook = await prisma.look.findFirst({ where: { titleRu: look.title } });
     if (existingLook) continue;
 
     await prisma.look.create({
       data: {
-        title: look.title,
-        description: look.description,
+        titleRu: look.title,
+        descriptionRu: look.description,
         photoTones: look.photoPlaceholders,
         items: {
           create: look.productIds.map((legacyProductId) => ({

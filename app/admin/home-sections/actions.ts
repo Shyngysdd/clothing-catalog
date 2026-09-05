@@ -7,15 +7,17 @@ import { prisma } from "@/lib/prisma";
 const types = new Set(["category", "sale", "newest", "bestseller", "manual"]);
 
 function getInput(formData: FormData, returnPath: string) {
-  const title = String(formData.get("title") ?? "").trim();
+  const titleRu = String(formData.get("titleRu") ?? "").trim();
+  const titleEn = String(formData.get("titleEn") ?? "").trim() || null;
+  const titleKz = String(formData.get("titleKz") ?? "").trim() || null;
   const type = String(formData.get("type") ?? "");
   const position = Number(formData.get("position"));
   const categoryValue = String(formData.get("categoryValue") ?? "").trim() || null;
   const selectedIds = formData.getAll("productIds").map(String);
-  if (!title || !types.has(type) || !Number.isInteger(position)) redirect(`${returnPath}?error=${encodeURIComponent("Проверьте название, тип и позицию раздела.")}`);
+  if (!titleRu || !types.has(type) || !Number.isInteger(position)) redirect(`${returnPath}?error=${encodeURIComponent("Проверьте русское название, тип и позицию раздела.")}`);
   if (type === "category" && !categoryValue) redirect(`${returnPath}?error=${encodeURIComponent("Укажите категорию.")}`);
   const productIds = type === "manual" ? selectedIds.sort((a, b) => Number(formData.get(`productPosition-${a}`) ?? 0) - Number(formData.get(`productPosition-${b}`) ?? 0)) : [];
-  return { title, type, position, categoryValue: type === "category" ? categoryValue : null, productIds, isActive: formData.get("isActive") === "on" };
+  return { titleRu, titleEn, titleKz, type, position, categoryValue: type === "category" ? categoryValue : null, productIds, isActive: formData.get("isActive") === "on" };
 }
 
 export async function createHomeSection(formData: FormData) {

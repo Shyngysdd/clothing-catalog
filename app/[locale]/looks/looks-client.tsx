@@ -3,9 +3,11 @@
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { useLocale } from "next-intl";
 import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
 import type { CatalogLook } from "@/lib/catalog-types";
+import { getLocalizedField } from "@/lib/localized";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
@@ -42,6 +44,7 @@ function LookPreview({ photoUrls, placeholders }: { photoUrls: string[]; placeho
 }
 
 export function LooksClient({ looks }: { looks: CatalogLook[] }) {
+  const locale = useLocale();
   const { addItem } = useCart();
   const { isLookFavorite, toggleLookFavorite } = useFavorites();
   const [selectedSize, setSelectedSize] = useState("Все");
@@ -73,6 +76,7 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
       <div className="looks-editorial-grid mt-8 grid grid-cols-2 gap-x-3 gap-y-10 sm:mt-12 sm:gap-x-7 sm:gap-y-16 lg:grid-cols-2">
         {filteredLooks.map((look, index) => {
           const lookProducts = look.items;
+          const lookTitle = getLocalizedField(look, "title", locale);
           const previewPhotoUrls =
             look.photoUrls.length > 0
               ? look.photoUrls
@@ -85,7 +89,7 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
               <button
                 type="button"
                 onClick={() => toggleLookFavorite(look.id)}
-                aria-label={isLookFavorite(look.id) ? `Убрать образ «${look.title}» из избранного` : `Добавить образ «${look.title}» в избранное`}
+                aria-label={isLookFavorite(look.id) ? `Убрать образ «${lookTitle}» из избранного` : `Добавить образ «${lookTitle}» в избранное`}
                 aria-pressed={isLookFavorite(look.id)}
                 className="absolute right-4 top-4 z-10 grid size-9 place-items-center rounded-full bg-[color:var(--paper)]/90 text-[color:var(--ink)] hover:text-[color:var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]"
               >
@@ -95,8 +99,8 @@ export function LooksClient({ looks }: { looks: CatalogLook[] }) {
                 <LookPreview photoUrls={previewPhotoUrls} placeholders={look.photoTones} />
                 <div className="look-editorial-copy flex flex-1 flex-col pt-3 sm:pt-5">
                   <p className="look-number text-base leading-none text-[color:var(--accent)] sm:text-xl">ОБРАЗ {String(index + 1).padStart(2, "0")}</p>
-                  <h2 className="font-section mt-2 text-lg leading-tight sm:mt-3 sm:text-4xl">{look.title}</h2>
-                  <p className="mt-2 line-clamp-2 text-xs leading-5 text-[color:var(--ink)]/65 sm:mt-3 sm:text-sm sm:leading-6">{lookProducts.map((product) => product.name).join(" · ")}</p>
+                  <h2 className="font-section mt-2 text-lg leading-tight sm:mt-3 sm:text-4xl">{lookTitle}</h2>
+                  <p className="mt-2 line-clamp-2 text-xs leading-5 text-[color:var(--ink)]/65 sm:mt-3 sm:text-sm sm:leading-6">{lookProducts.map((product) => getLocalizedField(product, "name", locale)).join(" · ")}</p>
                   <p className="font-mono-price mt-auto pt-3 text-xs sm:pt-4 sm:text-lg">{formatPrice.format(lookProducts.reduce((total, product) => total + product.price, 0))} ₸</p>
                 </div>
               </Link>

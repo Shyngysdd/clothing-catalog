@@ -5,13 +5,14 @@ import { notFound, redirect } from "next/navigation";
 import { CUSTOMER_SESSION_COOKIE, getCustomerIdFromSession } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
 import { BuyAgainButton } from "./buy-again-button";
+import { toCatalogProduct } from "@/lib/catalog-types";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 const formatDate = new Intl.DateTimeFormat("ru-KZ", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
 const statusMeta: Record<string, { label: string; className: string }> = { new: { label: "Новый", className: "st-new" }, confirmed: { label: "Подтверждён", className: "st-transit" }, shipped: { label: "В пути", className: "st-transit" }, done: { label: "Выполнен", className: "st-done" }, cancelled: { label: "Отменён", className: "st-cancelled" } };
 
-export default async function AccountOrderPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function AccountOrderPage({ params }: { params: Promise<{ id: string; locale: string }> }) {
+  const { id, locale } = await params;
   const cookieStore = await cookies();
   const customerId = await getCustomerIdFromSession(cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value);
   if (!customerId) redirect("/account/login");
@@ -25,7 +26,7 @@ export default async function AccountOrderPage({ params }: { params: Promise<{ i
   const repeatItems = order.items.flatMap((item) => {
     const product = productsById.get(item.productId);
     const selectedSize = product?.sizes.find((size) => size.size === item.size);
-    return product && selectedSize?.inStock ? [{ product, size: item.size, quantity: item.quantity }] : [];
+    return product && selectedSize?.inStock ? [{ product: toCatalogProduct(product, locale), size: item.size, quantity: item.quantity }] : [];
   });
   const unavailableItemCount = order.items.length - repeatItems.length;
   const status = statusMeta[order.status] ?? statusMeta.new;

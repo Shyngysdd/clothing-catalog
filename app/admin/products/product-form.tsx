@@ -4,13 +4,14 @@ import { upload } from "@vercel/blob/client";
 import { FormEvent, useState } from "react";
 import Image from "next/image";
 import { BRAND_CONFIG } from "@/lib/brand-config";
+import { AdminLocaleTabs, OPTIONAL_TRANSLATION_PLACEHOLDER } from "@/components/admin-locale-tabs";
 import { createCategoryFromAdmin } from "./actions";
 
 type CategoryOption = { id: string; slug: string; nameRu: string; nameEn: string; nameKz: string };
 
 type EditableProduct = {
-  name: string; brand: string; sku: string; categoryId: string; category: CategoryOption; department: string; price: number; originalPrice: number | null;
-  description: string | null; composition: string | null; fit: string | null; care: string[];
+  nameRu: string; nameEn: string | null; nameKz: string | null; brand: string; sku: string; categoryId: string; category: CategoryOption; department: string; price: number; originalPrice: number | null;
+  descriptionRu: string; descriptionEn: string | null; descriptionKz: string | null; compositionRu: string; compositionEn: string | null; compositionKz: string | null; fitRu: string; fitEn: string | null; fitKz: string | null; care: string[];
   imageColor: string; colorGroup: string | null; color: string | null; colorSwatch: string | null; imageUrl: string | null; galleryTones: string[]; galleryUrls: string[]; sizes: { size: string; inStock: boolean }[];
 };
 
@@ -118,8 +119,18 @@ export function ProductForm({ product, action, colorGroupOptions, categories: in
 
   return (
     <form onSubmit={submit} className="mt-8 space-y-8">
+      <section>
+        <h2 className="font-display text-3xl leading-none">Тексты товара</h2>
+        <div className="mt-4">
+          <AdminLocaleTabs panels={{
+            ru: <div className="grid gap-5"><label>Название <span className="font-mono-price text-[10px] text-[color:var(--accent)]">ОБЯЗАТЕЛЬНО</span><input name="nameRu" required defaultValue={product?.nameRu} className={inputClass} /></label><label>Описание <span className="font-mono-price text-[10px] text-[color:var(--accent)]">ОБЯЗАТЕЛЬНО</span><textarea name="descriptionRu" required defaultValue={product?.descriptionRu ?? ""} className={`${inputClass} min-h-28 py-3`} /></label><label>Состав <span className="font-mono-price text-[10px] text-[color:var(--accent)]">ОБЯЗАТЕЛЬНО</span><textarea name="compositionRu" required defaultValue={product?.compositionRu ?? ""} className={`${inputClass} min-h-20 py-3`} /></label><label>Посадка <span className="font-mono-price text-[10px] text-[color:var(--accent)]">ОБЯЗАТЕЛЬНО</span><input name="fitRu" required defaultValue={product?.fitRu ?? ""} className={inputClass} /></label></div>,
+            en: <div className="grid gap-5"><label>Название<input name="nameEn" defaultValue={product?.nameEn ?? ""} placeholder={OPTIONAL_TRANSLATION_PLACEHOLDER} className={inputClass} /></label><label>Описание<textarea name="descriptionEn" defaultValue={product?.descriptionEn ?? ""} placeholder={OPTIONAL_TRANSLATION_PLACEHOLDER} className={`${inputClass} min-h-28 py-3`} /></label><label>Состав<textarea name="compositionEn" defaultValue={product?.compositionEn ?? ""} placeholder={OPTIONAL_TRANSLATION_PLACEHOLDER} className={`${inputClass} min-h-20 py-3`} /></label><label>Посадка<input name="fitEn" defaultValue={product?.fitEn ?? ""} placeholder={OPTIONAL_TRANSLATION_PLACEHOLDER} className={inputClass} /></label></div>,
+            kz: <div className="grid gap-5"><label>Название<input name="nameKz" defaultValue={product?.nameKz ?? ""} placeholder={OPTIONAL_TRANSLATION_PLACEHOLDER} className={inputClass} /></label><label>Описание<textarea name="descriptionKz" defaultValue={product?.descriptionKz ?? ""} placeholder={OPTIONAL_TRANSLATION_PLACEHOLDER} className={`${inputClass} min-h-28 py-3`} /></label><label>Состав<textarea name="compositionKz" defaultValue={product?.compositionKz ?? ""} placeholder={OPTIONAL_TRANSLATION_PLACEHOLDER} className={`${inputClass} min-h-20 py-3`} /></label><label>Посадка<input name="fitKz" defaultValue={product?.fitKz ?? ""} placeholder={OPTIONAL_TRANSLATION_PLACEHOLDER} className={inputClass} /></label></div>,
+          }} />
+        </div>
+      </section>
+
       <section className="grid gap-5 sm:grid-cols-2">
-        <label className="sm:col-span-2">Название<input name="name" required defaultValue={product?.name} className={inputClass} /></label>
         <label>Бренд <span className="text-[color:var(--ink)]/50">(необязательно)</span><input name="brand" defaultValue={product?.brand ?? BRAND_CONFIG.name} className={inputClass} /></label>
         <label>Артикул<input name="sku" required defaultValue={product?.sku} className={inputClass} /></label>
         <div><label>Категория<select name="categoryId" required value={selectedCategoryId} onChange={(event) => setSelectedCategoryId(event.target.value)} className={inputClass}><option value="" disabled>Выберите категорию</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.nameRu}</option>)}</select></label><button type="button" onClick={() => setIsCategoryFormOpen((open) => !open)} className="mt-2 text-sm text-[color:var(--accent)] underline underline-offset-4">Добавить новую категорию</button></div>
@@ -131,8 +142,6 @@ export function ProductForm({ product, action, colorGroupOptions, categories: in
         <label>Название цвета <span className="text-[color:var(--ink)]/50">(необязательно)</span><input name="color" defaultValue={product?.color ?? ""} placeholder="Например, Оливковый" className={inputClass} /></label>
         <datalist id="color-group-options">{colorGroupOptions.map((colorGroup) => <option key={colorGroup} value={colorGroup} />)}</datalist>
       </section>
-
-      <section className="grid gap-5"><label>Описание<textarea name="description" defaultValue={product?.description ?? ""} className={`${inputClass} min-h-28 py-3`} /></label><label>Состав<textarea name="composition" defaultValue={product?.composition ?? ""} className={`${inputClass} min-h-20 py-3`} /></label><label>Посадка<input name="fit" defaultValue={product?.fit ?? ""} className={inputClass} /></label></section>
 
       <section><h2 className="font-display text-3xl leading-none">Уход</h2><div className="mt-4 space-y-3">{care.map((item, index) => <div key={index} className="flex gap-2"><input name="care" defaultValue={item} className={inputClass.replace("mt-1 ", "")} /><button type="button" onClick={() => setCare((current) => current.filter((_, itemIndex) => itemIndex !== index))} className="min-h-11 px-3 text-sm text-[color:var(--accent)]">Убрать</button></div>)}</div><button type="button" onClick={() => setCare((current) => [...current, ""])} className="mt-3 text-sm underline underline-offset-4">Добавить рекомендацию</button></section>
 

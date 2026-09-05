@@ -4,10 +4,11 @@ import { LooksClient } from "./looks-client";
 
 export const revalidate = 60;
 
-export default async function LooksPage() {
+export default async function LooksPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const dbLooks = await prisma.look.findMany({
     include: { items: { include: { product: { include: { sizes: true, category: true } } } } },
     orderBy: { createdAt: "desc" },
   });
-  return <LooksClient looks={dbLooks.map(toCatalogLook)} />;
+  return <LooksClient looks={dbLooks.map((look) => toCatalogLook(look, locale))} />;
 }

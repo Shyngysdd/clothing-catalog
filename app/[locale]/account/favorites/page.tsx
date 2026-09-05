@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { FavoritesList } from "@/components/favorites-list";
 import { CUSTOMER_SESSION_COOKIE, getCustomerIdFromSession } from "@/lib/customer-auth";
 import { prisma } from "@/lib/prisma";
-import { toCatalogLook } from "@/lib/catalog-types";
+import { toCatalogLook, toCatalogProduct } from "@/lib/catalog-types";
 
-export default async function AccountFavoritesPage() {
+export default async function AccountFavoritesPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const cookieStore = await cookies();
   const customerId = await getCustomerIdFromSession(cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value);
   if (!customerId) redirect("/account/login");
@@ -15,5 +16,5 @@ export default async function AccountFavoritesPage() {
   const productsById = new Map(products.map((product) => [product.id, product]));
   const favoriteProducts = favorites.flatMap((favorite) => { const product = productsById.get(favorite.productId); return product ? [product] : []; });
   const looks = await prisma.look.findMany({ include: { items: { include: { product: { include: { sizes: true, category: true } } } } }, orderBy: { createdAt: "desc" } });
-  return <main className="favorites-page mx-auto max-w-[100rem] px-4 py-10 sm:px-6 sm:py-16 lg:px-10"><Link href="/account" className="product-back-link font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← ЛИЧНЫЙ КАБИНЕТ</Link><header className="favorites-page-header mt-4 border-b border-[color:var(--border)] pb-8 sm:pb-10"><div><p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">СОХРАНЁННОЕ</p><h1 className="font-display mt-3 text-[clamp(3.2rem,8vw,6.2rem)] leading-[0.8]">Избранное</h1></div><p>Ваша личная подборка вещей и образов, доступная в любой момент из кабинета.</p></header><FavoritesList products={favoriteProducts} looks={looks.map(toCatalogLook)} /></main>;
+  return <main className="favorites-page mx-auto max-w-[100rem] px-4 py-10 sm:px-6 sm:py-16 lg:px-10"><Link href="/account" className="product-back-link font-mono-price text-xs tracking-[0.1em] text-[color:var(--accent)]">← ЛИЧНЫЙ КАБИНЕТ</Link><header className="favorites-page-header mt-4 border-b border-[color:var(--border)] pb-8 sm:pb-10"><div><p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">СОХРАНЁННОЕ</p><h1 className="font-display mt-3 text-[clamp(3.2rem,8vw,6.2rem)] leading-[0.8]">Избранное</h1></div><p>Ваша личная подборка вещей и образов, доступная в любой момент из кабинета.</p></header><FavoritesList products={favoriteProducts.map((product) => toCatalogProduct(product, locale))} looks={looks.map((look) => toCatalogLook(look, locale))} /></main>;
 }

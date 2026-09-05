@@ -9,6 +9,7 @@ import { useFavorites } from "@/context/favorites-context";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
 import { ProductRecommendations } from "@/components/product-recommendations";
+import { getLocalizedField } from "@/lib/localized";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
@@ -17,6 +18,10 @@ type ColorVariant = Pick<CatalogProduct, "id" | "color" | "colorSwatch" | "image
 export function ProductDetailClient({ product, similarProducts, frequentlyBoughtTogether, colorSiblings }: { product: CatalogProduct; similarProducts: CatalogProduct[]; frequentlyBoughtTogether: CatalogProduct[]; colorSiblings: ColorVariant[] }) {
   const t = useTranslations("Product");
   const locale = useLocale();
+  const productName = getLocalizedField(product, "name", locale);
+  const productDescription = getLocalizedField(product, "description", locale);
+  const productComposition = getLocalizedField(product, "composition", locale);
+  const productFit = getLocalizedField(product, "fit", locale);
   const [activeFrame, setActiveFrame] = useState(0);
   const galleryImages = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
   const totalFrames = galleryImages.length > 0 ? galleryImages.length : product.galleryTones.length;
@@ -71,7 +76,7 @@ export function ProductDetailClient({ product, similarProducts, frequentlyBought
         <section className="product-gallery-panel">
           <div className="look-preview group aspect-[4/5]" style={{ backgroundColor: product.imageColor }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
             {galleryImages.length > 0
-              ? galleryImages.map((imageUrl, index) => <div key={imageUrl} className={`look-gallery-frame ${activeFrame === index ? "is-active" : ""}`}><Image src={imageUrl} alt={`${product.name}, кадр ${index + 1}`} fill sizes="(max-width: 1024px) 100vw, 50vw" className="product-detail-photo" /></div>)
+              ? galleryImages.map((imageUrl, index) => <div key={imageUrl} className={`look-gallery-frame ${activeFrame === index ? "is-active" : ""}`}><Image src={imageUrl} alt={`${productName}, кадр ${index + 1}`} fill sizes="(max-width: 1024px) 100vw, 50vw" className="product-detail-photo" /></div>)
               : product.galleryTones.map((tone, index) => <div key={`${tone}-${index}`} className={`look-gallery-frame look-gallery-frame--${tone} ${activeFrame === index ? "is-active" : ""}`} />)}
             {getDiscountPercent(product) ? <span className="discount-stamp">−{getDiscountPercent(product)}%</span> : null}
             {totalFrames > 1 ? <><button type="button" onClick={showPreviousFrame} aria-label="Предыдущий кадр" className="absolute left-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 place-items-center border border-[color:var(--paper)]/55 bg-[color:var(--ink)]/55 text-2xl leading-none text-[color:var(--white)] opacity-0 transition-opacity hover:bg-[color:var(--accent)] focus-visible:opacity-100 group-hover:opacity-100 md:grid">‹</button><button type="button" onClick={showNextFrame} aria-label="Следующий кадр" className="absolute right-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 place-items-center border border-[color:var(--paper)]/55 bg-[color:var(--ink)]/55 text-2xl leading-none text-[color:var(--white)] opacity-0 transition-opacity hover:bg-[color:var(--accent)] focus-visible:opacity-100 group-hover:opacity-100 md:grid">›</button></> : null}
@@ -81,11 +86,11 @@ export function ProductDetailClient({ product, similarProducts, frequentlyBought
           </div>
         </section>
         <section className="product-info-panel lg:pt-3">
-          <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">КОЛЛЕКЦИЯ / {(locale === "en" ? product.category.nameEn : locale === "kz" ? product.category.nameKz : product.category.nameRu).toUpperCase()}</p>
+          <p className="font-mono-price text-xs tracking-[0.16em] text-[color:var(--accent)]">КОЛЛЕКЦИЯ / {getLocalizedField(product.category, "name", locale).toUpperCase()}</p>
           <p className="mt-4 font-mono-price text-xs tracking-[0.14em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p>
-          <div className="mt-2 flex items-start justify-between gap-4"><h1 className="font-display text-[clamp(2.5rem,8vw,4.5rem)] leading-[0.9] tracking-[-0.05em]">{product.name}</h1><span className="font-mono-price pt-2 text-xs text-[color:var(--ink)]/60">{product.sku}</span></div>
+          <div className="mt-2 flex items-start justify-between gap-4"><h1 className="font-display text-[clamp(2.5rem,8vw,4.5rem)] leading-[0.9] tracking-[-0.05em]">{productName}</h1><span className="font-mono-price pt-2 text-xs text-[color:var(--ink)]/60">{product.sku}</span></div>
           <div className="product-price-row mt-7 flex flex-wrap items-center gap-3"><p className="font-mono-price text-2xl">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="font-mono-price text-sm text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
-          <p className="mt-7 max-w-xl leading-7 text-[color:var(--ink)]/70">{product.description}</p>
+          <p className="mt-7 max-w-xl leading-7 text-[color:var(--ink)]/70">{productDescription}</p>
           {colorSiblings.length > 0 ? <section className="mt-8"><p className="text-sm font-medium">Цвет</p><div className="mt-3 flex flex-wrap items-center gap-3">{colorVariants.map((variant) => {
             const isCurrent = variant.id === product.id;
             const label = variant.color ?? "Вариант цвета";
@@ -96,7 +101,7 @@ export function ProductDetailClient({ product, similarProducts, frequentlyBought
           })}</div><p className="mt-3 text-sm text-[color:var(--ink)]/65">Цвет: {product.color ?? "Не указан"}</p></section> : null}
           <fieldset className="product-size-picker mt-8"><legend className="text-sm font-medium">Выберите размер</legend><div className="mt-3 flex flex-wrap gap-2">{product.sizes.map((size) => <button key={size.size} type="button" disabled={!size.inStock} onClick={() => setSelectedSize(size.size)} aria-pressed={selectedSize === size.size} className={`min-h-11 min-w-11 border px-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:border-[color:var(--border)] disabled:text-[color:var(--ink)]/35 disabled:line-through ${selectedSize === size.size && size.inStock ? "border-[color:var(--ink)] bg-[color:var(--ink)] text-[color:var(--white)]" : "border-[color:var(--border)] hover:border-[color:var(--ink)]"}`}>{size.size}</button>)}</div></fieldset>
           <button type="button" onClick={() => setIsSizeTableOpen(true)} className="mt-4 text-sm underline decoration-[color:var(--gold)] underline-offset-4 hover:text-[color:var(--accent)]">Таблица размеров</button>
-          <details className="mt-8 border-y border-[color:var(--border)] py-5" open><summary className="cursor-pointer font-medium">Состав и уход</summary><div className="mt-4 space-y-3 text-sm leading-6 text-[color:var(--ink)]/70"><p><span className="text-[color:var(--ink)]">Состав:</span> {product.composition}</p><p><span className="text-[color:var(--ink)]">Посадка:</span> {product.fit}</p><ul className="list-disc space-y-1 pl-5">{product.care.map((item) => <li key={item}>{item}</li>)}</ul></div></details>
+          <details className="mt-8 border-y border-[color:var(--border)] py-5" open><summary className="cursor-pointer font-medium">Состав и уход</summary><div className="mt-4 space-y-3 text-sm leading-6 text-[color:var(--ink)]/70"><p><span className="text-[color:var(--ink)]">Состав:</span> {productComposition}</p><p><span className="text-[color:var(--ink)]">Посадка:</span> {productFit}</p><ul className="list-disc space-y-1 pl-5">{product.care.map((item) => <li key={item}>{item}</li>)}</ul></div></details>
           <div className="border-b border-[color:var(--border)] py-5"><h2 className="font-medium">Доставка и возврат</h2><p className="mt-3 text-sm leading-6 text-[color:var(--ink)]/70">Самовывоз и доставка по городу. Возврат возможен в течение 14 дней при сохранении товарного вида.</p></div>
           <div className="product-action-row mt-8 grid gap-3 sm:grid-cols-2">
             <button type="button" disabled={!firstAvailableSize} onClick={() => addItem(product, selectedSize)} className="flex min-h-12 items-center justify-center bg-[color:var(--ink)] px-5 text-sm font-medium text-[color:var(--white)] hover:bg-[color:var(--accent)] disabled:cursor-not-allowed disabled:bg-[color:var(--ink)]/35">{firstAvailableSize ? "В корзину" : "Нет в наличии"}</button>

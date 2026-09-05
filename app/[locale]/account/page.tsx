@@ -5,8 +5,10 @@ import { CUSTOMER_SESSION_COOKIE, getCustomerIdFromSession } from "@/lib/custome
 import { prisma } from "@/lib/prisma";
 import { changePassword, logoutCustomer, resendVerificationEmail, updateProfile } from "./actions";
 import { RecentlyViewed } from "@/components/recently-viewed";
+import { toCatalogProduct } from "@/lib/catalog-types";
 
-export default async function AccountPage({ searchParams }: { searchParams: Promise<{ verification?: string; profile?: string; password?: string }> }) {
+export default async function AccountPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ verification?: string; profile?: string; password?: string }> }) {
+  const { locale } = await params;
   const cookieStore = await cookies();
   const { verification, profile, password } = await searchParams;
   const customerId = await getCustomerIdFromSession(cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value);
@@ -45,7 +47,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         <Link href="/account/favorites" className="border border-[color:var(--border)] px-5 py-4 text-sm font-medium hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]">Избранное</Link>
         <Link href="/account/addresses" className="border border-[color:var(--border)] px-5 py-4 text-sm font-medium hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]">Адреса</Link>
       </nav>
-      <RecentlyViewed allProducts={allProducts} disableAnimationForSmallSelection />
+      <RecentlyViewed allProducts={allProducts.map((product) => toCatalogProduct(product, locale))} disableAnimationForSmallSelection />
       <form action={logoutCustomer} className="mt-8">
         <button type="submit" className="text-sm text-[color:var(--ink)]/60 underline underline-offset-4 hover:text-[color:var(--accent)]">Выйти</button>
       </form>

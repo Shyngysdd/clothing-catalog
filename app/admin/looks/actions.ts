@@ -10,25 +10,29 @@ function redirectWithError(path: string, message: string): never {
 }
 
 function getInput(formData: FormData, returnPath: string) {
-  const title = String(formData.get("title") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim() || null;
+  const titleRu = String(formData.get("titleRu") ?? "").trim();
+  const titleEn = String(formData.get("titleEn") ?? "").trim() || null;
+  const titleKz = String(formData.get("titleKz") ?? "").trim() || null;
+  const descriptionRu = String(formData.get("descriptionRu") ?? "").trim();
+  const descriptionEn = String(formData.get("descriptionEn") ?? "").trim() || null;
+  const descriptionKz = String(formData.get("descriptionKz") ?? "").trim() || null;
   const photoTones = formData.getAll("photoTones").map(String);
   const productIds = formData.getAll("productIds").map(String);
   const photoUrls = formData.getAll("lookPhotoUrl").map(String).filter(Boolean);
 
-  if (!title) redirectWithError(returnPath, "Укажите название образа.");
+  if (!titleRu || !descriptionRu) redirectWithError(returnPath, "Укажите русские название и описание образа.");
   if (!productIds.length) redirectWithError(returnPath, "Выберите хотя бы один товар.");
   if (photoUrls.some((url) => !isBlobUrl(url))) redirectWithError(returnPath, "Некорректная ссылка на фото образа.");
 
-  return { title, description, photoTones, productIds, photoUrls };
+  return { titleRu, titleEn, titleKz, descriptionRu, descriptionEn, descriptionKz, photoTones, productIds, photoUrls };
 }
 
 export async function createLook(formData: FormData) {
   const input = getInput(formData, "/admin/looks/new");
   const look = await prisma.look.create({
     data: {
-      title: input.title,
-      description: input.description,
+      titleRu: input.titleRu, titleEn: input.titleEn, titleKz: input.titleKz,
+      descriptionRu: input.descriptionRu, descriptionEn: input.descriptionEn, descriptionKz: input.descriptionKz,
       photoTones: input.photoTones,
       photoUrls: input.photoUrls,
       items: { create: input.productIds.map((productId) => ({ productId })) },
@@ -44,7 +48,7 @@ export async function updateLook(id: string, formData: FormData) {
   const removedPhotoUrls = new Set(formData.getAll("removeLookPhoto").map(String));
   const nextPhotoUrls = [...currentLook.photoUrls.filter((url) => !removedPhotoUrls.has(url)), ...input.photoUrls];
   await prisma.$transaction(async (tx) => {
-    await tx.look.update({ where: { id }, data: { title: input.title, description: input.description, photoTones: input.photoTones, photoUrls: nextPhotoUrls } });
+    await tx.look.update({ where: { id }, data: { titleRu: input.titleRu, titleEn: input.titleEn, titleKz: input.titleKz, descriptionRu: input.descriptionRu, descriptionEn: input.descriptionEn, descriptionKz: input.descriptionKz, photoTones: input.photoTones, photoUrls: nextPhotoUrls } });
     await tx.lookItem.deleteMany({ where: { lookId: id } });
     await tx.lookItem.createMany({ data: input.productIds.map((productId) => ({ lookId: id, productId })) });
   });

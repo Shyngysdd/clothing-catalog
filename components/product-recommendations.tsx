@@ -4,13 +4,17 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import type { CSSProperties } from "react";
 import { useRef, useState } from "react";
+import { useLocale } from "next-intl";
 import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
 import { useSwipeGallery } from "@/hooks/use-swipe-gallery";
+import { getLocalizedField } from "@/lib/localized";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
 function RecommendationCard({ product, index }: { product: CatalogProduct; index: number }) {
+  const locale = useLocale();
+  const productName = getLocalizedField(product, "name", locale);
   const frames = [product.imageUrl, ...product.galleryUrls].filter((imageUrl): imageUrl is string => Boolean(imageUrl));
   const [activeFrame, setActiveFrame] = useState(0);
   const swipeGallery = useSwipeGallery({ frameCount: frames.length, setActiveFrame, maxSwipeDistance: 110 });
@@ -18,7 +22,7 @@ function RecommendationCard({ product, index }: { product: CatalogProduct; index
   const discountPercent = getDiscountPercent(product);
 
   return <article className={`look-product-card group flex h-full w-[clamp(7.75rem,35vw,10rem)] shrink-0 snap-start flex-col sm:w-[17rem] lg:w-[18rem] ${isSoldOut ? "opacity-60" : ""}`}>
-    <Link href={`/catalog/${product.id}`} className="flex h-full flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]" aria-label={`Открыть ${product.name}`}>
+    <Link href={`/catalog/${product.id}`} className="flex h-full flex-col focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]" aria-label={`Открыть ${productName}`}>
       <p className="product-card-kicker font-mono-price mb-3 text-[0.62rem] tracking-[0.13em] text-[color:var(--accent)]">АРТИКУЛ / {product.sku}</p>
       <div className="look-product-media aspect-[4/5]" style={{ "--look-tone": index % 2 === 0 ? "var(--accent)" : "var(--gold)", backgroundColor: product.imageColor } as CSSProperties} onMouseEnter={() => setActiveFrame(frames.length > 1 ? 1 : 0)} onMouseLeave={() => setActiveFrame(0)} {...swipeGallery}>
         {frames.length > 0 ? <div className="look-product-photo-layer">{frames.map((imageUrl, frameIndex) => <div key={imageUrl} className={`look-gallery-frame ${frameIndex === activeFrame ? "is-active" : ""}`}><Image src={imageUrl} alt="" fill sizes="(max-width: 639px) 35vw, (max-width: 1024px) 50vw, 25vw" className={`product-card-photo ${isSoldOut ? "grayscale" : ""}`} /></div>)}</div> : product.galleryTones.map((tone, frameIndex) => <div key={`${tone}-${frameIndex}`} className={`look-gallery-frame look-gallery-frame--${tone} ${frameIndex === activeFrame ? "is-active" : ""}`} />)}
@@ -28,7 +32,7 @@ function RecommendationCard({ product, index }: { product: CatalogProduct; index
       </div>
       <div className="mt-4 flex min-h-[6.4rem] flex-1 flex-col">
         <p className="font-mono-price text-[0.65rem] tracking-[0.12em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p>
-        <h3 className="mt-1 line-clamp-2 min-h-[2.7rem] text-lg font-medium leading-[1.2] tracking-[-0.02em]">{product.name}</h3>
+        <h3 className="mt-1 line-clamp-2 min-h-[2.7rem] text-lg font-medium leading-[1.2] tracking-[-0.02em]">{productName}</h3>
         <div className="mt-auto min-h-[2.75rem] pt-2">
           <p className="font-mono-price text-base">{formatPrice.format(product.price)} ₸</p>
           {product.originalPrice ? <p className="mt-0.5 font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}

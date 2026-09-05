@@ -10,17 +10,25 @@ datasource db {
 model Product {
   id            String        @id @default(cuid())
   sku           String        @unique
-  name          String
+  nameRu        String
+  nameEn        String?
+  nameKz        String?
   brand         String        @default("AKSHYN")
   categoryId    String
   category      Category      @relation(fields: [categoryId], references: [id])
   department    String        @default("unisex")
   price         Int
   originalPrice Int?
-  description   String?
-  composition   String?
+  descriptionRu String
+  descriptionEn String?
+  descriptionKz String?
+  compositionRu String
+  compositionEn String?
+  compositionKz String?
   care          String[]
-  fit           String?
+  fitRu         String
+  fitEn         String?
+  fitKz         String?
   imageColor    String
   imageUrl      String?
   galleryTones  String[]
@@ -57,8 +65,12 @@ model ProductSize {
 
 model Look {
   id          String     @id @default(cuid())
-  title       String
-  description String?
+  titleRu       String
+  titleEn       String?
+  titleKz       String?
+  descriptionRu String
+  descriptionEn String?
+  descriptionKz String?
   photoTones  String[]
   photoUrls   String[]     @default([])
   items       LookItem[]
@@ -77,8 +89,12 @@ model LookItem {
 model Banner {
   id        String   @id @default(cuid())
   slot      String   @unique
-  title     String
-  subtitle  String?
+  titleRu     String
+  titleEn     String?
+  titleKz     String?
+  subtitleRu  String
+  subtitleEn  String?
+  subtitleKz  String?
   linkUrl   String
   imageUrl  String?
   updatedAt DateTime @updatedAt
@@ -86,7 +102,9 @@ model Banner {
 
 model HomeSection {
   id            String   @id @default(cuid())
-  title         String
+  titleRu       String
+  titleEn       String?
+  titleKz       String?
   type          String
   categoryValue String?
   productIds    String[]

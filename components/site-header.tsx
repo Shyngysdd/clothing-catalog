@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { BRAND_CONFIG } from "@/lib/brand-config";
+import { getLocalizedField } from "@/lib/localized";
 import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
 import { useTheme } from "@/context/theme-context";
@@ -190,11 +191,11 @@ export function SiteHeader({ categories, isCustomerLoggedIn, savedAddresses, cus
             <button type="button" onClick={() => setIsNavigatorOpen(false)} className="grid size-11 place-items-center text-xl text-[color:var(--ink)]/60 hover:text-[color:var(--accent)]" aria-label={common("close")}>×</button>
           </div>
           <nav className="flex-1 overflow-y-auto px-5 py-5 sm:px-7">
+            <Link href="/catalog" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--border)] py-4"><span className="font-section text-lg leading-none">{t("allProducts")}</span></Link>
             <Link href="/catalog?department=men" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--border)] py-4"><span className="font-section text-xl leading-none">{t("men")}</span></Link>
             <Link href="/catalog?department=women" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--border)] py-4"><span className="font-section text-xl leading-none">{t("women")}</span></Link>
-            <Link href="/catalog" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--border)] py-4"><span className="font-section text-lg leading-none">{t("allProducts")}</span></Link>
             <Link href="/catalog?sale=true" onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--border)] py-4"><span className="font-section text-lg leading-none">{t("sale")}</span></Link>
-            <div className="pt-3">{categories.map((category) => { const name = locale === "en" ? category.nameEn : locale === "kz" ? category.nameKz : category.nameRu; return <Link key={category.slug} href={`/catalog?category=${encodeURIComponent(category.slug)}`} onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--border)] py-4 hover:text-[color:var(--accent)]"><span className="font-section block text-lg leading-none">{name}</span><span className="font-mono-price mt-2 block text-xs text-[color:var(--ink)]/55">{category.count} {category.count === 1 ? common("product") : common("products")}</span></Link>; })}</div>
+            <div className="pt-3">{categories.map((category) => { const name = getLocalizedField(category, "name", locale); return <Link key={category.slug} href={`/catalog?category=${encodeURIComponent(category.slug)}`} onClick={() => setIsNavigatorOpen(false)} className="block border-b border-[color:var(--border)] py-4 hover:text-[color:var(--accent)]"><span className="font-section block text-lg leading-none">{name}</span><span className="font-mono-price mt-2 block text-xs text-[color:var(--ink)]/55">{category.count} {category.count === 1 ? common("product") : common("products")}</span></Link>; })}</div>
           </nav>
           <nav aria-label="Контакты и избранное" className="border-t border-[color:var(--border)] px-5 py-3 sm:px-7">
             <Link

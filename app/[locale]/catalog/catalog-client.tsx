@@ -10,6 +10,7 @@ import type { CatalogProduct } from "@/lib/catalog-types";
 import { getDiscountPercent } from "@/lib/catalog-types";
 import { useFavorites } from "@/context/favorites-context";
 import { useSwipeGallery } from "@/hooks/use-swipe-gallery";
+import { getLocalizedField } from "@/lib/localized";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
@@ -133,7 +134,8 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
   }, [maxPriceInput, minPrice, productPriceRange.max]);
 
   const categories = [...new Map(products.map((product) => [product.category.slug, product.category])).values()];
-  const categoryName = (item: CatalogProduct["category"]) => locale === "en" ? item.nameEn : locale === "kz" ? item.nameKz : item.nameRu;
+  const categoryName = (item: CatalogProduct["category"]) => getLocalizedField(item, "name", locale);
+  const productName = (product: CatalogProduct) => getLocalizedField(product, "name", locale);
   const filteredProducts = products.filter(
     (product) =>
       (department === "all" || (product.department ?? "unisex") === "unisex" || product.department === department) &&
@@ -141,13 +143,13 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
       (!saleOnly || (product.originalPrice !== null && product.originalPrice > product.price)) &&
       product.price >= minPrice &&
       product.price <= maxPrice &&
-      (!debouncedSearch || product.name.toLocaleLowerCase("ru").includes(debouncedSearch.toLocaleLowerCase("ru")) || product.sku.toLocaleLowerCase("ru").includes(debouncedSearch.toLocaleLowerCase("ru"))),
+      (!debouncedSearch || productName(product).toLocaleLowerCase(locale).includes(debouncedSearch.toLocaleLowerCase(locale)) || product.sku.toLocaleLowerCase(locale).includes(debouncedSearch.toLocaleLowerCase(locale))),
   );
   const sortedProducts = [...filteredProducts].sort((first, second) => {
     if (sort === "price-asc") return first.price - second.price;
     if (sort === "price-desc") return second.price - first.price;
     if (sort === "newest") return new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime();
-    if (sort === "alphabetical") return first.name.localeCompare(second.name, "ru");
+    if (sort === "alphabetical") return productName(first).localeCompare(productName(second), locale);
     if (sort === "sale") {
       const firstOnSale = Number(first.originalPrice !== null && first.originalPrice > first.price);
       const secondOnSale = Number(second.originalPrice !== null && second.originalPrice > second.price);
@@ -386,13 +388,13 @@ export function CatalogClient({ products, initialSearch }: { products: CatalogPr
                   <Link
                     href={`/catalog/${product.id}`}
                     className="flex h-full w-full flex-col text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]"
-                    aria-label={`Открыть ${product.name}`}
+                    aria-label={`Открыть ${productName(product)}`}
                   >
                     <p className="product-card-kicker font-mono-price mb-3 text-[0.62rem] tracking-[0.13em] text-[color:var(--accent)]">{t("sku", {sku: product.sku})}</p>
                     <CatalogProductPreview product={product} index={index} isSoldOut={isSoldOut} />
                     <div className="catalog-product-info mt-3 flex min-h-[4.9rem] flex-1 flex-col sm:min-h-[5.6rem]">
                       <p className="font-mono-price text-[0.65rem] tracking-[0.12em] text-[color:var(--accent)]">{product.brand.toUpperCase()}</p>
-                      <p className="catalog-product-name mt-1 line-clamp-2 min-h-[2rem] text-lg font-medium leading-[1.2] tracking-[-0.02em] sm:min-h-[2.4rem]">{product.name}</p>
+                      <p className="catalog-product-name mt-1 line-clamp-2 min-h-[2rem] text-lg font-medium leading-[1.2] tracking-[-0.02em] sm:min-h-[2.4rem]">{productName(product)}</p>
                       <div className="mt-1 min-h-[1.6rem] sm:min-h-[1.8rem]"><p className="catalog-product-price font-mono-price text-base text-[color:var(--ink)]">{formatPrice.format(product.price)} ₸</p>{product.originalPrice ? <p className="mt-0.5 font-mono-price text-xs text-[color:var(--ink)]/45 line-through">{formatPrice.format(product.originalPrice)} ₸</p> : null}</div>
                     </div>
                   </Link>

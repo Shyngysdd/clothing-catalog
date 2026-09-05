@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import type { CatalogProduct } from "@/lib/catalog-types";
+import { toCatalogProduct, type CatalogProduct } from "@/lib/catalog-types";
 
 const recommendationInclude = { sizes: true, category: true } as const;
 
@@ -15,23 +15,23 @@ function sortAvailableAndRecent(products: CatalogProduct[]) {
   });
 }
 
-export async function getSimilarProducts(product: CatalogProduct): Promise<CatalogProduct[]> {
+export async function getSimilarProducts(product: CatalogProduct, locale: string): Promise<CatalogProduct[]> {
   const sameCategory = await prisma.product.findMany({
     where: { categoryId: product.categoryId, id: { not: product.id } },
     include: recommendationInclude,
   });
 
-  if (sameCategory.length >= 4) return sortAvailableAndRecent(sameCategory).slice(0, 8);
+  if (sameCategory.length >= 4) return sortAvailableAndRecent(sameCategory.map((item) => toCatalogProduct(item, locale))).slice(0, 8);
 
   const additionalProducts = await prisma.product.findMany({
     where: { categoryId: { not: product.categoryId }, id: { not: product.id } },
     include: recommendationInclude,
   });
 
-  return sortAvailableAndRecent([...sameCategory, ...additionalProducts]).slice(0, 8);
+  return sortAvailableAndRecent([...sameCategory, ...additionalProducts].map((item) => toCatalogProduct(item, locale))).slice(0, 8);
 }
 
-export async function getFrequentlyBoughtTogether(productId: string): Promise<CatalogProduct[]> {
+export async function getFrequentlyBoughtTogether(productId: string, locale: string): Promise<CatalogProduct[]> {
   const ordersWithProduct = await prisma.orderItem.findMany({
     where: { productId },
     select: { orderId: true },
@@ -51,7 +51,7 @@ export async function getFrequentlyBoughtTogether(productId: string): Promise<Ca
         where: { id: { in: [...frequency.keys()] } },
         include: recommendationInclude,
       });
-      return [...products]
+      return products.map((product) => toCatalogProduct(product, locale))
         .sort((first, second) => {
           const frequencyDifference = (frequency.get(second.id) ?? 0) - (frequency.get(first.id) ?? 0);
           if (frequencyDifference !== 0) return frequencyDifference;
@@ -81,5 +81,5 @@ export async function getFrequentlyBoughtTogether(productId: string): Promise<Ca
     where: { id: { in: relatedIds } },
     include: recommendationInclude,
   });
-  return sortAvailableAndRecent(lookProducts).slice(0, 8);
+  return sortAvailableAndRecent(lookProducts.map((product) => toCatalogProduct(product, locale))).slice(0, 8);
 }

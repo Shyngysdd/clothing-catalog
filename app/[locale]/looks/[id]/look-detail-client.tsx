@@ -3,15 +3,19 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useRef, useState, type TouchEvent } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCart } from "@/context/cart-context";
 import { useFavorites } from "@/context/favorites-context";
 import type { CatalogLook } from "@/lib/catalog-types";
+import { getLocalizedField } from "@/lib/localized";
 
 const formatPrice = new Intl.NumberFormat("ru-KZ");
 
 export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; lookNumber: number }) {
   const t = useTranslations("Look");
+  const locale = useLocale();
+  const lookTitle = getLocalizedField(look, "title", locale);
+  const lookDescription = getLocalizedField(look, "description", locale);
   const [activeFrame, setActiveFrame] = useState(0);
   const { addItem } = useCart();
   const { isLookFavorite, toggleLookFavorite } = useFavorites();
@@ -56,7 +60,7 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
       <section className="look-detail-gallery">
       <div className="look-detail-preview look-preview group aspect-[4/5]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {look.photoUrls.length > 0
-          ? look.photoUrls.map((photoUrl, index) => <div key={photoUrl} className={`look-gallery-frame ${index === activeFrame ? "is-active" : ""}`}><Image src={photoUrl} alt={`${look.title}, кадр ${index + 1}`} fill sizes="(max-width: 1024px) 100vw, 64rem" className="product-detail-photo" /></div>)
+          ? look.photoUrls.map((photoUrl, index) => <div key={photoUrl} className={`look-gallery-frame ${index === activeFrame ? "is-active" : ""}`}><Image src={photoUrl} alt={`${lookTitle}, кадр ${index + 1}`} fill sizes="(max-width: 1024px) 100vw, 64rem" className="product-detail-photo" /></div>)
           : look.photoTones.map((placeholder, index) => <div key={`${placeholder}-${index}`} className={`look-gallery-frame look-gallery-frame--${placeholder} ${index === activeFrame ? "is-active" : ""}`} />)}
         {frames.length > 1 ? <><button type="button" onClick={showPreviousFrame} aria-label="Предыдущий кадр" className="absolute left-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 place-items-center border border-[color:var(--paper)]/55 bg-[color:var(--ink)]/55 text-2xl leading-none text-[color:var(--white)] opacity-0 transition-opacity hover:bg-[color:var(--accent)] focus-visible:opacity-100 group-hover:opacity-100 md:grid">‹</button><button type="button" onClick={showNextFrame} aria-label="Следующий кадр" className="absolute right-3 top-1/2 z-10 hidden size-10 -translate-y-1/2 place-items-center border border-[color:var(--paper)]/55 bg-[color:var(--ink)]/55 text-2xl leading-none text-[color:var(--white)] opacity-0 transition-opacity hover:bg-[color:var(--accent)] focus-visible:opacity-100 group-hover:opacity-100 md:grid">›</button></> : null}
       </div>
@@ -69,15 +73,15 @@ export function LookDetailClient({ look, lookNumber }: { look: CatalogLook; look
       <section className="look-detail-content">
       <div className="border-b border-[color:var(--border)] pb-7">
         <p className="look-number text-4xl leading-none text-[color:var(--accent)]">{t("number", {number: String(lookNumber).padStart(2, "0")})}</p>
-        <h1 className="font-section mt-4 text-[clamp(2.35rem,7vw,3.75rem)] leading-[0.95]">{look.title}</h1>
-        <p className="mt-5 max-w-2xl leading-7 text-[color:var(--ink)]/70">{look.description}</p>
+        <h1 className="font-section mt-4 text-[clamp(2.35rem,7vw,3.75rem)] leading-[0.95]">{lookTitle}</h1>
+        <p className="mt-5 max-w-2xl leading-7 text-[color:var(--ink)]/70">{lookDescription}</p>
       </div>
       <div className="divide-y divide-[color:var(--ink)]/15">
         {lookProducts.map((product) => (
           <div key={product.id} className="flex items-center gap-4 py-4 sm:gap-6">
             {product.imageUrl ? <div className="relative size-16 shrink-0 overflow-hidden border border-[color:var(--border)]"><Image src={product.imageUrl} alt="" fill sizes="64px" className="object-cover" /></div> : <div className="size-16 shrink-0 border border-[color:var(--border)]" style={{ backgroundColor: product.imageColor }} />}
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{product.name}</p>
+              <p className="truncate font-medium">{getLocalizedField(product, "name", locale)}</p>
               <p className="font-mono-price mt-1 whitespace-nowrap text-sm text-[color:var(--ink)]/70">{formatPrice.format(product.price)} ₸</p>
             </div>
             <Link href={`/catalog/${product.id}`} className="shrink-0 text-sm underline decoration-[color:var(--gold)] underline-offset-4 hover:text-[color:var(--accent)]">{t("viewProduct")}</Link>

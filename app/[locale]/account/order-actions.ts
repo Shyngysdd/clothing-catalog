@@ -40,7 +40,7 @@ export async function createOrderFromCart(input: CreateOrderInput) {
 
     return {
       productId: product.id,
-      name: product.name,
+      name: product.nameRu,
       size: selectedSize.size,
       price: product.price,
       quantity: item.quantity,
